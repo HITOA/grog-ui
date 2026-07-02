@@ -1,11 +1,14 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+    import { GrogContext, setGrogContext } from "$lib/context.svelte";
+	import type { LayoutProps } from "./$types";
+	
+	let { children }: LayoutProps = $props()
 
-	let { children } = $props();
+	setGrogContext(new GrogContext());
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="stylesheet" href="/themes/default-dark.css">
 </svelte:head>
 
 {@render children()}

@@ -1,0 +1,27 @@
+:root {
+    --text-color: #dadada;
+    --frame-color: #292934;
+    --frame-border-color: #4b4b56;
+}
+
+body {
+    color: var(--text-color);
+}
+
+.menu-frame {
+    padding: 0px;
+    border-radius: 5px;
+    border: var(--frame-border-color);
+    border-width: 1px;
+    border-style: solid;
+    background-color: var(--frame-color);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+}
+
+.menu-item[data-highlighted] {
+    background-color: #4b4b56;
+}
+
+.menu-item[data-selected] {
+    background-color: #4b4b56;
+}
