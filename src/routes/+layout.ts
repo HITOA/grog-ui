@@ -4,11 +4,10 @@ export const ssr = false;
 
 import type { LayoutLoad } from "./$types";
 
-import { getNodeDefinitionList } from "$lib/api";
+import { API } from "$lib/api";
 
 export const load: LayoutLoad = async ({}) => {
-    let nodeDefinitionList = await getNodeDefinitionList();
-    nodeDefinitionList.nodes = new Map(Object.entries(nodeDefinitionList.nodes)); // It seems i have to do that?
+    let nodeDefinitionList = await API.getNodeDefinitionList();
     return { 
         nodeDefinitionList 
     };

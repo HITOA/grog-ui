@@ -1,15 +1,16 @@
 <script lang="ts">
-    import type { NodeDefinition, NodeKey } from "$lib/api";
-    import { getGrogContext } from "$lib/context.svelte";
+    import { type NodeDefinition, type NodeInstance, type NodeKey } from "$lib/types";
     import { Command, ContextMenu } from "bits-ui";
+    import { useSvelteFlow, type XYPosition } from "@xyflow/svelte";
+    import { instantiateNode } from "$lib/actions";
+    import { grogState } from "$lib/state.svelte";
 
     let { children } = $props();
-
-    let grogContext = getGrogContext()
 
     interface TreeNode {
         type: string
         name: string
+        nodeKey?: NodeKey
         files?: Array<TreeNode>
     }
 
@@ -17,16 +18,16 @@
         return node.files?.find((file: TreeNode) => file.name == name);
     }
 
-    function buildTree(nodes: Map<NodeKey, NodeDefinition>): TreeNode {  
+    function buildTree(nodes: Record<NodeKey, NodeDefinition>): TreeNode {  
         let root: TreeNode = {
             type: "folder",
             name: "root",
             files: []
         }
 
-        nodes = new Map(nodes.entries().toArray().sort())
+        let sortedNodes = Object.entries(nodes).sort();
 
-        nodes.entries().forEach(entry => {
+        sortedNodes.forEach(entry => {
             let path = entry[0].split("/")
             let node = entry[1]
             let insertAt = root
@@ -43,7 +44,8 @@
 
             let toInsert: TreeNode = {
                 type: "file",
-                name: node.displayName
+                name: node.displayName,
+                nodeKey: entry[0]
             }
 
             for (let i = path.length - 2; i >= 0; --i) {
@@ -62,15 +64,33 @@
     }
 
     let root: TreeNode = $derived.by(() => {
-        return buildTree(grogContext.nodeDefinitionList.nodes)
+        return buildTree(grogState.nodeDefinitionList.nodes)
     })
 
     let filterValue: string = $state("");
 
+    let contextMenuOpenState: boolean = $state(false);
+
+    let lastClickPosInFlow: XYPosition = { x: 0.0, y: 0.0 }
+
+    let { screenToFlowPosition } = useSvelteFlow();
+
+    function onContextMenu(event: MouseEvent): void {
+        lastClickPosInFlow.x = event.clientX;
+        lastClickPosInFlow.y = event.clientY;
+        lastClickPosInFlow = screenToFlowPosition(lastClickPosInFlow);
+    }
+
+    function onSelectFile(nodeKey: NodeKey | undefined) {
+        if (nodeKey !== undefined)
+            instantiateNode(nodeKey, lastClickPosInFlow);
+        contextMenuOpenState = false;
+    }
+
 </script>
 
 {#snippet file(node: TreeNode)}
-    <ContextMenu.Item class="menu-item">
+    <ContextMenu.Item class="menu-item" onSelect={() => { onSelectFile(node.nodeKey) }}>
         {node.name}
     </ContextMenu.Item>
 {/snippet}
@@ -92,8 +112,8 @@
     </ContextMenu.Sub>
 {/snippet}
 
-<ContextMenu.Root>
-    <ContextMenu.Trigger style="width:100%;height:100%;">
+<ContextMenu.Root bind:open={contextMenuOpenState}>
+    <ContextMenu.Trigger oncontextmenu={onContextMenu} style="width:100%;height:100%;">
         {@render children?.()}
     </ContextMenu.Trigger>
     <ContextMenu.Portal>
@@ -106,8 +126,12 @@
                             <Command.Empty>
                                 No Result Found
                             </Command.Empty>
-                            {#each grogContext.nodeDefinitionList.nodes as entry}
-                                <Command.Item value={entry[0]} keywords={entry[0].split("/")} class="menu-item">
+                            {#each Object.entries(grogState.nodeDefinitionList.nodes) as entry}
+                                <Command.Item 
+                                value={entry[0]} 
+                                keywords={entry[0].split("/")} 
+                                class="menu-item"
+                                onSelect={() => { onSelectFile(entry[0]) }}>
                                     {entry[1].displayName}
                                 </Command.Item>
                             {/each}
