@@ -1,6 +1,6 @@
 import type { XYPosition } from "@xyflow/svelte";
 import { callNative } from "./bridge";
-import type { NodeDefinitionList, NodeInstance, NodeKey } from "./types";
+import type { ConnectionCreationData, Identity, NodeDefinitionList, NodeInstance, NodeKey, NodeMove } from "./types";
 
 export namespace API {
     export function getNodeDefinitionList(): Promise<NodeDefinitionList> {
@@ -13,6 +13,18 @@ export namespace API {
             nodeKey: nodeKey,
             x: position.x,
             y: position.y
+        });
+    }
+
+    export function updateNodesPosition(graphId: number, moves: NodeMove[]): Promise<void> {
+        return callNative<void>("update_nodes_position", { graphId, moves });
+    }
+
+    export function createConnection(graphId: number, sourcePortId: Identity, targetPortId: Identity): Promise<ConnectionCreationData> {
+        return callNative<ConnectionCreationData>("create_connection", {
+            graphId,
+            sourcePortId,
+            targetPortId
         });
     }
 }

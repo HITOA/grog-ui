@@ -72,3 +72,13 @@ export type NodeKey = string;
 export interface NodeDefinitionList {
     nodes: Record<NodeKey, NodeDefinition>;
 }
+
+export interface NodeMove {
+    identity: Identity,
+    position: XYPosition
+}
+
+export interface ConnectionCreationData {
+    isValid: boolean
+    dirtyNodes?: NodeInstance[]
+}

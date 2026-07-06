@@ -47,6 +47,8 @@ function onNativeMessage(data: unknown): void {
 
         if (msg.error)
             pending?.reject(new Error(msg.error))
+        else if (!("data" in msg))
+            pending?.resolve(void(0));
         else
             pending?.resolve(msg.data)
 
