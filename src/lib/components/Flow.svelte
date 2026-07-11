@@ -4,20 +4,30 @@
     import {
         SvelteFlow,
         Controls,
-        MiniMap,
-        Background,
-        BackgroundVariant,
         SelectionMode,
         type NodeTargetEventWithPointer,
         type OnConnect,
         useSvelteFlow,
+        type OnMoveEnd,
+        type OnMoveStart,
+        type OnConnectStart,
+        type OnConnectEnd,
     } from '@xyflow/svelte';
-    import '@xyflow/svelte/dist/style.css';
+    import '@xyflow/svelte/dist/base.css';
     import { createConnection, updateNodesPosition } from '$lib/actions';
+    import GenericEdge from './nodes/GenericEdge.svelte';
     
     const nodeTypes = { genericNode: GenericNode };
+    const edgeTypes = { genericEdge: GenericEdge };
 
     let { updateNodeData } = useSvelteFlow();
+
+    function setNodesWillChange(willChange: string): void {
+        const nodes = document.querySelectorAll<HTMLElement>(".svelte-flow__node");
+        nodes.forEach((node) => {
+            node.style.willChange = willChange;
+        });
+    }
 
     const onNodeDragStop: NodeTargetEventWithPointer<MouseEvent | TouchEvent> = ({ nodes }) => {
         updateNodesPosition(nodes)
@@ -27,25 +37,47 @@
         createConnection(connection, updateNodeData);
     }
 
+    const onConnectStart: OnConnectStart = (event, params) => {
+        setNodesWillChange("transform");
+    }
+
+    const onConnectEnd: OnConnectEnd = (event, connectionState) => {
+        setNodesWillChange("auto");
+    }
+
+    const onMoveStart: OnMoveStart = (event, viewport) => {
+        setNodesWillChange("transform");
+    }
+
+    const onMoveEnd: OnMoveEnd = (event, viewport) => {
+        setNodesWillChange("auto");
+    }
+
 </script>
 
 <SvelteFlow 
     bind:nodes={ grogState.currentFlow.nodes }
     bind:edges={ grogState.currentFlow.edges }
-    {nodeTypes}
+    nodeTypes={nodeTypes}
+    edgeTypes={edgeTypes}
+    defaultEdgeOptions={{ type: "genericEdge" }}
     selectionOnDrag
     panOnDrag={[1]}
     selectionMode={SelectionMode.Partial} 
     onlyRenderVisibleElements={false}
+    elevateEdgesOnSelect={false}
 
+    onconnectstart={onConnectStart}
+    onconnectend={onConnectEnd}
     onnodedragstop={onNodeDragStop}
     onconnect={onConnect}
+
+    onmovestart={onMoveStart}
+    onmoveend={onMoveEnd}
 
     proOptions={{ hideAttribution: true }}
 
     colorMode="dark"
 >
     <Controls />
-    <MiniMap />
-    <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
 </SvelteFlow>

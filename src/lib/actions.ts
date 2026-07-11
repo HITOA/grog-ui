@@ -68,3 +68,7 @@ export function createConnection(connection: Connection,
         }
     });
 }
+
+export function compileCurrentGraph() {
+    API.compileGraph(grogState.currentFlowIndex).then(() => {});
+}

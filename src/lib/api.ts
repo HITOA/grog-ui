@@ -27,4 +27,8 @@ export namespace API {
             targetPortId
         });
     }
+
+    export function compileGraph(graphId: number): Promise<void> {
+        return callNative<void>("compile_graph", { graphId });
+    }
 }

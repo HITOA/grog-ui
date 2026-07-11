@@ -2,10 +2,41 @@
     --text-color: #dadada;
     --frame-color: #292934;
     --frame-border-color: #4b4b56;
+
+    --port-color-0: #f0e67a;
+    --port-color-1: #84de7f;
+    --port-color-2: #e87676;
+    --port-unresolved: #929292;
 }
 
 body {
-    color: var(--text-color);
+    color: #dadada;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100%; 
+    margin: 0;
+}
+
+.main-menu-bar-frame {
+    width: 100%;
+    height: 50px;
+    background-color: #1a1a1d;
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compile-button {
+    padding: 5px;
+    background-color: #4ec261;
+}
+
+.flow-container {
+    width: 100%;
+    flex: 1 1 auto;
 }
 
 .menu-frame {
@@ -27,27 +58,34 @@ body {
 }
 
 .node-frame {
-    background: #2d2e35;
-    outline: rgba(150, 150, 150, 0.45) solid 1px;
-    border: 1px solid rgba(150, 150, 150, 0.15);
+    position: relative;
+    border: 1px solid transparent;
     border-radius: 6px;
     min-width: 180px;
     font-size: 12px;
     color: #d7d3d6;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+    background:
+        linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%) padding-box,
+        linear-gradient(180deg, #2b2c33, #1a1a1d) padding-box,
+        linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%) border-box,
+        linear-gradient(180deg, #7c809f, #44444c) border-box;
+    filter: drop-shadow(0px 14px 15px rgba(0,0,0,0.5));
 }
 
 .node-content {
     display: flex;
+    padding-top: 5px;
     padding-bottom: 10px;
 }
 
 .node-header {
-    background: #3a3c44;
     padding: 10px 10px;
     border-radius: 6px 6px 0 0;
     font-weight: bold;
-    border-bottom: 2px solid #25272e;
+    border-bottom: 1px solid #19191c;
+    background:
+        linear-gradient(90deg, #00000025, #00000000 40%, #00000000 70%, #00000025 100%) border-box,
+        linear-gradient(180deg, #3b3c47, #33343d 93%, #3d3f4c 100%) padding-box;
 }
 
 .node-body {
@@ -59,41 +97,69 @@ body {
 }
 
 .node-inputs {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    row-gap: 4px;
+    place-content: start;
     flex-grow: 1;
     flex-direction: column;
     gap: 4px;
+    align-items: center;
 }
 
 .node-outputs {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-}
-
-.node-outputs {
     align-items: flex-end;
+    gap: 4px;
 }
 
 .node-row {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 2px 0;
-    position: relative;
-    height: 20px;
+    justify-content: center;
+}
+
+.node-name-label {
+    color: #ffffffc0;
+    font-size: 16px;
+    padding: 0px;
+    margin: 0px;
 }
 
 .port-label {
+    color: #ffffffc0;
     padding: 0 8px;
     white-space: nowrap;
 }
 
-/* override svelte flow's default handle positioning */
-/*:global(.svelte-flow .svelte-flow__handle) {
+.port-control {
+    width: 100px;
+    color: #ffffffc0;
+    border: 1px solid #ffffff20;
+    border-radius: 4px;
+    padding: 2px;
+    background:
+        radial-gradient(#2d3a50, #293040) padding-box;
+}
+
+.port-handle {
     position: relative;
-    transform: none;
-    top: unset;
-    left: unset;
-    right: unset;
-}*/
+    height: 100%;
+    min-height: 20px;
+    min-width: 20px;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.port-handle-source {
+    right: 15px;
+    margin-left: 3px;
+}
+
+.port-handle-target {
+    left: 15px;
+}

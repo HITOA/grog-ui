@@ -113,7 +113,7 @@
 {/snippet}
 
 <ContextMenu.Root bind:open={contextMenuOpenState}>
-    <ContextMenu.Trigger oncontextmenu={onContextMenu} style="width:100%;height:100%;">
+    <ContextMenu.Trigger oncontextmenu={onContextMenu} class="flow-container">
         {@render children?.()}
     </ContextMenu.Trigger>
     <ContextMenu.Portal>

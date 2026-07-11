@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<link rel="stylesheet" href="/themes/default-dark.css">
+	<link rel="stylesheet" href="./themes/default-dark.css">
 </svelte:head>
 
 {@render children()}

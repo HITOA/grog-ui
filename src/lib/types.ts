@@ -2,6 +2,7 @@ import type { XYPosition } from "@xyflow/svelte";
 
 export interface Type {
     typeHash: number;
+    commonName: string;
 }
 
 export interface VarDefinition {
