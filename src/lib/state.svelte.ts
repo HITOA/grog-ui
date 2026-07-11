@@ -1,4 +1,3 @@
-import { page } from "$app/state";
 import type { GraphInstance, NodeDefinitionList } from "./types";
 import { type Node, type Edge } from "@xyflow/svelte";
 
@@ -9,11 +8,16 @@ export class FlowContext {
 }
 
 export class GrogState {
+    private _nodeDefinitionList: NodeDefinitionList = $state.raw({} as NodeDefinitionList);
     private _flowContextList: FlowContext[] = $state.raw<FlowContext[]>([ new FlowContext() ]);
     private _currentFlowIndex: number = $state(0);
 
+    set nodeDefinitionList(value: NodeDefinitionList) {
+        this._nodeDefinitionList = value
+    }
+
     get nodeDefinitionList(): NodeDefinitionList {
-        return page.data.nodeDefinitionList;
+        return this._nodeDefinitionList;
     }
     
     get currentFlow(): FlowContext {

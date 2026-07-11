@@ -9,7 +9,7 @@
     --port-unresolved: #929292;
 }
 
-body {
+#app {
     color: #dadada;
     font-family: -apple-system, "Segoe UI", sans-serif;
     display: flex;

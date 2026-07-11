@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Handle, Position, useNodeConnections } from "@xyflow/svelte";
     import { PortColorVar, PortStyle } from "./PortStyle";
-    import { PortState, type PortInstance } from "$lib/types";
+    import { PortState, type PortInstance } from "../../types";
 
     let { id, type, position, instance }: {
         id: string; type: 'source' | 'target'; position: Position; instance: PortInstance;
