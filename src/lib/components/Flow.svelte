@@ -1,6 +1,6 @@
 <script lang="ts">
-    import GenericNode from '$lib/components/nodes/GenericNode.svelte';
-    import { grogState } from '$lib/state.svelte';
+    import GenericNode from './nodes/GenericNode.svelte';
+    import { grogState } from '../state.svelte';
     import {
         SvelteFlow,
         Controls,
@@ -13,8 +13,7 @@
         type OnConnectStart,
         type OnConnectEnd,
     } from '@xyflow/svelte';
-    import '@xyflow/svelte/dist/base.css';
-    import { createConnection, updateNodesPosition } from '$lib/actions';
+    import { createConnection, updateNodesPosition } from '../actions';
     import GenericEdge from './nodes/GenericEdge.svelte';
     
     const nodeTypes = { genericNode: GenericNode };

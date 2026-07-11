@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { page } from '$app/state';
-    import { PortState, type Identity, type NodeInstance } from '$lib/types';
-    import { Handle, Position, useSvelteFlow, type NodeProps, type Node } from '@xyflow/svelte';
+    import { Position, type NodeProps } from '@xyflow/svelte';
     import type { GenericNodeType } from './GenericNode';
     import PortHandle from './PortHandle.svelte';
-    import { PortStyle } from './PortStyle';
+    import { PortState } from '../../types';
 
     let { id, data }: NodeProps<GenericNodeType> = $props();
 

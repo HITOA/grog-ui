@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { type NodeDefinition, type NodeInstance, type NodeKey } from "$lib/types";
+    import { type NodeDefinition, type NodeKey } from "../types";
     import { Command, ContextMenu } from "bits-ui";
     import { useSvelteFlow, type XYPosition } from "@xyflow/svelte";
-    import { instantiateNode } from "$lib/actions";
-    import { grogState } from "$lib/state.svelte";
+    import { instantiateNode } from "../actions";
+    import { grogState } from "../state.svelte";
 
     let { children } = $props();
 

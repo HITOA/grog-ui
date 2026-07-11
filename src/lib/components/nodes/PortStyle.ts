@@ -1,4 +1,4 @@
-import { PortState, type PortInstance } from "$lib/types";
+import { PortState, type PortInstance } from "../../types";
 
 export enum PortColorVar {
     Color0,
