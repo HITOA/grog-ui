@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 4.1)
+
+project(grog-ui VERSION 0.1)
+
+find_program(NPM_EXECUTABLE npm REQUIRED)
+
+set(GROG_UI_STAMP ${CMAKE_BINARY_DIR}/grog-ui.stamp)
+set(GROG_UI_DIST ${CMAKE_BINARY_DIR}/grog-ui)
+
+file(GLOB_RECURSE GROG_UI_SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/src/*
+    ${CMAKE_SOURCE_DIR}/public/*
+    ${CMAKE_SOURCE_DIR}/index.html
+    ${CMAKE_SOURCE_DIR}/package.json)
+
+add_custom_command(
+    OUTPUT ${GROG_UI_STAMP}
+    COMMAND ${NPM_EXECUTABLE} ci
+    COMMAND ${NPM_EXECUTABLE} run build -- --outDir ${GROG_UI_DIST} --emptyOutDir
+    COMMAND ${CMAKE_COMMAND} -E touch ${GROG_UI_STAMP}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${GROG_UI_SOURCES}
+    COMMENT "Building grog-ui"
+    VERBATIM)
+
+add_custom_target(grog-ui ALL DEPENDS ${GROG_UI_STAMP})
