@@ -12,13 +12,14 @@
         type OnMoveStart,
         type OnConnectStart,
         type OnConnectEnd,
-        type OnBeforeDelete
+        type OnBeforeDelete,
     } from '@xyflow/svelte';
     import { createConnection, updateNodesPosition } from '../actions';
     import GenericEdge from './nodes/GenericEdge.svelte';
     import type { Connection, NodeInstance } from '../types';
     import { assertIsGenericEdge, assertIsGenericNode } from '../assertions';
     import { API } from '../api';
+    import GenericBackground from './GenericBackground.svelte';
     
     const nodeTypes = { genericNode: GenericNode };
     const edgeTypes = { genericEdge: GenericEdge };
@@ -108,6 +109,10 @@
     proOptions={{ hideAttribution: true }}
 
     colorMode="dark"
+
+    minZoom={0.5}
+    maxZoom={2.0}
 >
     <Controls />
+    <GenericBackground />
 </SvelteFlow>
