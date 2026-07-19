@@ -1,5 +1,10 @@
 import type { XYPosition } from "@xyflow/svelte";
 
+export type Pair<T1, T2> = {
+    first: T1;
+    second: T2;
+}
+
 export interface Type {
     typeHash: number;
     commonName: string;
@@ -66,7 +71,19 @@ export interface NodeInstance {
     parameters?: ParameterInstance[];
 }
 
-export interface GraphInstance {}
+export interface Connection {
+    identity: Identity;
+    outNode: Identity;
+    outPort: Identity;
+    inNode: Identity;
+    inPort: Identity;
+}
+
+export interface GraphInstance {
+    name: string;
+    nodes: NodeInstance[];
+    connections: Connection[];
+}
 
 export type NodeKey = string;
 
@@ -75,11 +92,12 @@ export interface NodeDefinitionList {
 }
 
 export interface NodeMove {
-    identity: Identity,
-    position: XYPosition
+    identity: Identity;
+    position: XYPosition;
 }
 
 export interface ConnectionCreationData {
-    isValid: boolean
-    dirtyNodes?: NodeInstance[]
+    isValid: boolean;
+    identity: Identity;
+    dirtyNodes?: NodeInstance[];
 }

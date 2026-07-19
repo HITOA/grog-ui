@@ -3,8 +3,20 @@
     import type { GenericNodeType } from './GenericNode';
     import PortHandle from './PortHandle.svelte';
     import { PortState } from '../../types';
+    import type { ChangeEventHandler } from 'svelte/elements';
+    import { API } from '../../api';
+    import { grogState } from '../../state.svelte';
 
     let { id, data }: NodeProps<GenericNodeType> = $props();
+
+    const onInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+        API.updateInitializer(
+            grogState.currentFlowIndex, 
+            parseInt(event.currentTarget.id),
+            parseFloat(event.currentTarget.value)).then((result) => {
+                event.currentTarget.value = result;
+            })
+    }
 
 </script>
 
@@ -18,7 +30,9 @@
                 <PortHandle type="target" position={Position.Left} id={input.identity.toString()} instance={input} />
                 <span class="port-label">{input.displayName}</span>
                 {#if (input.type.commonName == "Builtin_Numeric" || input.type.commonName == "Builtin_Control") && input.state == PortState.Resolved}
-                    <input type="number" class="port-control nodrag" bind:value={input.initializer}>
+                    <input id="{input.identity.toString()}" 
+                        type="number" class="port-control nodrag" 
+                        value={input.initializer} onchange={onInputChange}>
                 {:else}
                     <div></div>
                 {/if}
@@ -33,4 +47,16 @@
             {/each }
         </div>
     </div>
+    {#if data.instance.parameters?.length}
+        <div class="node-footer">
+            {#each data.instance.parameters as parameter }
+                <span class="port-label">{parameter.displayName}</span>
+                {#if (parameter.type.commonName == "Builtin_Numeric" || parameter.type.commonName == "Builtin_Control")}
+                    <input id="{parameter.identity.toString()}" 
+                        type="number" class="port-control nodrag" 
+                        value={parameter.initializer} onchange={onInputChange}>
+                {/if}
+            {/each }
+        </div>
+    {/if}
 </div>

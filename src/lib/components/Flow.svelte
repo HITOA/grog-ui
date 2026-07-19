@@ -12,9 +12,13 @@
         type OnMoveStart,
         type OnConnectStart,
         type OnConnectEnd,
+        type OnBeforeDelete
     } from '@xyflow/svelte';
     import { createConnection, updateNodesPosition } from '../actions';
     import GenericEdge from './nodes/GenericEdge.svelte';
+    import type { Connection, NodeInstance } from '../types';
+    import { assertIsGenericEdge, assertIsGenericNode } from '../assertions';
+    import { API } from '../api';
     
     const nodeTypes = { genericNode: GenericNode };
     const edgeTypes = { genericEdge: GenericEdge };
@@ -52,6 +56,31 @@
         setNodesWillChange("auto");
     }
 
+    const onBeforeDelete: OnBeforeDelete = ({ nodes, edges }) => {
+        let nodesInstance: NodeInstance[] = [];
+        let connections: Connection[] = [];
+
+        nodes.forEach(node => {
+            assertIsGenericNode(node);
+            nodesInstance.push(node.data.instance);
+        })
+
+        edges.forEach(edge => {
+            if (edge.id === undefined || edge.id === null)
+                return new Promise<boolean>((res, rej) => res(false));
+            let connection: Connection = {
+                identity: parseInt(edge.id),
+                outNode: parseInt(edge.source),
+                outPort: parseInt(edge.sourceHandle ? edge.sourceHandle : "0"),
+                inNode: parseInt(edge.target),
+                inPort: parseInt(edge.targetHandle ? edge.targetHandle : "0")
+            };
+            connections.push(connection);
+        })
+
+        return API.deleteNodesAndEdges(grogState.currentFlowIndex, nodesInstance, connections);
+    }
+
 </script>
 
 <SvelteFlow 
@@ -65,11 +94,13 @@
     selectionMode={SelectionMode.Partial} 
     onlyRenderVisibleElements={false}
     elevateEdgesOnSelect={false}
+    deleteKey={["Backspace", "Delete"]}
 
     onconnectstart={onConnectStart}
     onconnectend={onConnectEnd}
     onnodedragstop={onNodeDragStop}
     onconnect={onConnect}
+    onbeforedelete={onBeforeDelete}
 
     onmovestart={onMoveStart}
     onmoveend={onMoveEnd}

@@ -2,7 +2,6 @@ import type { GraphInstance, NodeDefinitionList } from "./types";
 import { type Node, type Edge } from "@xyflow/svelte";
 
 export class FlowContext {
-    instance: GraphInstance = $state({});
     nodes: Node[] = $state.raw<Node[]>([]);
     edges: Edge[] = $state.raw<Edge[]>([]);
 }

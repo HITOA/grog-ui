@@ -72,10 +72,33 @@
     filter: drop-shadow(0px 14px 15px rgba(0,0,0,0.5));
 }
 
+.svelte-flow__selection {
+  background: transparent;
+  border: none;
+}
+
+.svelte-flow__selection::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  background-color: rgba(161, 161, 161, 0.067);
+  border: 1px dashed rgb(143, 143, 143);
+  border-radius: 6px;
+}
+
+.svelte-flow__node.selected {
+    outline: 2px solid orange;
+    border-radius: 6px;
+}
+
+.svelte-flow__edge.selected .svelte-flow__edge-path {
+    stroke-width: 3;
+}
+
 .node-content {
     display: flex;
     padding-top: 5px;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
 }
 
 .node-header {
@@ -112,6 +135,24 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 4px;
+}
+
+.node-footer {
+    display: grid;
+    grid-template-columns: auto auto;
+    row-gap: 4px;
+    place-content: start;
+    flex-grow: 1;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top: 1px solid transparent;
+    background:
+        linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%) border-box,
+        linear-gradient(180deg, #34353f, #2c2d34) padding-box,
+        linear-gradient(90deg, #494b59, #6b6f89 50%, #494b59 100%) border-box;
 }
 
 .node-row {

@@ -1,4 +1,4 @@
-import { PortState, type PortInstance } from "../../types";
+import { PortState, type Pair, type PortInstance } from "../../types";
 
 export enum PortColorVar {
     Color0,
@@ -13,10 +13,23 @@ export enum PortShape {
     DoubleSin
 }
 
-const shapes: Map<PortShape, string> = new Map<PortShape, string>();
-shapes.set(PortShape.Circle, "M192 320C192 249.3 249.3 192 320 192 390.7 192 448 249.3 448 320 448 390.7 390.7 448 320 448 249.3 448 192 390.7 192 320z");
-shapes.set(PortShape.Sin, "M64 320c67.5-118.125 123.75-118.125 191.25 0s123.75 118.125 189 5.25c6.75-15 33.75-20.25 0 37.5-65.25 112.875-121.5 112.875-189-5.25S131.5 239.375 64 357.5c-9.75 16.5-31.5 15 0-37.5")
-shapes.set(PortShape.DoubleSin, "M64 320c67.5-118.125 123.75-118.125 191.25 0s123.75 118.125 189 5.25c6.75-15 33.75-20.25 0 37.5-65.25 112.875-121.5 112.875-189-5.25S131.5 239.375 64 357.5c-9.75 16.5-31.5 15 0-37.5")
+const shapes: Map<PortShape, Pair<string, string>> = new Map<PortShape, Pair<string, string>>();
+shapes.set(PortShape.Circle, {
+    first: "handle-default-icon-d.svg",
+    second: "handle-default-icon-c.svg"
+});
+shapes.set(PortShape.Sin, {
+    first: "handle-mono-icon-d.svg",
+    second: "handle-mono-icon-c.svg"
+});
+shapes.set(PortShape.DoubleSin, {
+    first: "handle-stereo-icon-d.svg",
+    second: "handle-stereo-icon-c.svg"
+});
+shapes.forEach(async (pair) => { // Lazy & ugly code
+    pair.first = await (await fetch(pair.first)).text();
+    pair.second = await (await fetch(pair.second)).text();
+});
 
 const colors: Map<PortColorVar, string> = new Map<PortColorVar, string>();
 colors.set(PortColorVar.Color0, "--port-color-0");
@@ -39,7 +52,7 @@ export class PortStyle {
         this.portShape = portShape;
     }
 
-    get path(): string | undefined {
+    get shape(): Pair<string, string> | undefined {
         return shapes.get(this.portShape);
     }
 

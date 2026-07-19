@@ -12,12 +12,10 @@
     let style: PortStyle = $derived(PortStyle.getStyle(instance));
 </script>
 
-<Handle {type} {position} {id} class={`port-handle port-handle-${type}`}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="width: 20px; height: 20px;">
-        <path 
-            stroke="var({style.color})" 
-            stroke-width=25 
-            fill={ connections.current.length > 0 ? `var(${style.color})` : "none" }
-            d={style.path}/>
-    </svg>
+<Handle {type} {position} {id} class={`port-handle port-handle-${type}`} style="color: var({style.color})">
+    {#if connections.current.length > 0}
+        {@html style.shape?.second }
+    {:else}
+        {@html style.shape?.first }
+    {/if}
 </Handle>
