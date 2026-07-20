@@ -3,7 +3,6 @@
 
     let store = $derived(useStore());
     let scaledSizeSmallGrid = $derived(16 * store.viewport.zoom)
-    let scaledSizeGrid = $derived(160 * store.viewport.zoom)
     let normalizedZoom = $derived((store.viewport.zoom + store.minZoom) / (store.maxZoom + store.minZoom));
     
 </script>
@@ -20,7 +19,7 @@
                 patternUnits="userSpaceOnUse">
             <path 
                 d="M {scaledSizeSmallGrid} 0 L 0 0 0 {scaledSizeSmallGrid}" 
-                fill="none" stroke="gray" stroke-width="3.0" opacity={normalizedZoom / 7.0}/>
+                fill="none" stroke="#FFFFFF40" stroke-width="3.0" opacity={normalizedZoom / 7.0}/>
             </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#smallGrid)" />
