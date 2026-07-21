@@ -4,8 +4,8 @@
     --frame-border-color: #4b4b56;
 
     --port-color-0: #f0e67a;
-    --port-color-1: #84de7f;
-    --port-color-2: #e87676;
+    --port-color-1: #5bab97;
+    --port-color-2: #ab5b5b;
     --port-unresolved: #929292;
 }
 
@@ -34,15 +34,17 @@
 }
 
 .title {
-    flex-grow: 1;
     margin-left: 10px;
+    margin-right: 20px;
     font-family: -apple-system, "Segoe UI", sans-serif;
     font-weight: bold;
     color: #819bbc;
+    user-select: none;
 }
 
 .logo {
     width: 30px;
+    min-width: 30px;
     height: 30px;
     fill: transparent;
     stroke: #386ac0;
@@ -52,6 +54,85 @@
     padding: 2px;
     margin-left: 10px;
     border-radius: 4px;
+    user-select: none;
+}
+
+.menu-bar-menu {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #d1cfd1af;
+    font-size: 16px;
+    background: transparent;
+    transition: background-color 100ms;
+    user-select: none;
+    border: 0px;
+}
+
+.menu-bar-menu:hover {
+    background-color: #ffffff1a;
+    transition: background-color 100ms;
+}
+
+.menu-bar-menu-frame {
+    background-color: #202126;
+    border-radius: 5px;
+    border: 1px solid #2a2b2f;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+    padding: 0px;
+}
+
+.menu-bar-menu-item {
+    display: flex;
+    border-radius: 5px;
+    padding: 4px 10px;
+    margin: 2px;
+    user-select: none;
+    transition: background-color 100ms;
+}
+
+.menu-bar-menu-item:hover {
+    background-color: #393945;
+    transition: background-color 100ms;
+}
+
+.preset-selector {
+    min-width: 200px;
+    width: 30%;
+    margin: auto;
+    height: 30px;
+    background-color: #202126;
+    border-radius: 6px;
+    border: 1px solid #2a2b2f;
+    display: flex;
+    align-items: center;
+    filter: drop-shadow(0px 1px #121214);
+    overflow: hidden;
+}
+
+.preset-selector-button {
+    display: flex;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    padding: 0px;
+    fill: #dadada;
+    stroke: #dadada;
+    background: transparent;
+    transition: background-color 100ms;
+    border: 0px;
+}
+
+.preset-selector-button:hover {
+    background-color: #ffffff1a;
+    transition: background-color 100ms;
+}
+
+.preset-name {
+    margin: auto;
+    user-select: none;
 }
 
 .compile-button {
@@ -66,12 +147,13 @@
     color: #dadada;
     font-family: -apple-system, "Segoe UI", sans-serif;
     filter: drop-shadow(0px 2px #2b5044);
-    transition: background-color 50ms;
+    transition: background-color 100ms;
+    user-select: none;
 }
 
 .compile-button:hover {
     background-color: #478771;
-    transition: background-color 50ms;
+    transition: background-color 100ms;
 }
 
 .compile-button:active {
@@ -89,7 +171,6 @@
         linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%) border-box,
         linear-gradient(180deg, #28292b, #28292b) border-box;
     filter: drop-shadow(0px 0px 3px #000000);
-    z-index: 10;
 }
 
 .flow-container {
@@ -132,14 +213,18 @@
     border-radius: 5px;
     padding: 4px;
     margin: 2px;
+    user-select: none;
+    transition: background-color 100ms;
 }
 
 .menu-item[data-highlighted] {
     background-color: #393945;
+    transition: background-color 100ms;
 }
 
 .menu-item[data-selected] {
     background-color: #393945;
+    transition: background-color 100ms;
 }
 
 .menu-item-text {
@@ -188,11 +273,11 @@
     font-size: 12px;
     color: #d7d3d6;
     background:
-        linear-gradient(90deg, #00000015, #00000000 50%, #00000015 100%) padding-box,
-        linear-gradient(180deg, #2b2c33, #1a1a1d) padding-box,
+        linear-gradient(180deg, #1c1e23, #17191d) padding-box,
         linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%) border-box,
-        linear-gradient(180deg, #7c809f, #44444c) border-box;
+        linear-gradient(180deg, #636372, #4e4e53) border-box;
     filter: drop-shadow(0px 14px 15px rgba(0,0,0,0.5));
+    overflow:hidden;
 }
 
 .svelte-flow__selection {
@@ -212,6 +297,7 @@
 .svelte-flow__node.selected {
     outline: 2px solid orange;
     border-radius: 6px;
+    transition: outline 40ms;
 }
 
 .svelte-flow__edge.selected .svelte-flow__edge-path {
@@ -220,26 +306,16 @@
 
 .node-content {
     display: flex;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 0px;
 }
 
 .node-header {
     padding: 10px 10px;
-    border-radius: 6px 6px 0 0;
     font-weight: bold;
     border-bottom: 1px solid #19191c;
     background:
         linear-gradient(90deg, #00000025, #00000000 40%, #00000000 70%, #00000025 100%) border-box,
-        linear-gradient(180deg, #3b3c47, #33343d 93%, #3d3f4c 100%) padding-box;
-}
-
-.node-body {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 4px 0;
-    gap: 16px;
+        linear-gradient(180deg, #3a3c44, #33333a 93%, #3a3c44 100%) padding-box;
 }
 
 .node-inputs {
@@ -251,12 +327,20 @@
     flex-direction: column;
     gap: 4px;
     align-items: center;
+    padding: 5px 0px;
+    padding-right: 5px;
+    background-color: #25252b;
+    border-right: 1px solid #19191c;
+    background:
+        linear-gradient(180deg, #24252a, #202125) padding-box;
 }
 
 .node-outputs {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    min-width: 30px;
+    padding: 5px 0px;
     gap: 4px;
 }
 
@@ -274,8 +358,8 @@
     border-top: 1px solid transparent;
     background:
         linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%) border-box,
-        linear-gradient(180deg, #34353f, #2c2d34) padding-box,
-        linear-gradient(90deg, #494b59, #6b6f89 50%, #494b59 100%) border-box;
+        linear-gradient(180deg, #3a3c44, #33333a) padding-box,
+        linear-gradient(90deg, #42444e, #636372 50%, #42444e 100%) border-box;
 }
 
 .node-row {
