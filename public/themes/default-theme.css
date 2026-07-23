@@ -98,6 +98,12 @@
     transition: background-color 100ms;
 }
 
+.menu-bar-menu-separator {
+    height: 1px;
+    margin: 5px 0px;
+    background-color: #2a2b2f;
+}
+
 .preset-selector {
     min-width: 200px;
     width: 30%;
@@ -120,7 +126,7 @@
     padding: 0px;
     fill: #dadada;
     stroke: #dadada;
-    background: transparent;
+    background-color: transparent;
     transition: background-color 100ms;
     border: 0px;
 }
@@ -382,7 +388,7 @@
 }
 
 .port-control {
-    width: 100px;
+    width: 75px;
     color: #ffffffc0;
     border: 1px solid #ffffff20;
     border-radius: 4px;

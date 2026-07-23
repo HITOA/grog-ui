@@ -13,6 +13,7 @@
         type OnConnectStart,
         type OnConnectEnd,
         type OnBeforeDelete,
+        MiniMap,
     } from '@xyflow/svelte';
     import { createConnection, updateNodesPosition } from '../actions';
     import GenericEdge from './nodes/GenericEdge.svelte';
@@ -113,5 +114,6 @@
     minZoom={0.5}
     maxZoom={2.0}
 >
+    <MiniMap/>
     <GenericBackground />
 </SvelteFlow>

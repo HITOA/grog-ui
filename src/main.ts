@@ -12,6 +12,10 @@ setTheme("default-theme");
 
 updateGraphInstance();
 
+window.addEventListener("refresh_graph", () => {
+  updateGraphInstance();
+});
+
 const app = mount(App, {
   target: document.getElementById('app')!,
 })

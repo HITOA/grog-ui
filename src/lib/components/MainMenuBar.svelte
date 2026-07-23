@@ -1,10 +1,24 @@
 <script lang="ts">
     import { compileCurrentGraph } from "../actions";
-    import { Button, Menubar } from "bits-ui";
+    import { Button, Menubar, Separator } from "bits-ui";
+    import { API } from "../api";
 
     function onCompileClick() {
         compileCurrentGraph();
     }
+
+    function onNewPreset() {
+        API.newPreset();
+    }
+
+    function onSavePreset() {
+        API.savePreset(undefined);
+    }
+
+    function onLoadPreset() {
+        API.loadPreset(undefined);
+    }
+
 </script>
 
 <div class="main-menu-bar-frame">
@@ -25,16 +39,18 @@
             </Menubar.Trigger>
             <Menubar.Portal>
                 <Menubar.Content class="menu-bar-menu-frame" style="z-index: 2;">
-                    <Menubar.Item class="menu-bar-menu-item">
+                    <Menubar.Item class="menu-bar-menu-item" onclick={onNewPreset}>
                         New Preset
                     </Menubar.Item>
-                    <Menubar.Item class="menu-bar-menu-item">
+                    <Menubar.Separator class="menu-bar-menu-separator"/>
+                    <Menubar.Item class="menu-bar-menu-item" onclick={onSavePreset}>
                         Save Preset
                     </Menubar.Item>
-                    <Menubar.Item class="menu-bar-menu-item">
+                    <Menubar.Item class="menu-bar-menu-item" onclick={onSavePreset}>
                         Save Preset As...
                     </Menubar.Item>
-                    <Menubar.Item class="menu-bar-menu-item">
+                    <Menubar.Separator class="menu-bar-menu-separator"/>
+                    <Menubar.Item class="menu-bar-menu-item" onclick={onLoadPreset}>
                         Load Preset
                     </Menubar.Item>
                 </Menubar.Content>

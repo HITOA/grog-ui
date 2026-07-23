@@ -44,11 +44,27 @@ export namespace API {
         });
     }
 
-    export function updateInitializer(graphId: number, initializerId: Identity, initializer: any) {
+    export function updateInitializer(graphId: number, initializerId: Identity, initializer: any): Promise<any> {
         return callNative<any>("update_initializer", {
             graphId,
             initializerId,
             initializer
+        });
+    }
+
+    export function newPreset(): Promise<boolean> {
+        return callNative<boolean>("new_preset", {});
+    }
+
+    export function loadPreset(filename: string | undefined): Promise<boolean> {
+        return callNative<boolean>("load_preset", {
+            filename
+        });
+    }
+
+    export function savePreset(filename: string | undefined): Promise<boolean> {
+        return callNative<boolean>("save_preset", {
+            filename
         });
     }
 }
