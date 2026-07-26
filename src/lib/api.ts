@@ -19,6 +19,10 @@ export namespace API {
         return callNative<GraphInstance>("create_graph_instance", {});
     }
 
+    export function deleteGraphInstance(graphId: number): Promise<boolean> {
+        return callNative<boolean>("delete_graph_instance", { graphId });
+    }
+
     export function instantiateNode(graphId: number, nodeKey: NodeKey, position: XYPosition): Promise<NodeInstance> {
         return callNative<NodeInstance>("instantiate_node", {
             graphId,

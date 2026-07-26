@@ -7,7 +7,7 @@ import { assertIsGenericNode, assertIsString } from "./assertions";
 import type { GenericEdgeType } from "./components/nodes/GenericEdge";
 
 
-export function updateGraphInstances() {
+export function updateGraphInstances(): void {
     API.getGraphInstances().then((instances: GraphInstance[]) => {
         let flowContexts: FlowContext[] = [];
 
@@ -57,7 +57,7 @@ export function updateGraphInstances() {
     })
 }
 
-export function updateGraphInstance() {
+export function updateGraphInstance(): void {
     API.getGraphInstance(grogState.currentFlowIndex).then((instance: GraphInstance) => {
         let nodes: Node[] = []
         let edges: Edge[] = []
@@ -95,7 +95,7 @@ export function updateGraphInstance() {
     });
 }
 
-export function createGraphInstance() {
+export function createGraphInstance(): void {
     API.createGraphInstance().then((instance: GraphInstance) => {
         let flowContext = new FlowContext();
 
@@ -134,6 +134,21 @@ export function createGraphInstance() {
         flowContext.edges = edges;
         grogState.flowContexts = grogState.flowContexts.concat(flowContext);
         grogState.currentFlowIndex = grogState.flowContexts.length - 1;
+    })
+}
+
+export function deleteGraphInstance(graphId: number): void {
+    API.deleteGraphInstance(graphId).then((r) => {
+        if (r) {
+            if (graphId == grogState.currentFlowIndex)
+                grogState.currentFlowIndex = 0;
+            else if (graphId < grogState.currentFlowIndex)
+                grogState.currentFlowIndex = grogState.currentFlowIndex - 1;
+            let flowContexts = grogState.flowContexts;
+            flowContexts.splice(graphId, 1);
+            grogState.flowContexts = [];
+            grogState.flowContexts = flowContexts;
+        }
     })
 }
 
