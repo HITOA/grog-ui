@@ -122,7 +122,7 @@
     display: flex;
     align-items: center;
     width: 30px;
-    height: 30px;
+    height: 100%;
     padding: 0px;
     fill: #dadada;
     stroke: #dadada;
@@ -137,8 +137,20 @@
 }
 
 .preset-name {
-    margin: auto;
+    min-width: 200px;
+    width: 100%;
+    height: 100%;
     user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    transition: background-color 100ms;
+}
+
+.preset-name:hover {
+    background-color: #ffffff1a;
+    transition: background-color 100ms;
 }
 
 .compile-button {
@@ -168,6 +180,9 @@
 }
 
 .tab {
+    display: flex;
+    align-items: center;
+    gap: 1px;
     width: 100%;
     height: 30px;
     border-top: 2px solid transparent;
@@ -177,6 +192,49 @@
         linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%) border-box,
         linear-gradient(180deg, #28292b, #28292b) border-box;
     filter: drop-shadow(0px 0px 3px #000000);
+}
+
+.tab-item-bg {
+    height: 100%;
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    background-color: #101113;
+    border-radius: 6px 6px 0px 0px;
+    border-right: 1px solid #101113;
+    padding: 1px 0px;
+}
+
+.tab-item {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 1px 10px;
+    color: #dadada;
+    font-family: -apple-system, "Segoe UI", sans-serif;
+    margin: 0px;
+    border: 1px solid #28292b;
+    border-radius: 6px 6px 0px 0px;
+    background-color: #1f2025;
+    transition: background-color 100ms;
+    user-select: none;
+}
+
+.tab-item:hover {
+    background-color: #292a31;
+    transition: background-color 100ms;
+}
+
+.tab-item[data-tab-selected="true"] {
+    background-color: #292a31;
+    border-bottom: 1px solid #5679a1;
+}
+
+.tab-item-icon {
+    fill: currentColor;
+    height: 25px;
+    width: 25px;
+    margin-right: 7px;
 }
 
 .flow-container {
@@ -416,4 +474,10 @@
 
 .port-handle-target {
     left: 15px;
+}
+
+.preset-window {
+    width: 100%;
+    flex-grow: 1;
+    background-color: #000000;
 }

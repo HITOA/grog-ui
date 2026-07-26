@@ -7,8 +7,16 @@ export namespace API {
         return callNative<NodeDefinitionList>("get_node_definition_list");
     }
 
+    export function getGraphInstances(): Promise<GraphInstance[]> {
+        return callNative<GraphInstance[]>("get_graph_instances", {});
+    }
+
     export function getGraphInstance(graphId: number): Promise<GraphInstance> {
         return callNative<GraphInstance>("get_graph_instance", { graphId });
+    }
+
+    export function createGraphInstance(): Promise<GraphInstance> {
+        return callNative<GraphInstance>("create_graph_instance", {});
     }
 
     export function instantiateNode(graphId: number, nodeKey: NodeKey, position: XYPosition): Promise<NodeInstance> {

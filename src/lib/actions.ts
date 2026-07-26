@@ -1,11 +1,61 @@
 import type { GraphInstance, Identity, NodeInstance, NodeKey, NodeMove } from "./types";
 import type { GenericNodeType } from "./components/nodes/GenericNode";
 import { API } from "./api"
-import { grogState } from "./state.svelte";
+import { FlowContext, grogState } from "./state.svelte";
 import { type Connection, type Edge, type Node, type XYPosition } from "@xyflow/svelte";
 import { assertIsGenericNode, assertIsString } from "./assertions";
 import type { GenericEdgeType } from "./components/nodes/GenericEdge";
 
+
+export function updateGraphInstances() {
+    API.getGraphInstances().then((instances: GraphInstance[]) => {
+        let flowContexts: FlowContext[] = [];
+
+        instances.forEach(instance => {
+            let flowContext = new FlowContext();
+
+            let nodes: Node[] = []
+            let edges: Edge[] = []
+
+            instance.nodes.forEach(instance => {
+                let node: GenericNodeType = {
+                    id: instance.identity.toString(),
+                    type: "genericNode",
+                    data: {
+                        instance: instance
+                    },
+                    position: {
+                        x: instance.position.x,
+                        y: instance.position.y
+                    }
+                };
+                nodes.push(node);
+            });
+
+            instance.connections.forEach(connection => {
+                let edge: GenericEdgeType = {
+                    id: connection.identity.toString(),
+                    type: "genericEdge",
+                    source: connection.outNode.toString(),
+                    sourceHandle: connection.outPort.toString(),
+                    target: connection.inNode.toString(),
+                    targetHandle: connection.inPort.toString()
+                };
+                edges.push(edge);
+            });
+
+            flowContext.name = instance.name;
+            flowContext.nodes = nodes;
+            flowContext.edges = edges;
+
+            flowContexts.push(flowContext);
+        });
+
+        grogState.flowContexts = flowContexts;
+        if (grogState.currentFlowIndex >= flowContexts.length)
+            grogState.currentFlowIndex = 0;
+    })
+}
 
 export function updateGraphInstance() {
     API.getGraphInstance(grogState.currentFlowIndex).then((instance: GraphInstance) => {
@@ -39,9 +89,52 @@ export function updateGraphInstance() {
             edges.push(edge);
         });
 
+        grogState.currentFlow.name = instance.name;
         grogState.currentFlow.nodes = nodes;
         grogState.currentFlow.edges = edges;
     });
+}
+
+export function createGraphInstance() {
+    API.createGraphInstance().then((instance: GraphInstance) => {
+        let flowContext = new FlowContext();
+
+        let nodes: Node[] = []
+        let edges: Edge[] = []
+
+        instance.nodes.forEach(instance => {
+            let node: GenericNodeType = {
+                id: instance.identity.toString(),
+                type: "genericNode",
+                data: {
+                    instance: instance
+                },
+                position: {
+                    x: instance.position.x,
+                    y: instance.position.y
+                }
+            };
+            nodes.push(node);
+        });
+
+        instance.connections.forEach(connection => {
+            let edge: GenericEdgeType = {
+                id: connection.identity.toString(),
+                type: "genericEdge",
+                source: connection.outNode.toString(),
+                sourceHandle: connection.outPort.toString(),
+                target: connection.inNode.toString(),
+                targetHandle: connection.inPort.toString()
+            };
+            edges.push(edge);
+        });
+
+        flowContext.name = instance.name;
+        flowContext.nodes = nodes;
+        flowContext.edges = edges;
+        grogState.flowContexts = grogState.flowContexts.concat(flowContext);
+        grogState.currentFlowIndex = grogState.flowContexts.length - 1;
+    })
 }
 
 export function instantiateNode(nodeKey: NodeKey, position: XYPosition): void {

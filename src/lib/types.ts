@@ -85,6 +85,15 @@ export interface GraphInstance {
     connections: Connection[];
 }
 
+export interface PresetMetadata {
+    name: string;
+    description: string;
+    author: string;
+    tags: string[];
+    creation: number;
+    lastModified: number;
+}
+
 export type NodeKey = string;
 
 export interface NodeDefinitionList {
