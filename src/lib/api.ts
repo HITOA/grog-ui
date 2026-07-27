@@ -48,8 +48,8 @@ export namespace API {
         return callNative<void>("compile_graph", { graphId });
     }
 
-    export function deleteNodesAndEdges(graphId: number, nodes: NodeInstance[], connections: Connection[]): Promise<boolean> {
-        return callNative<boolean>("delete_nodes_and_edges", {
+    export function deleteNodesAndEdges(graphId: number, nodes: NodeInstance[], connections: Connection[]): Promise<NodeInstance[]> {
+        return callNative<NodeInstance[]>("delete_nodes_and_edges", {
             graphId,
             nodes,
             connections

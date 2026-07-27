@@ -15,7 +15,7 @@
         type OnBeforeDelete,
         MiniMap,
     } from '@xyflow/svelte';
-    import { createConnection, updateNodesPosition } from '../actions';
+    import { createConnection, deleteNodesAndEdges, updateNodesPosition } from '../actions';
     import GenericEdge from './nodes/GenericEdge.svelte';
     import type { Connection, NodeInstance } from '../types';
     import { assertIsGenericEdge, assertIsGenericNode } from '../assertions';
@@ -80,7 +80,7 @@
             connections.push(connection);
         })
 
-        return API.deleteNodesAndEdges(grogState.currentFlowIndex, nodesInstance, connections);
+        return deleteNodesAndEdges(nodesInstance, connections, updateNodeData);
     }
 
 </script>

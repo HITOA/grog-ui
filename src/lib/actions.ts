@@ -1,4 +1,4 @@
-import type { GraphInstance, Identity, NodeInstance, NodeKey, NodeMove } from "./types";
+import type { GraphInstance, Identity, NodeInstance, NodeKey, NodeMove, Connection as GrogConnection } from "./types";
 import type { GenericNodeType } from "./components/nodes/GenericNode";
 import { API } from "./api"
 import { FlowContext, grogState } from "./state.svelte";
@@ -222,6 +222,20 @@ export function createConnection(connection: Connection,
             grogState.currentFlow.edges = edgesWithoutConnection;
         }
     });
+}
+
+export function deleteNodesAndEdges(nodesInstance: NodeInstance[], connections: GrogConnection[], 
+        updateNodeData: (id: string, dataUpdate: Partial<GenericNodeType["data"]>) => void): Promise<boolean> {
+    return new Promise((res, rej) => {
+        API.deleteNodesAndEdges(grogState.currentFlowIndex, nodesInstance, connections).then((dirtyNodes) => {
+            dirtyNodes.forEach((instance) => {
+                updateNodeData(instance.identity.toString(), {
+                    instance: instance
+                });
+            });
+            res(true);
+        }).catch(() => rej())
+    })
 }
 
 export function compileCurrentGraph() {
