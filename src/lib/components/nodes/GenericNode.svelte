@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Position, type NodeProps } from '@xyflow/svelte';
+    import { Position, useNodeConnections, type NodeProps } from '@xyflow/svelte';
     import type { GenericNodeType } from './GenericNode';
     import PortHandle from './PortHandle.svelte';
     import { PortState } from '../../types';
@@ -18,6 +18,18 @@
             })
     }
 
+    let connectionsByInput = $derived(
+        data.instance.inputs?.map((input) =>
+            useNodeConnections({ handleType: "target", handleId: input.identity.toString() })
+        ) ?? []
+    );
+
+    let inputsControlPresence: boolean[] = $derived(data.instance.inputs?.map((input, index) => {
+        return (input.type.commonName == "Builtin_Numeric" || input.type.commonName == "Builtin_Control") && 
+                input.state == PortState.Resolved && input.initializer != undefined &&
+                connectionsByInput[index].current.length <= 0;
+    }) ?? [])
+
 </script>
 
 <div class="node-frame">
@@ -26,10 +38,10 @@
     </div>
     <div class="node-content">
         <div class="node-inputs">
-            {#each data.instance.inputs as input }
+            {#each data.instance.inputs as input, index }
                 <PortHandle type="target" position={Position.Left} id={input.identity.toString()} instance={input} />
                 <span class="port-label">{input.displayName}</span>
-                {#if (input.type.commonName == "Builtin_Numeric" || input.type.commonName == "Builtin_Control") && input.state == PortState.Resolved}
+                {#if (inputsControlPresence[index]) }
                     <input id="{input.identity.toString()}" 
                         type="number" class="port-control nodrag" 
                         value={input.initializer} onchange={onInputChange}>

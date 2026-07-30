@@ -16,8 +16,6 @@
         targetY,
         targetPosition: Position.Left }));
 
-    let { getNode } = useSvelteFlow();
-
     let sourceNodeData = $derived(useNodesData(source));
     let targetNodeData = $derived(useNodesData(target));
 
@@ -25,12 +23,12 @@
         if (handleId == undefined || handleId == null)
             return undefined;
 
-        let offset = data.instance.inputs ? data.instance.inputs.length : 0;
-        const handleIdx = parseInt(handleId) - (parseInt(id) + 1) - (isInput ? 0 : offset);
         if (isInput) {
-            return PortStyle.getStyle(data.instance.inputs?.at(handleIdx));
+            let port = data.instance.inputs?.find((input) => input.identity.toString() === handleId)
+            return PortStyle.getStyle(port);
         } else {
-            return PortStyle.getStyle(data.instance.outputs?.at(handleIdx));
+            let port = data.instance.outputs?.find((output) => output.identity.toString() === handleId)
+            return PortStyle.getStyle(port);
         }
     }
 

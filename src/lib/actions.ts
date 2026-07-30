@@ -173,6 +173,27 @@ export function instantiateNode(nodeKey: NodeKey, position: XYPosition): void {
     });
 }
 
+export function instantiateSubgraph(subgraphId: number, position: XYPosition): void {
+    API.instantiateSubgraph(grogState.currentFlowIndex, subgraphId, position).then((instance: NodeInstance) => {
+        let node: GenericNodeType = {
+            id: instance.identity.toString(),
+            type: "genericNode",
+            data: {
+                instance: instance
+            },
+            position: {
+                x: instance.position.x,
+                y: instance.position.y
+            }
+        };
+
+        grogState.currentFlow.nodes = [
+            ...grogState.currentFlow.nodes,
+            node
+        ];
+    });
+}
+
 export function updateNodesPosition(nodes: Node[]): void {
     const moves: NodeMove[] = nodes.map(node => {
         assertIsGenericNode(node);

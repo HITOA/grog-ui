@@ -13,9 +13,10 @@
         type OnConnectStart,
         type OnConnectEnd,
         type OnBeforeDelete,
+        type XYPosition,
         MiniMap,
     } from '@xyflow/svelte';
-    import { createConnection, deleteNodesAndEdges, updateNodesPosition } from '../actions';
+    import { createConnection, deleteNodesAndEdges, instantiateSubgraph, updateNodesPosition } from '../actions';
     import GenericEdge from './nodes/GenericEdge.svelte';
     import type { Connection, NodeInstance } from '../types';
     import { assertIsGenericEdge, assertIsGenericNode } from '../assertions';
@@ -25,7 +26,7 @@
     const nodeTypes = { genericNode: GenericNode };
     const edgeTypes = { genericEdge: GenericEdge };
 
-    let { updateNodeData } = useSvelteFlow();
+    let { updateNodeData, screenToFlowPosition } = useSvelteFlow();
 
     function setNodesWillChange(willChange: string): void {
         const nodes = document.querySelectorAll<HTMLElement>(".svelte-flow__node");
@@ -83,6 +84,21 @@
         return deleteNodesAndEdges(nodesInstance, connections, updateNodeData);
     }
 
+    const onDragOver = (event: DragEvent) => {
+        event.preventDefault();
+    }
+
+    const OnDrop = (event: DragEvent) => {
+        event.preventDefault();
+        
+        let subgraphId = event.dataTransfer?.getData("subgraphId");
+        let position: XYPosition = { x: event.clientX, y: event.clientY };
+        position = screenToFlowPosition(position);
+
+        if (subgraphId)
+            instantiateSubgraph(parseInt(subgraphId), position);
+    }
+
 </script>
 
 <SvelteFlow 
@@ -106,6 +122,9 @@
 
     onmovestart={onMoveStart}
     onmoveend={onMoveEnd}
+
+    ondragover={onDragOver}
+    ondrop={OnDrop}
 
     proOptions={{ hideAttribution: true }}
 

@@ -32,6 +32,15 @@ export namespace API {
         });
     }
 
+    export function instantiateSubgraph(graphId: number, subgraphId: number, position: XYPosition): Promise<NodeInstance> {
+        return callNative<NodeInstance>("instantiate_subgraph", {
+            graphId,
+            subgraphId,
+            x: position.x,
+            y: position.y
+        })
+    }
+
     export function updateNodesPosition(graphId: number, moves: NodeMove[]): Promise<void> {
         return callNative<void>("update_nodes_position", { graphId, moves });
     }
