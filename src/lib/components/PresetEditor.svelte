@@ -1,7 +1,4 @@
 <script lang="ts">
-
 </script>
 
-<div class="preset-window">
-    
-</div>
+<div class="preset-window"></div>

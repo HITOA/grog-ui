@@ -9,17 +9,17 @@
     import MainTabBar from "./lib/components/MainTabBar.svelte";
 </script>
 
-<MainMenuBar/>
-<MainTabBar/>
+<MainMenuBar />
+<MainTabBar />
 
 {#if grogState.view == ViewType.Flow}
     <SvelteFlowProvider>
         <FlowContextMenu>
-            <Flow/>
+            <Flow />
         </FlowContextMenu>
     </SvelteFlowProvider>
 {:else if grogState.view == ViewType.PresetBrowser}
-    <PresetBrowser/>
+    <PresetBrowser />
 {:else if grogState.view == ViewType.PresetEditor}
-    <PresetEditor/>
+    <PresetEditor />
 {/if}

@@ -1,33 +1,45 @@
-import type { GraphInstance, NodeDefinitionList } from "./types";
+import type { FeedbackEntry, NodeDefinitionList, PresetMetadata } from "./types";
 import { type Node, type Edge } from "@xyflow/svelte";
 
 export enum ViewType {
     Flow,
     PresetBrowser,
-    PresetEditor
+    PresetEditor,
 }
 
 export class FlowContext {
     name: string = $state("Default");
     nodes: Node[] = $state.raw<Node[]>([]);
     edges: Edge[] = $state.raw<Edge[]>([]);
+    nameEditable: boolean = $state(false);
+    feedbacks: FeedbackEntry[] = $state([]);
 }
 
 export class GrogState {
     view: ViewType = $state(ViewType.Flow);
-    
+
     private _nodeDefinitionList: NodeDefinitionList = $state.raw({} as NodeDefinitionList);
-    private _flowContextList: FlowContext[] = $state.raw<FlowContext[]>([ new FlowContext() ]);
+    private _presetList: PresetMetadata[] = $state.raw([]);
+
+    private _flowContextList: FlowContext[] = $state.raw<FlowContext[]>([new FlowContext()]);
     private _currentFlowIndex: number = $state(0);
 
     set nodeDefinitionList(value: NodeDefinitionList) {
-        this._nodeDefinitionList = value
+        this._nodeDefinitionList = value;
     }
 
     get nodeDefinitionList(): NodeDefinitionList {
         return this._nodeDefinitionList;
     }
-    
+
+    set presetList(value: PresetMetadata[]) {
+        this._presetList = value;
+    }
+
+    get presetList(): PresetMetadata[] {
+        return this._presetList;
+    }
+
     get currentFlow(): FlowContext {
         return this._flowContextList[this._currentFlowIndex];
     }

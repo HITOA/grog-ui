@@ -1,91 +1,143 @@
 import type { XYPosition } from "@xyflow/svelte";
 import { callNative } from "./bridge";
-import type { Connection, ConnectionCreationData, GraphInstance, Identity, NodeDefinitionList, NodeInstance, NodeKey, NodeMove } from "./types";
+import type {
+    Connection,
+    ConnectionCreationData,
+    GraphInstance,
+    Identity,
+    Initializer,
+    NodeDefinitionList,
+    NodeInstance,
+    NodeKey,
+    NodeMove,
+    PresetMetadata,
+} from "./types";
 
-export namespace API {
-    export function getNodeDefinitionList(): Promise<NodeDefinitionList> {
-        return callNative<NodeDefinitionList>("get_node_definition_list");
-    }
+export function getNodeDefinitionList(): Promise<NodeDefinitionList> {
+    return callNative<NodeDefinitionList>("get_node_definition_list");
+}
 
-    export function getGraphInstances(): Promise<GraphInstance[]> {
-        return callNative<GraphInstance[]>("get_graph_instances", {});
-    }
+export function getGraphInstances(): Promise<GraphInstance[]> {
+    return callNative<GraphInstance[]>("get_graph_instances", {});
+}
 
-    export function getGraphInstance(graphId: number): Promise<GraphInstance> {
-        return callNative<GraphInstance>("get_graph_instance", { graphId });
-    }
+export function getGraphInstance(graphId: number): Promise<GraphInstance> {
+    return callNative<GraphInstance>("get_graph_instance", { graphId });
+}
 
-    export function createGraphInstance(): Promise<GraphInstance> {
-        return callNative<GraphInstance>("create_graph_instance", {});
-    }
+export function createGraphInstance(): Promise<GraphInstance> {
+    return callNative<GraphInstance>("create_graph_instance", {});
+}
 
-    export function deleteGraphInstance(graphId: number): Promise<boolean> {
-        return callNative<boolean>("delete_graph_instance", { graphId });
-    }
+export function deleteGraphInstance(graphId: number): Promise<boolean> {
+    return callNative<boolean>("delete_graph_instance", { graphId });
+}
 
-    export function instantiateNode(graphId: number, nodeKey: NodeKey, position: XYPosition): Promise<NodeInstance> {
-        return callNative<NodeInstance>("instantiate_node", {
-            graphId,
-            nodeKey,
-            x: position.x,
-            y: position.y
-        });
-    }
+export function instantiateNode(graphId: number, nodeKey: NodeKey, position: XYPosition): Promise<NodeInstance> {
+    return callNative<NodeInstance>("instantiate_node", {
+        graphId,
+        nodeKey,
+        x: position.x,
+        y: position.y,
+    });
+}
 
-    export function instantiateSubgraph(graphId: number, subgraphId: number, position: XYPosition): Promise<NodeInstance> {
-        return callNative<NodeInstance>("instantiate_subgraph", {
-            graphId,
-            subgraphId,
-            x: position.x,
-            y: position.y
-        })
-    }
+export function instantiateSubgraph(graphId: number, subgraphId: number, position: XYPosition): Promise<NodeInstance> {
+    return callNative<NodeInstance>("instantiate_subgraph", {
+        graphId,
+        subgraphId,
+        x: position.x,
+        y: position.y,
+    });
+}
 
-    export function updateNodesPosition(graphId: number, moves: NodeMove[]): Promise<void> {
-        return callNative<void>("update_nodes_position", { graphId, moves });
-    }
+export function updateGraphName(graphId: number, name: string): Promise<boolean> {
+    return callNative<boolean>("update_graph_name", {
+        graphId,
+        name,
+    });
+}
 
-    export function createConnection(graphId: number, sourcePortId: Identity, targetPortId: Identity): Promise<ConnectionCreationData> {
-        return callNative<ConnectionCreationData>("create_connection", {
-            graphId,
-            sourcePortId,
-            targetPortId
-        });
-    }
+export function updateNodeName(graphId: number, identity: number, name: string): Promise<boolean> {
+    return callNative<boolean>("update_node_name", {
+        graphId,
+        identity,
+        name,
+    });
+}
 
-    export function compileGraph(graphId: number): Promise<void> {
-        return callNative<void>("compile_graph", { graphId });
-    }
+export function updateFeedback(graphId: number, identity: number, feedbackIdentity: number): Promise<NodeInstance> {
+    return callNative<NodeInstance>("update_feedback", {
+        graphId,
+        identity,
+        feedbackIdentity,
+    });
+}
 
-    export function deleteNodesAndEdges(graphId: number, nodes: NodeInstance[], connections: Connection[]): Promise<NodeInstance[]> {
-        return callNative<NodeInstance[]>("delete_nodes_and_edges", {
-            graphId,
-            nodes,
-            connections
-        });
-    }
+export function updateNodesPosition(graphId: number, moves: NodeMove[]): Promise<void> {
+    return callNative<void>("update_nodes_position", { graphId, moves });
+}
 
-    export function updateInitializer(graphId: number, initializerId: Identity, initializer: any): Promise<any> {
-        return callNative<any>("update_initializer", {
-            graphId,
-            initializerId,
-            initializer
-        });
-    }
+export function createConnection(
+    graphId: number,
+    sourcePortId: Identity,
+    targetPortId: Identity,
+): Promise<ConnectionCreationData> {
+    return callNative<ConnectionCreationData>("create_connection", {
+        graphId,
+        sourcePortId,
+        targetPortId,
+    });
+}
 
-    export function newPreset(): Promise<boolean> {
-        return callNative<boolean>("new_preset", {});
-    }
+export function compileGraph(graphId: number): Promise<void> {
+    return callNative<void>("compile_graph", { graphId });
+}
 
-    export function loadPreset(filename: string | undefined): Promise<boolean> {
-        return callNative<boolean>("load_preset", {
-            filename
-        });
-    }
+export function dumpGraphIR(graphId: number): Promise<void> {
+    return callNative<void>("dump_graph_ir", { graphId });
+}
 
-    export function savePreset(filename: string | undefined): Promise<boolean> {
-        return callNative<boolean>("save_preset", {
-            filename
-        });
-    }
+export function deleteNodesAndEdges(
+    graphId: number,
+    nodes: NodeInstance[],
+    connections: Connection[],
+): Promise<NodeInstance[]> {
+    return callNative<NodeInstance[]>("delete_nodes_and_edges", {
+        graphId,
+        nodes,
+        connections,
+    });
+}
+
+export function updateInitializer(
+    graphId: number,
+    initializerId: Identity,
+    initializer: Initializer,
+): Promise<Initializer> {
+    return callNative<Initializer>("update_initializer", {
+        graphId,
+        initializerId,
+        initializer,
+    });
+}
+
+export function newPreset(): Promise<boolean> {
+    return callNative<boolean>("new_preset", {});
+}
+
+export function loadPreset(filename: string | undefined): Promise<boolean> {
+    return callNative<boolean>("load_preset", {
+        filename,
+    });
+}
+
+export function savePreset(filename: string | undefined): Promise<boolean> {
+    return callNative<boolean>("save_preset", {
+        filename,
+    });
+}
+
+export function getPresetList(): Promise<PresetMetadata[]> {
+    return callNative<PresetMetadata[]>("get_preset_list", {});
 }

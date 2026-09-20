@@ -4,29 +4,30 @@ export enum PortColorVar {
     Color0,
     Color1,
     Color2,
-    Unresolved
+    Unresolved,
 }
 
 export enum PortShape {
     Circle,
     Sin,
-    DoubleSin
+    DoubleSin,
 }
 
 const shapes: Map<PortShape, Pair<string, string>> = new Map<PortShape, Pair<string, string>>();
 shapes.set(PortShape.Circle, {
     first: "handle-default-icon-d.svg",
-    second: "handle-default-icon-c.svg"
+    second: "handle-default-icon-c.svg",
 });
 shapes.set(PortShape.Sin, {
     first: "handle-mono-icon-d.svg",
-    second: "handle-mono-icon-c.svg"
+    second: "handle-mono-icon-c.svg",
 });
 shapes.set(PortShape.DoubleSin, {
     first: "handle-stereo-icon-d.svg",
-    second: "handle-stereo-icon-c.svg"
+    second: "handle-stereo-icon-c.svg",
 });
-shapes.forEach(async (pair) => { // Lazy & ugly code
+shapes.forEach(async (pair) => {
+    // Lazy & ugly code
     pair.first = await (await fetch(pair.first)).text();
     pair.second = await (await fetch(pair.second)).text();
 });
@@ -65,9 +66,8 @@ export class PortStyle {
     }
 
     static getStyle(instance: PortInstance | undefined): PortStyle {
-        if (instance == undefined)
-            return PortStyle.PORT_STYLE_UNRESOLVED.clone();
-        let style: PortStyle = PortStyle.PORT_STYLE_UNRESOLVED.clone();
+        if (instance == undefined) return PortStyle.PORT_STYLE_UNRESOLVED.clone();
+        let style: PortStyle;
         switch (instance.type.commonName) {
             case "Builtin_Numeric": {
                 style = PortStyle.PORT_STYLE_CV.clone();
@@ -86,7 +86,7 @@ export class PortStyle {
                 break;
             }
             default: {
-                style = PortStyle.PORT_STYLE_OTHER.clone()
+                style = PortStyle.PORT_STYLE_OTHER.clone();
                 break;
             }
         }

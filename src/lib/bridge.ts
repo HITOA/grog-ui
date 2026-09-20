@@ -4,7 +4,7 @@ interface PendingRequest<T = unknown> {
 }
 
 let requestId = 0;
-const pendingRequests = new Map<number, PendingRequest<any>>();
+const pendingRequests = new Map<number, PendingRequest<unknown>>();
 
 interface OutgoingMessage {
     id: number;
@@ -19,7 +19,16 @@ interface IncomingMessage {
     error?: string;
 }
 
-export function callNative<TResponse = unknown>(type: string, payload: Record<string, unknown> = {}, timeout_delay: number = 5000) {
+export interface GrogEvent<T> {
+    data?: T;
+    error?: string;
+}
+
+export function callNative<TResponse = unknown>(
+    type: string,
+    payload: Record<string, unknown> = {},
+    timeout_delay: number = 5000,
+) {
     return new Promise<TResponse>((resolve, reject) => {
         const id = requestId++;
         const timeout = setTimeout(() => {
@@ -28,12 +37,18 @@ export function callNative<TResponse = unknown>(type: string, payload: Record<st
                 reject(new Error(`Native call "${type}" timed out`));
             }
         }, timeout_delay);
-        pendingRequests.set(id, { 
-            resolve: (value: TResponse) => { clearTimeout(timeout); resolve(value); }, 
-            reject: (err: Error) => { clearTimeout(timeout); reject(err); }
+        pendingRequests.set(id, {
+            resolve: (value: unknown) => {
+                clearTimeout(timeout);
+                resolve(value as TResponse);
+            },
+            reject: (err: Error) => {
+                clearTimeout(timeout);
+                reject(err);
+            },
         });
 
-        const message: OutgoingMessage = { id, type, ...payload }
+        const message: OutgoingMessage = { id, type, ...payload };
         window.postMessage(JSON.stringify(message));
     });
 }
@@ -45,19 +60,15 @@ function onNativeMessage(data: unknown): void {
         const pending = pendingRequests.get(msg.id);
         pendingRequests.delete(msg.id);
 
-        if (msg.error)
-            pending?.reject(new Error(msg.error))
-        else if (!("data" in msg))
-            pending?.resolve(void(0));
-        else
-            pending?.resolve(msg.data)
-
+        if (msg.error) pending?.reject(new Error(msg.error));
+        else if (!("data" in msg)) pending?.resolve(void 0);
+        else pending?.resolve(msg.data);
     } else if ("type" in msg && msg.type !== undefined) {
         const event = new CustomEvent(msg.type, {
             detail: {
                 data: msg.data,
-                error: msg.error
-            }
+                error: msg.error,
+            },
         });
         window.dispatchEvent(event);
     }

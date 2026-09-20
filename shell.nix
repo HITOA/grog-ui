@@ -1,7 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.mkShell {
-    nativeBuildInputs = with pkgs; [ 
+    nativeBuildInputs = with pkgs; [
         nodejs
         cmake
+        gh
     ];
 }

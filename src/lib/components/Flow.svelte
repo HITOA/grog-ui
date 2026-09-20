@@ -1,9 +1,8 @@
 <script lang="ts">
-    import GenericNode from './nodes/GenericNode.svelte';
-    import { grogState } from '../state.svelte';
+    import GenericNode from "./nodes/GenericNode.svelte";
+    import { grogState } from "../state.svelte";
     import {
         SvelteFlow,
-        Controls,
         SelectionMode,
         type NodeTargetEventWithPointer,
         type OnConnect,
@@ -15,14 +14,13 @@
         type OnBeforeDelete,
         type XYPosition,
         MiniMap,
-    } from '@xyflow/svelte';
-    import { createConnection, deleteNodesAndEdges, instantiateSubgraph, updateNodesPosition } from '../actions';
-    import GenericEdge from './nodes/GenericEdge.svelte';
-    import type { Connection, NodeInstance } from '../types';
-    import { assertIsGenericEdge, assertIsGenericNode } from '../assertions';
-    import { API } from '../api';
-    import GenericBackground from './GenericBackground.svelte';
-    
+    } from "@xyflow/svelte";
+    import { createConnection, deleteNodesAndEdges, instantiateSubgraph, updateNodesPosition } from "../actions";
+    import GenericEdge from "./nodes/GenericEdge.svelte";
+    import type { Connection, NodeInstance } from "../types";
+    import { assertIsGenericNode } from "../assertions";
+    import GenericBackground from "./GenericBackground.svelte";
+
     const nodeTypes = { genericNode: GenericNode };
     const edgeTypes = { genericEdge: GenericEdge };
 
@@ -36,103 +34,94 @@
     }
 
     const onNodeDragStop: NodeTargetEventWithPointer<MouseEvent | TouchEvent> = ({ nodes }) => {
-        updateNodesPosition(nodes)
-    }
+        updateNodesPosition(nodes);
+    };
 
     const onConnect: OnConnect = (connection) => {
         createConnection(connection, updateNodeData);
-    }
+    };
 
-    const onConnectStart: OnConnectStart = (event, params) => {
+    const onConnectStart: OnConnectStart = () => {
         setNodesWillChange("transform");
-    }
+    };
 
-    const onConnectEnd: OnConnectEnd = (event, connectionState) => {
+    const onConnectEnd: OnConnectEnd = () => {
         setNodesWillChange("auto");
-    }
+    };
 
-    const onMoveStart: OnMoveStart = (event, viewport) => {
+    const onMoveStart: OnMoveStart = () => {
         setNodesWillChange("transform");
-    }
+    };
 
-    const onMoveEnd: OnMoveEnd = (event, viewport) => {
+    const onMoveEnd: OnMoveEnd = () => {
         setNodesWillChange("auto");
-    }
+    };
 
     const onBeforeDelete: OnBeforeDelete = ({ nodes, edges }) => {
         let nodesInstance: NodeInstance[] = [];
         let connections: Connection[] = [];
 
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
             assertIsGenericNode(node);
             nodesInstance.push(node.data.instance);
-        })
+        });
 
-        edges.forEach(edge => {
-            if (edge.id === undefined || edge.id === null)
-                return new Promise<boolean>((res, rej) => res(false));
+        edges.forEach((edge) => {
+            if (edge.id === undefined || edge.id === null) return new Promise<boolean>((res) => res(false));
             let connection: Connection = {
                 identity: parseInt(edge.id),
                 outNode: parseInt(edge.source),
                 outPort: parseInt(edge.sourceHandle ? edge.sourceHandle : "0"),
                 inNode: parseInt(edge.target),
-                inPort: parseInt(edge.targetHandle ? edge.targetHandle : "0")
+                inPort: parseInt(edge.targetHandle ? edge.targetHandle : "0"),
             };
             connections.push(connection);
-        })
+        });
 
         return deleteNodesAndEdges(nodesInstance, connections, updateNodeData);
-    }
+    };
 
     const onDragOver = (event: DragEvent) => {
         event.preventDefault();
-    }
+    };
 
     const OnDrop = (event: DragEvent) => {
         event.preventDefault();
-        
+
         let subgraphId = event.dataTransfer?.getData("subgraphId");
         let position: XYPosition = { x: event.clientX, y: event.clientY };
         position = screenToFlowPosition(position);
 
-        if (subgraphId)
-            instantiateSubgraph(parseInt(subgraphId), position);
-    }
-
+        if (subgraphId) instantiateSubgraph(parseInt(subgraphId), position);
+    };
 </script>
 
-<SvelteFlow 
-    bind:nodes={ grogState.currentFlow.nodes }
-    bind:edges={ grogState.currentFlow.edges }
-    nodeTypes={nodeTypes}
-    edgeTypes={edgeTypes}
+<SvelteFlow
+    bind:nodes={grogState.currentFlow.nodes}
+    bind:edges={grogState.currentFlow.edges}
+    {nodeTypes}
+    {edgeTypes}
     defaultEdgeOptions={{ type: "genericEdge" }}
     selectionOnDrag
     panOnDrag={[1]}
-    selectionMode={SelectionMode.Partial} 
+    selectionMode={SelectionMode.Partial}
     onlyRenderVisibleElements={false}
     elevateEdgesOnSelect={false}
     deleteKey={["Backspace", "Delete"]}
-
     onconnectstart={onConnectStart}
     onconnectend={onConnectEnd}
     onnodedragstop={onNodeDragStop}
     onconnect={onConnect}
     onbeforedelete={onBeforeDelete}
-
     onmovestart={onMoveStart}
     onmoveend={onMoveEnd}
-
     ondragover={onDragOver}
     ondrop={OnDrop}
-
     proOptions={{ hideAttribution: true }}
-
     colorMode="dark"
-
     minZoom={0.5}
     maxZoom={2.0}
 >
-    <MiniMap/>
+    <MiniMap />
     <GenericBackground />
 </SvelteFlow>
