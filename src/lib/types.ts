@@ -107,6 +107,7 @@ export interface PresetMetadata {
     tags: string[];
     creation: number;
     lastModified: number;
+    version?: number;
     filename: string;
 }
 

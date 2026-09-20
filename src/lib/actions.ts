@@ -9,7 +9,7 @@ import type {
 } from "./types";
 import type { GenericNodeType } from "./components/nodes/GenericNode";
 import * as API from "./api";
-import { FlowContext, grogState } from "./state.svelte";
+import { FlowContext, grogState, ViewType } from "./state.svelte";
 import { type Connection, type Edge, type Node, type XYPosition } from "@xyflow/svelte";
 import { assertIsGenericNode, assertIsString } from "./assertions";
 import type { GenericEdgeType } from "./components/nodes/GenericEdge";
@@ -318,5 +318,13 @@ export function dumpGraphIR() {
 export function updatePresetList() {
     API.getPresetList().then((presets) => {
         grogState.presetList = presets;
+    });
+}
+
+export function loadPreset(filename: string) {
+    API.loadPreset(filename).then((success) => {
+        // The host reconciles the graphs via pushed events; just return to the
+        // flow view once the preset was accepted.
+        if (success) grogState.view = ViewType.Flow;
     });
 }
