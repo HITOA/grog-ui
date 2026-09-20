@@ -42,7 +42,7 @@
     <span class="title">GROG</span>
     <Menubar.Root>
         <Menubar.Menu>
-            <Menubar.Trigger class="context-menu">File</Menubar.Trigger>
+            <Menubar.Trigger class="menu-bar-trigger">File</Menubar.Trigger>
             <Menubar.Portal>
                 <Menubar.Content class="context-menu-frame" style="z-index: 2;">
                     <Menubar.Item class="context-menu-item" onclick={onNewPreset}>New Preset</Menubar.Item>

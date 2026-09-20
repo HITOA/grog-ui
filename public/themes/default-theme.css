@@ -10,23 +10,21 @@
      1. Design tokens (:root)
      2. Base
      3. Top menu bar
-     4. Context menus (shared: menu bar + tab bar)
+     4. Context menus (shared popover: menu bar + tab bar + node menu)
      5. Tab bar
      6. Flow canvas + add-node menu
      7. Nodes & ports
      8. Preset view
    ========================================================================== */
 
-/* ============================================================================
-   1. DESIGN TOKENS
-   ========================================================================== */
+/* 1. DESIGN TOKENS */
 :root {
     /* --- Typography --- */
     --font-ui: -apple-system, "Segoe UI", sans-serif;
 
     /* --- Text --- */
     --color-text: #dadada; /* primary UI text + most icon fills */
-    --color-text-muted: #d1cfd1af; /* dimmed menu-bar dropdown text */
+    --color-text-muted: #d1cfd1af; /* dimmed menu-bar text */
     --color-text-node: #d7d3d6; /* node body text */
     --color-node-label: #ffffffc0; /* node titles, port labels, controls */
     --color-node-placeholder: #ffffff4f; /* empty feedback selector */
@@ -39,7 +37,7 @@
 
     /* --- Surfaces (solid backgrounds) --- */
     --surface-menu: #202126; /* dropdowns, inputs, buttons */
-    --surface-menu-input: #27272d; /* add-node command input */
+    --surface-menu-input: #27272d; /* add-node search field */
     --surface-hover: #393945; /* hovered / selected menu items */
     --surface-tab: #1f2025; /* idle tab */
     --surface-tab-hover: #292a31; /* hovered / selected tab */
@@ -68,7 +66,7 @@
     --color-selection-fill: rgba(161, 161, 161, 0.067);
     --color-selection-border: rgb(143, 143, 143);
 
-    /* --- Primary / compile button --- */
+    /* --- Compile / primary button --- */
     --accent: #386b59;
     --accent-hover: #478771; /* also the button border */
     --accent-shadow: #2b5044;
@@ -116,9 +114,7 @@
     --grad-port-control: radial-gradient(#2d3a50, #293040);
 }
 
-/* ============================================================================
-   2. BASE
-   ========================================================================== */
+/* 2. BASE */
 #app {
     color: var(--color-text);
     font-family: var(--font-ui);
@@ -133,9 +129,14 @@
     outline: none;
 }
 
-/* ============================================================================
-   3. TOP MENU BAR
-   ========================================================================== */
+/* Form controls don't inherit the app font by default. */
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+/* 3. TOP MENU BAR */
 .main-menu-bar-frame {
     width: 100%;
     height: 50px;
@@ -148,7 +149,6 @@
 .title {
     margin-left: 10px;
     margin-right: 20px;
-    font-family: var(--font-ui);
     font-weight: bold;
     color: var(--color-title);
     user-select: none;
@@ -167,6 +167,19 @@
     margin-left: 10px;
     border-radius: var(--radius-sm);
     user-select: none;
+}
+
+.menu-bar-trigger {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-size: 16px;
+    background: transparent;
+    transition: background-color var(--transition-fast);
+    user-select: none;
+    border: 0px;
 }
 
 .preset-selector {
@@ -196,71 +209,61 @@
     border: 0px;
 }
 
-.preset-selector-button:hover {
-    background-color: var(--overlay-hover);
-}
-
 .preset-name {
     min-width: 200px;
     width: 100%;
     height: 100%;
-    user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: transparent;
     transition: background-color var(--transition-fast);
+    user-select: none;
 }
 
+.menu-bar-trigger:hover,
+.preset-selector-button:hover,
 .preset-name:hover {
     background-color: var(--overlay-hover);
 }
 
-.compile-button {
+/* Compile & close buttons share a shape; per-button colours come from the
+   local --btn-* vars set on each. */
+.compile-button,
+.close-button {
     display: flex;
     align-items: center;
     gap: 8px;
+    border-radius: var(--radius-lg);
+    color: var(--color-text);
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    filter: drop-shadow(0px 2px var(--btn-tint));
+    transition: background-color var(--transition-fast);
+    user-select: none;
+}
+
+.compile-button:hover,
+.close-button:hover {
+    background-color: var(--btn-hover);
+}
+
+.compile-button:active,
+.close-button:active {
+    transform: translateY(2px);
+    filter: drop-shadow(0px 0px var(--btn-tint));
+}
+
+.compile-button {
+    --btn-bg: var(--accent);
+    --btn-hover: var(--accent-hover);
+    --btn-border: var(--accent-hover);
+    --btn-tint: var(--accent-shadow);
     margin-right: 10px;
     padding: 5px 15px;
-    background-color: var(--accent);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--accent-hover);
-    color: var(--color-text);
-    font-family: var(--font-ui);
-    filter: drop-shadow(0px 2px var(--accent-shadow));
-    transition: background-color var(--transition-fast);
-    user-select: none;
 }
 
-.compile-button:hover {
-    background-color: var(--accent-hover);
-}
-
-.compile-button:active {
-    transform: translateY(2px);
-    filter: drop-shadow(0px 0px var(--accent-shadow));
-}
-
-/* ============================================================================
-   4. CONTEXT MENUS (shared by the menu bar dropdowns and tab right-click menu)
-   ========================================================================== */
-.context-menu {
-    display: flex;
-    align-items: center;
-    padding: 5px 10px;
-    border-radius: var(--radius-md);
-    color: var(--color-text-muted);
-    font-size: 16px;
-    background: transparent;
-    transition: background-color var(--transition-fast);
-    user-select: none;
-    border: 0px;
-}
-
-.context-menu:hover {
-    background-color: var(--overlay-hover);
-}
-
+/* 4. CONTEXT MENUS (shared popover: menu-bar dropdowns, tab & node menus) */
 .context-menu-frame {
     background-color: var(--surface-menu);
     border-radius: var(--radius-md);
@@ -288,9 +291,7 @@
     background-color: var(--border-menu);
 }
 
-/* ============================================================================
-   5. TAB BAR
-   ========================================================================== */
+/* 5. TAB BAR */
 .tab {
     display: flex;
     align-items: center;
@@ -312,7 +313,6 @@
     border: 0px solid transparent;
     padding: 1px 7px;
     color: var(--color-text);
-    font-family: var(--font-ui);
 }
 
 .tab-item-bg {
@@ -341,12 +341,12 @@
     user-select: none;
 }
 
-.tab-item:hover {
+.tab-item:hover,
+.tab-item[data-tab-selected="true"] {
     background-color: var(--surface-tab-hover);
 }
 
 .tab-item[data-tab-selected="true"] {
-    background-color: var(--surface-tab-hover);
     border-bottom: 1px solid var(--color-tab-active);
 }
 
@@ -355,9 +355,8 @@
     align-items: center;
     height: 100%;
     padding: 1px 7px;
-    color: var(--color-text);
-    font-family: var(--font-ui);
     margin: 0px;
+    color: var(--color-text);
     border: 0px solid transparent;
     background-color: transparent;
     user-select: none;
@@ -369,15 +368,18 @@
     fill: var(--icon-hover);
 }
 
-.tab-item-icon {
+.tab-item-icon,
+.tab-item-plus {
     fill: currentColor;
+}
+
+.tab-item-icon {
     height: 22px;
     width: 22px;
     margin-right: 7px;
 }
 
 .tab-item-plus {
-    fill: currentColor;
     height: 25px;
     width: 25px;
 }
@@ -387,76 +389,10 @@
     width: 20px;
 }
 
-/* ============================================================================
-   6. FLOW CANVAS + ADD-NODE MENU
-   ========================================================================== */
+/* 6. FLOW CANVAS + ADD-NODE MENU */
 .flow-container {
     width: 100%;
     flex: 1 1 auto;
-}
-
-.menu-frame {
-    padding: 0px;
-    border-radius: var(--radius-md);
-    border: 1.5px solid transparent;
-    box-shadow: var(--shadow-menu);
-    background:
-        var(--grad-menu-fill) padding-box,
-        var(--grad-edge) border-box,
-        var(--grad-menu-border) border-box;
-}
-
-.menu-input-icon {
-    position: absolute;
-    top: 7px;
-    left: 5px;
-    height: 20px;
-    width: 20px;
-    fill: var(--color-text);
-}
-
-.menu-input {
-    color: var(--color-text);
-    background: var(--surface-menu-input);
-    padding: 8px 6px;
-    padding-left: 30px;
-    border: 1px solid transparent;
-    border-bottom: 1px solid var(--border-input);
-}
-
-.menu-item {
-    display: flex;
-    border-radius: var(--radius-md);
-    padding: 4px;
-    margin: 2px;
-    user-select: none;
-    transition: background-color var(--transition-fast);
-}
-
-.menu-item[data-highlighted] {
-    background-color: var(--surface-hover);
-}
-
-.menu-item[data-selected] {
-    background-color: var(--surface-hover);
-}
-
-.menu-item-text {
-    flex-grow: 1;
-}
-
-.menu-item-folder-icon {
-    width: 20px;
-    height: 20px;
-    fill: var(--color-text);
-}
-
-.menu-item-file-count {
-    background-color: var(--overlay-count);
-    border-radius: var(--radius-sm);
-    padding: 3px 5px;
-    margin-left: 4px;
-    font-size: 10px;
 }
 
 .flow-background {
@@ -479,9 +415,68 @@
     mix-blend-mode: multiply;
 }
 
-/* ============================================================================
-   7. NODES & PORTS
-   ========================================================================== */
+.add-node-menu {
+    padding: 0px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid transparent;
+    box-shadow: var(--shadow-menu);
+    background:
+        var(--grad-menu-fill) padding-box,
+        var(--grad-edge) border-box,
+        var(--grad-menu-border) border-box;
+}
+
+.add-node-input {
+    color: var(--color-text);
+    background: var(--surface-menu-input);
+    padding: 8px 6px;
+    padding-left: 30px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--border-input);
+}
+
+.add-node-input-icon {
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    height: 20px;
+    width: 20px;
+    fill: var(--color-text);
+}
+
+.add-node-item {
+    display: flex;
+    border-radius: var(--radius-md);
+    padding: 4px;
+    margin: 2px;
+    user-select: none;
+    transition: background-color var(--transition-fast);
+}
+
+.add-node-item[data-highlighted],
+.add-node-item[data-selected] {
+    background-color: var(--surface-hover);
+}
+
+.add-node-item-text {
+    flex-grow: 1;
+}
+
+.add-node-item-folder-icon {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-text);
+}
+
+.add-node-item-file-count {
+    background-color: var(--overlay-count);
+    border-radius: var(--radius-sm);
+    padding: 3px 5px;
+    margin-left: 4px;
+    font-size: 10px;
+}
+
+/* 7. NODES & PORTS */
 .node-frame {
     position: relative;
     border: 1.5px solid transparent;
@@ -535,18 +530,32 @@
         var(--grad-header-fill) padding-box;
 }
 
-.node-inputs {
+/* Input column and parameter footer share the same grid layout. */
+.node-inputs,
+.node-footer {
     display: grid;
-    grid-template-columns: auto auto auto;
     place-content: start;
-    flex-grow: 1;
-    flex-direction: column;
-    gap: 4px;
     align-items: center;
+    flex-grow: 1;
+    gap: 4px;
+}
+
+.node-inputs {
+    grid-template-columns: auto auto auto;
     padding: 5px 0px;
     padding-right: 5px;
     border-right: 1px solid var(--node-divider);
     background: var(--grad-node-inputs) padding-box;
+}
+
+.node-footer {
+    grid-template-columns: auto auto;
+    padding: 5px 0px;
+    border-top: 1px solid transparent;
+    background:
+        var(--grad-footer-shadow) border-box,
+        var(--grad-footer-fill) padding-box,
+        var(--grad-footer-border) border-box;
 }
 
 .node-outputs {
@@ -558,52 +567,33 @@
     gap: 4px;
 }
 
-.node-footer {
-    display: grid;
-    grid-template-columns: auto auto;
-    place-content: start;
-    flex-grow: 1;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    border-top: 1px solid transparent;
-    background:
-        var(--grad-footer-shadow) border-box,
-        var(--grad-footer-fill) padding-box,
-        var(--grad-footer-border) border-box;
-}
-
 .node-row {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.node-name-label {
+/* Bold node title, shared by the static label and the feedback selector. */
+.node-name-label,
+.node-feedback-selector {
     field-sizing: content;
-    background-color: transparent;
-    border: 0px solid transparent;
     color: var(--color-node-label);
-    font-family: var(--font-ui);
     font-size: 16px;
     font-weight: bolder;
-    padding: 0px;
     margin: 0px;
 }
 
+.node-name-label {
+    background-color: transparent;
+    border: 0px solid transparent;
+    padding: 0px;
+}
+
 .node-feedback-selector {
-    field-sizing: content;
     background-color: var(--overlay-feedback);
     border: 1px solid var(--border-control);
     border-radius: var(--radius-lg);
-    color: var(--color-node-label);
-    font-family: var(--font-ui);
-    font-size: 16px;
-    font-weight: bolder;
     padding: 5px 10px;
-    margin: 0px;
 }
 
 .node-feedback-selector[data-placeholder] {
@@ -647,9 +637,7 @@
     left: 15px;
 }
 
-/* ============================================================================
-   8. PRESET VIEW
-   ========================================================================== */
+/* 8. PRESET VIEW */
 .preset-window {
     width: 100%;
     flex-grow: 1;
@@ -670,28 +658,12 @@
 }
 
 .close-button {
-    display: flex;
-    align-items: center;
+    --btn-bg: var(--surface-menu);
+    --btn-hover: var(--border-input-strong);
+    --btn-border: var(--border-input-strong);
+    --btn-tint: #25252c;
     height: 30px;
-    gap: 8px;
     aspect-ratio: 1/1;
-    background-color: var(--surface-menu);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-input-strong);
-    color: var(--color-text);
-    font-family: var(--font-ui);
-    filter: drop-shadow(0px 2px #25252c);
-    transition: background-color var(--transition-fast);
-    user-select: none;
-}
-
-.close-button:hover {
-    background-color: var(--border-input-strong);
-}
-
-.close-button:active {
-    transform: translateY(2px);
-    filter: drop-shadow(0px 0px #25252c);
 }
 
 .close-button-icon {
@@ -711,5 +683,4 @@
     padding: 8px;
     border: 1px solid var(--border-input);
     border-radius: var(--radius-xl);
-    font-family: var(--font-ui);
 }
