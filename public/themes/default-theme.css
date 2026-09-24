@@ -15,6 +15,7 @@
      6. Flow canvas + add-node menu
      7. Nodes & ports
      8. Preset view
+     9. Footer (keyboard, performance wheels, telemetry)
    ========================================================================== */
 
 /* 1. DESIGN TOKENS */
@@ -112,6 +113,31 @@
     --grad-window-shadow: linear-gradient(180deg, #00000020, #00000000 50%, #00000020 100%);
     --grad-preset-window: linear-gradient(90deg, #101112, #1a1a1d 40%, #1a1a1d 60%, #101112 100%);
     --grad-port-control: radial-gradient(#2d3a50, #293040);
+
+    /* --- Footer (keyboard, wheels, telemetry) --- */
+    --surface-footer: #17181b; /* footer strip background */
+    --border-footer: #2a2b2f; /* footer top edge + panel dividers */
+    --footer-height: 132px;
+
+    /* Piano keys — muted ivory, not blinding white, to sit in the dark theme.
+       The face is a solid colour (so it can tween on press) sitting under a
+       constant translucent light→dark overlay that gives the top-lit shape. */
+    --key-white: #b4b5bc; /* white-key face */
+    --key-white-lip: #7c7d86; /* front-edge thickness under a white key */
+    --key-white-active: #93a3bd; /* pressed white key (accent-tinted) */
+    --key-white-border: #1c1d22;
+    --key-black: #1c1d22; /* black-key face */
+    --key-black-lip: #000000; /* front-edge thickness under a black key */
+    --key-black-active: #3f5673; /* pressed black key (accent-tinted) */
+    --key-black-border: #050506;
+
+    /* Performance wheels — flat recessed slot + chunky solid thumb grip */
+    --wheel-slot: #0e0f12;
+    --wheel-slot-border: #050506;
+    --wheel-grip: var(--surface-hover); /* reuse a UI surface so it matches */
+    --wheel-grip-border: #131419;
+    --wheel-grip-height: 20px;
+    --grad-footer-strip: linear-gradient(180deg, #1c1d21, #141517);
 }
 
 /* 2. BASE */
@@ -1052,4 +1078,250 @@ select {
     font-size: 11px;
     color: var(--color-text-muted);
     user-select: none;
+}
+
+/* 9. FOOTER (keyboard, performance wheels, telemetry) */
+.footer {
+    flex: 0 0 auto;
+    height: var(--footer-height);
+    box-sizing: border-box;
+    display: flex;
+    align-items: stretch;
+    gap: 1px;
+    background: var(--grad-footer-strip) padding-box;
+    border-top: 1px solid var(--border-footer);
+    filter: var(--shadow-bar);
+    z-index: 1;
+}
+
+/* Each footer section. Dividers are drawn between panels via the gap + track. */
+.footer-panel {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: var(--surface-footer);
+}
+
+.footer-wheels {
+    gap: 14px;
+    border-right: 1px solid var(--border-footer);
+}
+
+.footer-keyboard {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10px 16px;
+}
+
+.footer-stats {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 8px;
+    min-width: 110px;
+    border-left: 1px solid var(--border-footer);
+}
+
+.footer-stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    user-select: none;
+}
+
+.footer-stat-label {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footer-stat-value {
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+}
+
+/* --- Performance wheels --- */
+.wheel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    user-select: none;
+}
+
+/* A recessed slot cut into the panel: dark, with an inner shadow so the grip
+   reads as sitting down inside it. */
+.wheel-track {
+    position: relative;
+    flex: 1 1 auto;
+    width: 26px;
+    background-color: var(--wheel-slot);
+    border: 1px solid var(--wheel-slot-border);
+    border-radius: var(--radius-sm);
+    /* Flat recess: a single tight inner shadow at the top, no soft double glow. */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.65);
+    touch-action: none;
+    cursor: grab;
+}
+
+.wheel-track:active {
+    cursor: grabbing;
+}
+
+/* The thumb grip: a chunky, ribbed cylinder poking slightly out of the slot.
+   The repeating gradient are the horizontal ridges; the bevel shadows give it
+   top/bottom rounding so it looks grabbable. Centred on `bottom` via translate. */
+.wheel-indicator {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: var(--wheel-grip-height);
+    transform: translateY(50%);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--wheel-grip-border);
+    /* Flat solid tab: a top-lit sheen and a couple of subtle grip lines in a
+       central band — no cylindrical shading, matching the keys' flat faces. */
+    background-color: var(--wheel-grip);
+    background-image:
+        repeating-linear-gradient(180deg, transparent 0 4px, rgba(0, 0, 0, 0.2) 4px 5px) center / 100% 10px no-repeat,
+        linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 45%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 2px 1px rgba(0, 0, 0, 0.45);
+}
+
+/* Spring-back wheels (pitch bend) glide home when released. */
+.wheel-track-idle .wheel-indicator {
+    transition: bottom 140ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wheel-label {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- Piano keyboard --- */
+.keyboard {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    user-select: none;
+}
+
+.keyboard-whites {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Resting white key: a subtle top-lit face with a darker front lip (the
+   `border-bottom`) plus a drop shadow, so it reads as a slab with thickness. */
+.key-white {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: var(--key-white);
+    /* Flat face: a top-lit sheen fading out by mid-key, no soft bottom wash. */
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 45%);
+    border: 1px solid var(--key-white-border);
+    border-bottom: 6px solid var(--key-white-lip);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 2px 1px rgba(0, 0, 0, 0.28);
+    cursor: pointer;
+    transition:
+        border-bottom-width var(--transition-fast) ease-out,
+        box-shadow var(--transition-fast) ease-out,
+        background-color var(--transition-fast) ease-out;
+}
+
+.key-white:not(:first-child) {
+    margin-left: -1px;
+}
+
+/* Pressed: the key stays anchored at the top; its front lip (the visible
+   thickness) collapses flush with the bed. The recess shadow is concentrated
+   at the back (top) with a faint highlight at the front, so it reads as the
+   key dipping under the housing rather than the whole slab sliding down. */
+.key-white.key-active {
+    background-color: var(--key-white-active);
+    border-bottom-width: 1px;
+    box-shadow:
+        inset 0 8px 6px -4px rgba(0, 0, 0, 0.5),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.16);
+}
+
+/* Discreet note names near the front of the white keys. */
+.key-label {
+    margin-bottom: 6px;
+    font-size: 9px;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.28);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* C keys carry the octave (C2, C3, …) and are a touch bolder as anchors. */
+.key-label-c {
+    font-size: 11px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.34);
+}
+
+/* Black keys float over the white row on a pointer-transparent overlay so only
+   the keys themselves receive events. */
+.keyboard-blacks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Black keys are taller slabs standing proud of the whites: a strong front lip
+   and drop shadow sell the extra height. Note the transform carries the -50%
+   centring, so the pressed state must re-state it alongside translateY. */
+.key-black {
+    position: absolute;
+    top: 0;
+    /* Centred on the white-key boundary via translateX; width ~= 60% of a key. */
+    width: calc(0.6 / var(--white-count) * 100%);
+    height: 62%;
+    transform: translateX(-50%);
+    padding: 0;
+    margin: 0;
+    background-color: var(--key-black);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 50%);
+    border: 1px solid var(--key-black-border);
+    border-bottom: 6px solid var(--key-black-lip);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 3px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    cursor: pointer;
+    transition:
+        border-bottom-width var(--transition-fast) ease-out,
+        box-shadow var(--transition-fast) ease-out,
+        background-color var(--transition-fast) ease-out;
+}
+
+.key-black.key-active {
+    background-color: var(--key-black-active);
+    border-bottom-width: 1px;
+    box-shadow:
+        inset 0 8px 6px -4px rgba(0, 0, 0, 0.85),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.08);
 }

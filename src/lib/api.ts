@@ -151,3 +151,12 @@ export function getCurrentPresetMetadata(): Promise<PresetMetadata> {
 export function updateCurrentPresetMetadata(metadata: PresetMetadata): Promise<PresetMetadata> {
     return callNative<PresetMetadata>("update_current_preset_metadata", { metadata });
 }
+
+// Sends a raw MIDI message to the native host. `data` is the byte sequence of a
+// single MIDI message (status byte followed by its data bytes), e.g.
+// `[0x90, 60, 100]` for Note On, middle C, velocity 100. This is deliberately
+// low-level so any MIDI event (notes, control changes, pitch bend, …) can be
+// expressed. Prefer the typed builders in `midi.ts` over calling this directly.
+export function sendMidi(data: number[]): Promise<void> {
+    return callNative<void>("send_midi", { data });
+}

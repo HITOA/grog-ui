@@ -7,6 +7,7 @@
     import PresetBrowser from "./lib/components/PresetBrowser.svelte";
     import PresetEditor from "./lib/components/PresetEditor.svelte";
     import MainTabBar from "./lib/components/MainTabBar.svelte";
+    import Footer from "./lib/components/Footer.svelte";
 </script>
 
 <MainMenuBar />
@@ -23,3 +24,5 @@
 {:else if grogState.view == ViewType.PresetEditor}
     <PresetEditor />
 {/if}
+
+<Footer />
