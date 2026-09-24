@@ -321,10 +321,19 @@ export function updatePresetList() {
     });
 }
 
+export function updateCurrentPreset() {
+    API.getCurrentPresetMetadata().then((metadata) => {
+        grogState.currentPreset = metadata;
+    });
+}
+
 export function loadPreset(filename: string) {
     API.loadPreset(filename).then((success) => {
         // The host reconciles the graphs via pushed events; just return to the
-        // flow view once the preset was accepted.
-        if (success) grogState.view = ViewType.Flow;
+        // flow view once the preset was accepted, and refresh the current preset.
+        if (success) {
+            grogState.view = ViewType.Flow;
+            updateCurrentPreset();
+        }
     });
 }

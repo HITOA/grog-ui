@@ -141,3 +141,13 @@ export function savePreset(filename: string | undefined): Promise<boolean> {
 export function getPresetList(): Promise<PresetMetadata[]> {
     return callNative<PresetMetadata[]>("get_preset_list", {});
 }
+
+export function getCurrentPresetMetadata(): Promise<PresetMetadata> {
+    return callNative<PresetMetadata>("get_current_preset_metadata", {});
+}
+
+// Applies edited metadata to the current in-memory preset. The host bumps
+// `lastModified` and returns the stored metadata.
+export function updateCurrentPresetMetadata(metadata: PresetMetadata): Promise<PresetMetadata> {
+    return callNative<PresetMetadata>("update_current_preset_metadata", { metadata });
+}

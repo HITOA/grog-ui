@@ -20,6 +20,7 @@ export class GrogState {
 
     private _nodeDefinitionList: NodeDefinitionList = $state.raw({} as NodeDefinitionList);
     private _presetList: PresetMetadata[] = $state.raw([]);
+    private _currentPreset: PresetMetadata | undefined = $state.raw(undefined);
 
     private _flowContextList: FlowContext[] = $state.raw<FlowContext[]>([new FlowContext()]);
     private _currentFlowIndex: number = $state(0);
@@ -38,6 +39,14 @@ export class GrogState {
 
     get presetList(): PresetMetadata[] {
         return this._presetList;
+    }
+
+    set currentPreset(value: PresetMetadata | undefined) {
+        this._currentPreset = value;
+    }
+
+    get currentPreset(): PresetMetadata | undefined {
+        return this._currentPreset;
     }
 
     get currentFlow(): FlowContext {

@@ -10,6 +10,7 @@ import type { FeedbackEntry, GraphInstance } from "./lib/types";
 
 grogState.nodeDefinitionList = await API.getNodeDefinitionList();
 grogState.presetList = await API.getPresetList();
+grogState.currentPreset = await API.getCurrentPresetMetadata();
 
 setTheme("default-theme");
 

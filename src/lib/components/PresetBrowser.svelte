@@ -133,24 +133,22 @@
         {:else}
             {#each filtered as preset (preset.filename)}
                 <button class="preset-card" onclick={() => loadPreset(preset.filename)}>
-                    <div class="preset-card-head">
+                    <div class="preset-card-identity">
                         <span class="preset-card-name">{preset.name}</span>
-                        {#if preset.lastModified}
-                            <span class="preset-card-date">{formatDate(preset.lastModified)}</span>
+                        {#if preset.author}
+                            <span class="preset-card-author">by {preset.author}</span>
                         {/if}
                     </div>
-                    {#if preset.author}
-                        <span class="preset-card-author">by {preset.author}</span>
-                    {/if}
-                    {#if preset.description}
-                        <p class="preset-card-desc">{preset.description}</p>
-                    {/if}
+                    <span class="preset-card-desc">{preset.description}</span>
                     {#if preset.tags.length > 0}
                         <div class="preset-card-tags">
                             {#each preset.tags as tag (tag)}
                                 <span class="preset-tag">{tag}</span>
                             {/each}
                         </div>
+                    {/if}
+                    {#if preset.lastModified}
+                        <span class="preset-card-date">{formatDate(preset.lastModified)}</span>
                     {/if}
                 </button>
             {/each}

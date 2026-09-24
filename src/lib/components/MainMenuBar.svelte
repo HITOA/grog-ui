@@ -1,19 +1,25 @@
 <script lang="ts">
-    import { compileGraph, dumpGraphIR } from "../actions";
+    import { compileGraph, dumpGraphIR, loadPreset, updateCurrentPreset, updatePresetList } from "../actions";
     import { Button, ContextMenu, Menubar } from "bits-ui";
     import * as API from "../api";
     import { grogState, ViewType } from "../state.svelte";
 
     function onNewPreset() {
-        API.newPreset();
+        API.newPreset().then(() => updateCurrentPreset());
     }
 
     function onSavePreset() {
-        API.savePreset(undefined);
+        API.savePreset(undefined).then(() => {
+            updatePresetList();
+            updateCurrentPreset();
+        });
     }
 
     function onLoadPreset() {
-        API.loadPreset(undefined);
+        API.loadPreset(undefined).then(() => {
+            updatePresetList();
+            updateCurrentPreset();
+        });
     }
 
     function onBrowsePreset() {
@@ -22,6 +28,31 @@
 
     function onEditPreset() {
         grogState.view = ViewType.PresetEditor;
+    }
+
+    // Presets sorted alphabetically by name, for prev/next navigation.
+    let sortedPresets = $derived([...grogState.presetList].sort((a, b) => a.name.localeCompare(b.name)));
+
+    let currentIndex = $derived.by(() => {
+        const current = grogState.currentPreset;
+        if (!current) return -1;
+        return sortedPresets.findIndex((p) => p.filename === current.filename);
+    });
+
+    // Step to the previous (-1) or next (+1) preset, wrapping around the list.
+    function gotoPreset(offset: number): void {
+        const presets = sortedPresets;
+        if (presets.length === 0) return;
+        // When the current preset isn't in the saved list (e.g. a new/unsaved
+        // one), step in from either end.
+        const target =
+            currentIndex === -1
+                ? offset > 0
+                    ? 0
+                    : presets.length - 1
+                : (currentIndex + offset + presets.length) % presets.length;
+        if (target === currentIndex) return;
+        loadPreset(presets[target].filename);
     }
 </script>
 
@@ -56,7 +87,7 @@
         </Menubar.Menu>
     </Menubar.Root>
     <div class="preset-selector">
-        <Button.Root class="preset-selector-button">
+        <Button.Root class="preset-selector-button" onclick={() => gotoPreset(-1)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
                 ><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path
                     d="M201.4 297.4C188.9 309.9 188.9 330.2 201.4 342.7L361.4 502.7C373.9 515.2 394.2 515.2 406.7 502.7C419.2 490.2 419.2 469.9 406.7 457.4L269.3 320L406.6 182.6C419.1 170.1 419.1 149.8 406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3L201.3 297.3z"
@@ -65,7 +96,7 @@
         </Button.Root>
         <ContextMenu.Root>
             <ContextMenu.Trigger class="preset-name" onclick={onBrowsePreset}>
-                <span> Default </span>
+                <span>{grogState.currentPreset?.name || "Untitled"}</span>
             </ContextMenu.Trigger>
             <ContextMenu.Portal>
                 <ContextMenu.Content class="context-menu-frame" style="z-index: 2;">
@@ -76,7 +107,7 @@
                 </ContextMenu.Content>
             </ContextMenu.Portal>
         </ContextMenu.Root>
-        <Button.Root class="preset-selector-button">
+        <Button.Root class="preset-selector-button" onclick={() => gotoPreset(1)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
                 ><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path
                     d="M439.1 297.4C451.6 309.9 451.6 330.2 439.1 342.7L279.1 502.7C266.6 515.2 246.3 515.2 233.8 502.7C221.3 490.2 221.3 469.9 233.8 457.4L371.2 320L233.9 182.6C221.4 170.1 221.4 149.8 233.9 137.3C246.4 124.8 266.7 124.8 279.2 137.3L439.2 297.3z"
