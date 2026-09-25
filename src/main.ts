@@ -7,12 +7,15 @@ import { setTheme } from "./lib/theme";
 import { onUpdateFeedbackList, onUpdateGraph, onUpdateGraphs, updateGraphInstances } from "./lib/actions";
 import type { GrogEvent } from "./lib/bridge";
 import type { FeedbackEntry, GraphInstance } from "./lib/types";
+import { pluginHost } from "./lib/plugins/plugin-host.svelte";
 
 grogState.nodeDefinitionList = await API.getNodeDefinitionList();
 grogState.presetList = await API.getPresetList();
 grogState.currentPreset = await API.getCurrentPresetMetadata();
 
 setTheme("default-theme");
+
+pluginHost.init();
 
 updateGraphInstances();
 

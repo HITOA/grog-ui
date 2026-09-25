@@ -13,6 +13,7 @@ import { FlowContext, grogState, ViewType } from "./state.svelte";
 import { type Connection, type Edge, type Node, type XYPosition } from "@xyflow/svelte";
 import { assertIsGenericNode, assertIsString } from "./assertions";
 import type { GenericEdgeType } from "./components/nodes/GenericEdge";
+import { pluginHost } from "./plugins/plugin-host.svelte";
 
 export function onUpdateGraphs(instances: GraphInstance[]): void {
     const flowContexts: FlowContext[] = [];
@@ -60,6 +61,7 @@ export function onUpdateGraphs(instances: GraphInstance[]): void {
 
     grogState.flowContexts = flowContexts;
     if (grogState.currentFlowIndex >= flowContexts.length) grogState.currentFlowIndex = 0;
+    pluginHost.emit("graph.changed", { graphCount: flowContexts.length });
 }
 
 export function onUpdateGraph(instance: GraphInstance): void {
@@ -97,6 +99,7 @@ export function onUpdateGraph(instance: GraphInstance): void {
     grogState.currentFlow.nodes = nodes;
     grogState.currentFlow.edges = edges;
     grogState.currentFlow.feedbacks = instance.feedbacks;
+    pluginHost.emit("graph.changed", { nodeCount: nodes.length });
 }
 
 export function onUpdateFeedbackList(feedbacks: FeedbackEntry[]) {

@@ -3,6 +3,14 @@
     import { Button, ContextMenu, Menubar } from "bits-ui";
     import * as API from "../api";
     import { grogState, ViewType } from "../state.svelte";
+    import { pluginHost } from "../plugins/plugin-host.svelte";
+
+    // Clicking a plugin with parameters/commands opens its config window; a bare
+    // plugin just toggles on/off.
+    function onPluginClick(id: string, hasConfig: boolean, enabled: boolean): void {
+        if (hasConfig) pluginHost.openConfig(id);
+        else pluginHost.setEnabled(id, !enabled);
+    }
 
     function onNewPreset() {
         API.newPreset().then(() => updateCurrentPreset());
@@ -71,7 +79,7 @@
         </g>
     </svg>
     <span class="title">GROG</span>
-    <Menubar.Root>
+    <Menubar.Root style="display: flex;">
         <Menubar.Menu>
             <Menubar.Trigger class="menu-bar-trigger">File</Menubar.Trigger>
             <Menubar.Portal>
@@ -82,6 +90,26 @@
                     <Menubar.Item class="context-menu-item" onclick={onSavePreset}>Save Preset As...</Menubar.Item>
                     <Menubar.Separator class="context-menu-separator" />
                     <Menubar.Item class="context-menu-item" onclick={onLoadPreset}>Load Preset</Menubar.Item>
+                </Menubar.Content>
+            </Menubar.Portal>
+        </Menubar.Menu>
+        <Menubar.Menu>
+            <Menubar.Trigger class="menu-bar-trigger">Plugins</Menubar.Trigger>
+            <Menubar.Portal>
+                <Menubar.Content class="context-menu-frame" style="z-index: 2;">
+                    {#if pluginHost.plugins.length === 0}
+                        <Menubar.Item class="context-menu-item" disabled>No plugins</Menubar.Item>
+                    {:else}
+                        {#each pluginHost.plugins as plugin (plugin.id)}
+                            <Menubar.Item
+                                class="context-menu-item plugin-menu-item"
+                                onclick={() => onPluginClick(plugin.id, plugin.hasConfig, plugin.enabled)}
+                            >
+                                <span class="plugin-menu-dot" class:plugin-menu-dot-on={plugin.enabled}></span>
+                                <span>{plugin.manifest.name}</span>
+                            </Menubar.Item>
+                        {/each}
+                    {/if}
                 </Menubar.Content>
             </Menubar.Portal>
         </Menubar.Menu>

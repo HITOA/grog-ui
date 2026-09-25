@@ -8,6 +8,7 @@
     import PresetEditor from "./lib/components/PresetEditor.svelte";
     import MainTabBar from "./lib/components/MainTabBar.svelte";
     import Footer from "./lib/components/Footer.svelte";
+    import PluginConfig from "./lib/components/PluginConfig.svelte";
 </script>
 
 <MainMenuBar />
@@ -26,3 +27,5 @@
 {/if}
 
 <Footer />
+
+<PluginConfig />
