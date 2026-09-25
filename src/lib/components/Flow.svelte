@@ -122,6 +122,5 @@
     minZoom={0.5}
     maxZoom={2.0}
 >
-    <MiniMap />
     <GenericBackground />
 </SvelteFlow>

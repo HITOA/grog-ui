@@ -1,10 +1,13 @@
 /* ============================================================================
-   grog-ui — Default theme
+   grog-ui — Sonic theme  🦔  "Gotta go fast."
    ----------------------------------------------------------------------------
-   This whole theme lives in one file on purpose: a custom theme is a full
-   drop-in replacement (see setTheme() in src/lib/theme.ts), so it must be
-   self-contained. To recolour the UI, edit the tokens in :root below — every
-   rule references them. For deeper changes, override any rule directly.
+   A drop-in replacement theme (see setTheme() in src/lib/theme.ts) inspired by
+   the Genesis-era Green Hill Zone title screen: cobalt-blue surfaces, gold-ring
+   accents and outlines, banner-red / spring-green highlights, and the classic
+   wallpaper set behind the node canvas (under a soft veil so nodes stay legible).
+
+   Structure mirrors default-theme.css exactly — only the tokens and a couple of
+   canvas/keyboard rules differ. Recolour everything from the :root tokens below.
 
    Contents:
      1. Design tokens (:root)
@@ -23,60 +26,61 @@
     /* --- Typography --- */
     --font-ui: -apple-system, "Segoe UI", sans-serif;
 
-    /* --- Text --- */
-    --color-text: #dadada; /* primary UI text + most icon fills */
-    --color-text-muted: #d1cfd1af; /* dimmed menu-bar text */
-    --color-text-node: #d7d3d6; /* node body text */
-    --color-node-label: #ffffffc0; /* node titles, port labels, controls */
-    --color-node-placeholder: #ffffff4f; /* empty feedback selector */
+    /* --- Text (bright, cloud-white with a cool blue cast) --- */
+    --color-text: #eaf2ff; /* primary UI text + most icon fills */
+    --color-text-muted: #a9c4efcc; /* dimmed menu-bar text */
+    --color-text-node: #eef4ff; /* node body text */
+    --color-node-label: #ffffffdd; /* node titles, port labels, controls */
+    --color-node-placeholder: #ffffff55; /* empty feedback selector */
 
-    /* --- Accents --- */
-    --color-title: #819bbc; /* app title */
-    --color-logo-stroke: #386ac0; /* logo icon stroke */
-    --color-tab-active: #5679a1; /* selected-tab underline */
-    --color-node-selected: orange; /* selected-node outline */
+    /* --- Accents (gold rings) --- */
+    --color-title: #ffd23f; /* app title — ring gold */
+    --color-logo-stroke: #ffd23f; /* logo icon stroke */
+    --color-tab-active: #ffd23f; /* selected-tab underline */
+    --color-node-selected: #ffd23f; /* selected-node outline — a gold ring! */
 
-    /* --- Surfaces (solid backgrounds) --- */
-    --surface-menu: #202126; /* dropdowns, inputs, buttons */
-    --surface-menu-input: #27272d; /* add-node search field */
-    --surface-hover: #393945; /* hovered / selected menu items */
-    --surface-tab: #1f2025; /* idle tab */
-    --surface-tab-hover: #292a31; /* hovered / selected tab */
-    --surface-tab-track: #101113; /* tab strip background */
-    --surface-logo: #242830; /* logo tile */
+    /* --- Surfaces (deep cobalt / night-sky blue) --- */
+    --surface-menu: #12295e; /* dropdowns, inputs, buttons */
+    --surface-menu-input: #0e2350; /* add-node search field */
+    --surface-hover: #1f4aa8; /* hovered / selected menu items */
+    --surface-tab: #12285c; /* idle tab */
+    --surface-tab-hover: #1c3f92; /* hovered / selected tab */
+    --surface-tab-track: #081638; /* tab strip background */
+    --surface-logo: #0b1c46; /* logo tile */
 
-    /* --- Borders --- */
-    --border-menu: #2a2b2f; /* menu frames + separators */
-    --border-tab: #28292b; /* tab outlines */
-    --border-input: #32323c; /* text input borders */
-    --border-input-strong: #313137; /* close button border */
-    --border-control: #ffffff20; /* node inputs / feedback selector */
-    --border-logo: #252a32; /* logo tile border */
-    --node-divider: #19191c; /* internal node dividers */
+    /* --- Borders (blue frames, cool) --- */
+    --border-menu: #274a9c; /* menu frames + separators */
+    --border-tab: #274a9c; /* tab outlines */
+    --border-input: #2f57ab; /* text input borders */
+    --border-input-strong: #3a63bd; /* close button border */
+    --border-control: #ffffff28; /* node inputs / feedback selector */
+    --border-logo: #2a4ea0; /* logo tile border */
+    --node-divider: #0a1a44; /* internal node dividers */
 
     /* --- Interactive overlays --- */
-    --overlay-hover: #ffffff1a; /* subtle hover wash */
-    --overlay-count: #dadada0f; /* file-count pill */
-    --overlay-feedback: #00000010; /* feedback selector fill */
+    --overlay-hover: #ffffff1f; /* subtle hover wash */
+    --overlay-count: #ffd23f1f; /* file-count pill — faint gold */
+    --overlay-feedback: #00000020; /* feedback selector fill */
 
     /* --- Icon fills --- */
-    --icon-idle: #ffffff50;
-    --icon-hover: #ffffffc3;
+    --icon-idle: #bcd2f480;
+    --icon-hover: #ffffffdd;
 
-    /* --- Selection (flow canvas) --- */
-    --color-selection-fill: rgba(161, 161, 161, 0.067);
-    --color-selection-border: rgb(143, 143, 143);
+    /* --- Selection (flow canvas) — translucent ring gold --- */
+    --color-selection-fill: rgba(255, 210, 63, 0.1);
+    --color-selection-border: rgb(255, 210, 63);
 
-    /* --- Compile / primary button --- */
-    --accent: #386b59;
-    --accent-hover: #478771; /* also the button border */
-    --accent-shadow: #2b5044;
+    /* --- Compile / primary button — spring-green "GO" --- */
+    --accent: #2f9e3f;
+    --accent-hover: #40c454; /* also the button border */
+    --accent-shadow: #1b5f28;
 
-    /* --- Port colours (read by name from PortStyle.ts — keep these keys) --- */
-    --port-color-0: #f0e67a;
-    --port-color-1: #5bab97;
-    --port-color-2: #ab5b5b;
-    --port-unresolved: #929292;
+    /* --- Port colours (read by name from PortStyle.ts — keep these keys) ---
+       Ring gold, Sonic blue, banner red. */
+    --port-color-0: #ffd23f;
+    --port-color-1: #37a7ff;
+    --port-color-2: #e8402f;
+    --port-unresolved: #8fa8d6;
 
     /* --- Radii --- */
     --radius-sm: 4px;
@@ -89,55 +93,56 @@
     --transition-outline: 40ms;
 
     /* --- Elevation --- */
-    --shadow-menu: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
-    --shadow-node: drop-shadow(0px 14px 15px rgba(0, 0, 0, 0.5));
-    --shadow-bar: drop-shadow(0px 0px 3px #000000);
+    --shadow-menu: rgba(2, 8, 26, 0.45) 0px 14px 28px, rgba(2, 8, 26, 0.4) 0px 10px 10px;
+    --shadow-node: drop-shadow(0px 14px 15px rgba(2, 8, 26, 0.6));
+    --shadow-bar: drop-shadow(0px 0px 3px #030a1e);
 
     /* --- Gradients ---
        Stored without a paint box (border-box / padding-box) so each rule can
        append the box it needs. Layer order is top-most first. */
-    --grad-bar: linear-gradient(90deg, #101112, #1a1a1d 50%, #101112 100%);
-    --grad-edge: linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%);
-    --grad-tab-fill: linear-gradient(90deg, #1a1b1e, #242428 50%, #1a1b1e 100%);
-    --grad-menu-fill: linear-gradient(180deg, #1e1e22, #1a1a1d);
-    --grad-menu-border: linear-gradient(180deg, #474959, #323238);
-    --grad-canvas: linear-gradient(180deg, #252527, #0e0e0f);
-    --grad-node-fill: linear-gradient(180deg, #1c1e23, #17191d);
-    --grad-node-border: linear-gradient(180deg, #636372, #4e4e53);
-    --grad-header-shadow: linear-gradient(90deg, #00000025, #00000000 40%, #00000000 70%, #00000025 100%);
-    --grad-header-fill: linear-gradient(180deg, #3a3c44, #33333a 93%, #3a3c44 100%);
-    --grad-node-inputs: linear-gradient(180deg, #24252a, #202125);
-    --grad-footer-shadow: linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%);
-    --grad-footer-fill: linear-gradient(180deg, #3a3c44, #33333a);
-    --grad-footer-border: linear-gradient(90deg, #42444e, #636372 50%, #42444e 100%);
-    --grad-window-shadow: linear-gradient(180deg, #00000020, #00000000 50%, #00000020 100%);
-    --grad-preset-window: linear-gradient(90deg, #101112, #1a1a1d 40%, #1a1a1d 60%, #101112 100%);
-    --grad-port-control: radial-gradient(#2d3a50, #293040);
+    --grad-bar: linear-gradient(90deg, #08163a, #123072 50%, #08163a 100%);
+    --grad-edge: linear-gradient(90deg, #00000060, #00000000 50%, #00000060 100%);
+    --grad-tab-fill: linear-gradient(90deg, #0f2456, #1a3b84 50%, #0f2456 100%);
+    --grad-menu-fill: linear-gradient(180deg, #16327a, #0f2456);
+    --grad-menu-border: linear-gradient(180deg, #ffd85e, #a8760a); /* ring shine */
+    --grad-canvas: linear-gradient(180deg, #3a86d6, #12305f); /* sky, a fallback */
+    --grad-node-fill: linear-gradient(180deg, #16326f, #0f2452);
+    --grad-node-border: linear-gradient(180deg, #ffd85e, #b9831a); /* gold ring rim */
+    --grad-header-shadow: linear-gradient(90deg, #00000030, #00000000 40%, #00000000 70%, #00000030 100%);
+    --grad-header-fill: linear-gradient(180deg, #2a55ad, #16326f 93%, #2a55ad 100%);
+    --grad-node-inputs: linear-gradient(180deg, #143069, #0f2452);
+    --grad-footer-shadow: linear-gradient(90deg, #00000030, #00000000 50%, #00000030 100%);
+    --grad-footer-fill: linear-gradient(180deg, #2a55ad, #16326f);
+    --grad-footer-border: linear-gradient(90deg, #a8760a, #ffd85e 50%, #a8760a 100%); /* gold */
+    --grad-window-shadow: linear-gradient(180deg, #00000028, #00000000 50%, #00000028 100%);
+    --grad-preset-window: linear-gradient(90deg, #08163a, #0f2456 40%, #0f2456 60%, #08163a 100%);
+    --grad-port-control: radial-gradient(#1c3f8f, #12285c);
 
     /* --- Footer (keyboard, wheels, telemetry) --- */
-    --surface-footer: #17181b; /* footer strip background */
-    --border-footer: #2a2b2f; /* footer top edge + panel dividers */
+    --surface-footer: #0b1c46; /* footer strip background */
+    --border-footer: #274a9c; /* footer top edge + panel dividers */
     --footer-height: 132px;
 
-    /* Piano keys — muted ivory, not blinding white, to sit in the dark theme.
+    /* Piano keys — bright cloud-white ivory over the blue theme. Pressed keys
+       flash Sonic gold (white) / Sonic blue (black) for a bit of fun.
        The face is a solid colour (so it can tween on press) sitting under a
        constant translucent light→dark overlay that gives the top-lit shape. */
-    --key-white: #b4b5bc; /* white-key face */
-    --key-white-lip: #7c7d86; /* front-edge thickness under a white key */
-    --key-white-active: #93a3bd; /* pressed white key (accent-tinted) */
-    --key-white-border: #1c1d22;
-    --key-black: #1c1d22; /* black-key face */
-    --key-black-lip: #000000; /* front-edge thickness under a black key */
-    --key-black-active: #3f5673; /* pressed black key (accent-tinted) */
-    --key-black-border: #050506;
+    --key-white: #eef3fb; /* white-key face */
+    --key-white-lip: #93a6c4; /* front-edge thickness under a white key */
+    --key-white-active: #ffd23f; /* pressed white key — ring gold */
+    --key-white-border: #0b1c46;
+    --key-black: #0e1f4a; /* black-key face */
+    --key-black-lip: #04091f; /* front-edge thickness under a black key */
+    --key-black-active: #2f74ff; /* pressed black key — Sonic blue */
+    --key-black-border: #030814;
 
     /* Performance wheels — flat recessed slot + chunky solid thumb grip */
-    --wheel-slot: #0e0f12;
-    --wheel-slot-border: #050506;
+    --wheel-slot: #06122e;
+    --wheel-slot-border: #030a1e;
     --wheel-grip: var(--surface-hover); /* reuse a UI surface so it matches */
-    --wheel-grip-border: #131419;
+    --wheel-grip-border: #0a1e4a;
     --wheel-grip-height: 20px;
-    --grad-footer-strip: linear-gradient(180deg, #1c1d21, #141517);
+    --grad-footer-strip: linear-gradient(180deg, #10265c, #0a183d);
 }
 
 /* 2. BASE */
@@ -178,6 +183,8 @@ select {
     font-weight: bold;
     color: var(--color-title);
     user-select: none;
+    /* A little gold glow, like the ring emblem. */
+    text-shadow: 0 0 6px rgba(255, 210, 63, 0.5);
 }
 
 .logo {
@@ -218,7 +225,7 @@ select {
     border: 1px solid var(--border-menu);
     display: flex;
     align-items: center;
-    filter: drop-shadow(0px 1px #121214);
+    filter: drop-shadow(0px 1px #060f2a);
     overflow: hidden;
 }
 
@@ -422,24 +429,38 @@ select {
     flex: 1 1 auto;
 }
 
+/* The Green Hill Zone title screen sits behind the graph. The blue canvas
+   gradient is the element's own background; the grid <svg> is an in-flow child
+   painted on top of it. */
 .flow-background {
     position: relative;
     x: 0;
     y: 0;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    /* Establish a stacking context so the z-index:-1 wallpaper below stays
+       ABOVE this element's own background (and doesn't sink behind it). */
+    isolation: isolate;
     background:
         var(--grad-edge) padding-box,
         var(--grad-canvas) padding-box;
 }
 
-.flow-background::after {
+/* Blurred, faded wallpaper on its own layer BEHIND the grid. z-index:-1 tucks
+   it under the SVG grid lines (which stay crisp) but above the element's blue
+   background gradient — the low opacity lets that blue show through, so the art
+   reads as a soft backdrop rather than a photo. The negative inset hides the
+   soft edges the blur would otherwise reveal. */
+.flow-background::before {
     content: "";
     position: absolute;
-    inset: 0;
-    background-image: url("../noise-texture.png");
-    opacity: 0.2;
-    mix-blend-mode: multiply;
+    inset: -16px;
+    z-index: -1;
+    background: url("../assets/sonic-wallpaper.jpg") center / cover no-repeat;
+    filter: blur(3px);
+    opacity: 0.4;
+    pointer-events: none;
 }
 
 .add-node-menu {
@@ -702,7 +723,7 @@ select {
     --btn-bg: var(--surface-menu);
     --btn-hover: var(--border-input-strong);
     --btn-border: var(--border-input-strong);
-    --btn-tint: #25252c;
+    --btn-tint: #0a1a44;
     height: 30px;
     aspect-ratio: 1/1;
 }
@@ -971,8 +992,8 @@ select {
 .preset-input:focus,
 .preset-textarea:focus,
 .preset-tag-input:focus {
-    /* Subtle neutral focus (the app disables the default outline). */
-    border-color: var(--color-text-muted);
+    /* Focus ring in gold to match the theme. */
+    border-color: var(--color-title);
 }
 
 .preset-tag-editor {
