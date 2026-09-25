@@ -13,6 +13,13 @@ import type {
     PresetMetadata,
 } from "./types";
 
+// Optional extension filters for the native open-file dialog, e.g.
+// `[{ name: "SMPS", extensions: ["asm", "txt"] }]`.
+export interface FileFilter {
+    name: string;
+    extensions: string[];
+}
+
 export function getNodeDefinitionList(): Promise<NodeDefinitionList> {
     return callNative<NodeDefinitionList>("get_node_definition_list");
 }
@@ -159,4 +166,21 @@ export function updateCurrentPresetMetadata(metadata: PresetMetadata): Promise<P
 // expressed. Prefer the typed builders in `midi.ts` over calling this directly.
 export function sendMidi(data: number[]): Promise<void> {
     return callNative<void>("send_midi", { data });
+}
+
+export function getPluginList(): Promise<string[]> {
+    return callNative<string[]>("get_plugin_list", {});
+}
+
+// Opens a native open-file dialog and resolves with the chosen file's absolute
+// path, or `null` if the user cancelled. The dialog is modal and may stay open
+// as long as the user likes, so this passes timeout 0 (wait indefinitely).
+export function openFileDialog(filters?: FileFilter[]): Promise<string | null> {
+    return callNative<string | null>("open_file_dialog", { filters }, 0);
+}
+
+// Reads a file from disk (native-side) and resolves with its text contents.
+// Rejects if the path can't be read.
+export function readFile(path: string): Promise<string> {
+    return callNative<string>("read_file", { path });
 }

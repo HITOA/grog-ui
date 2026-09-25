@@ -38,6 +38,10 @@
         if (entry) pluginHost.setParam(entry.id, param.key, (event.target as HTMLSelectElement).value);
     }
 
+    async function browse(param: PluginParam): Promise<void> {
+        if (entry && param.type === "file") await pluginHost.browseParam(entry.id, param.key, param.filters);
+    }
+
     async function runCommand(commandId: string): Promise<void> {
         if (!entry) return;
         running = commandId;
@@ -118,6 +122,20 @@
                                     <option value={option.value}>{option.label}</option>
                                 {/each}
                             </select>
+                        {:else if param.type === "file"}
+                            <div class="plugin-file">
+                                <input
+                                    id={`param-${param.key}`}
+                                    class="plugin-input"
+                                    type="text"
+                                    placeholder="/path/to/file"
+                                    value={entry.params[param.key]}
+                                    oninput={(e) => onText(param, e)}
+                                />
+                                <button type="button" class="plugin-browse" onclick={() => browse(param)}>
+                                    Browse…
+                                </button>
+                            </div>
                         {:else}
                             <input
                                 id={`param-${param.key}`}
@@ -250,12 +268,15 @@
         user-select: none;
     }
 
+    /* Restrained, dark-theme error tint (soft red text on a deep red surface).
+       Themes can override via the --*-error tokens; sensible fallbacks otherwise. */
     .plugin-error {
         margin: 0;
         padding: 8px 10px;
         font-size: 12px;
-        color: var(--color-text);
-        background-color: var(--color-node-selected);
+        color: var(--color-error, #e2a3a3);
+        background-color: var(--surface-error, #2a1d1f);
+        border: 1px solid var(--border-error, #5c3234);
         border-radius: var(--radius-md);
     }
 
@@ -290,6 +311,32 @@
 
     .plugin-input:focus {
         border-color: var(--color-text-muted);
+    }
+
+    .plugin-file {
+        display: flex;
+        gap: 8px;
+    }
+
+    .plugin-file .plugin-input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .plugin-browse {
+        flex: 0 0 auto;
+        height: 34px;
+        padding: 0 14px;
+        color: var(--color-text);
+        background-color: var(--surface-menu-input);
+        border: 1px solid var(--border-input-strong);
+        border-radius: var(--radius-lg);
+        transition: background-color var(--transition-fast);
+        user-select: none;
+    }
+
+    .plugin-browse:hover {
+        background-color: var(--surface-hover);
     }
 
     .plugin-commands {

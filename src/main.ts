@@ -15,7 +15,7 @@ grogState.currentPreset = await API.getCurrentPresetMetadata();
 
 setTheme("default-theme");
 
-pluginHost.init();
+void pluginHost.init();
 
 updateGraphInstances();
 

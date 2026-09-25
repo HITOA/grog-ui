@@ -10,7 +10,14 @@
  * user plugins keep working across host refactors.
  */
 
-import type { NodePositionMove, ParamValue, PluginConnection, PluginNode } from "./protocol";
+import type {
+    CreateNodeOptions,
+    CreatedNode,
+    NodePositionMove,
+    ParamValue,
+    PluginConnection,
+    PluginNode,
+} from "./protocol";
 
 export const GROG_API_VERSION = "1.0";
 
@@ -43,6 +50,22 @@ export interface GrogApi {
         getConnections(): Promise<PluginConnection[]>;
         /** Move nodes to absolute positions (persisted host-side). */
         setNodePositions(moves: NodePositionMove[]): Promise<void>;
+        /**
+         * Create a node on the active graph. `key` is the node key — the `.vcl`
+         * path with the leading "Nodes/" and the ".vcl" removed (e.g. the file
+         * "Nodes/Utils/Gain.vcl" has key "Utils/Gain"). Returns the node's port
+         * identities so you can wire it up.
+         */
+        createNode(key: string, options?: CreateNodeOptions): Promise<CreatedNode>;
+        /** Connect an output port to an input port (both are identities from `createNode`). */
+        connect(sourceOutputPortId: number, targetInputPortId: number): Promise<void>;
+        /** Re-sync the canvas from the host after a batch of graph edits. */
+        refresh(): Promise<void>;
+    };
+
+    fs: {
+        /** Read a file from disk by path; resolves with its text (rejects if unreadable). */
+        readFile(path: string): Promise<string>;
     };
 
     midi: {
@@ -90,6 +113,12 @@ export function createGrogApi(callHost: HostCall, initialParams: Record<string, 
             getNodes: () => callHost("graph.getNodes", []) as Promise<PluginNode[]>,
             getConnections: () => callHost("graph.getConnections", []) as Promise<PluginConnection[]>,
             setNodePositions: (moves) => callHost("graph.setNodePositions", [moves]) as Promise<void>,
+            createNode: (key, options) => callHost("graph.createNode", [key, options]) as Promise<CreatedNode>,
+            connect: (source, target) => callHost("graph.connect", [source, target]) as Promise<void>,
+            refresh: () => callHost("graph.refresh", []) as Promise<void>,
+        },
+        fs: {
+            readFile: (path) => callHost("fs.readFile", [path]) as Promise<string>,
         },
         midi: {
             noteOn: (note, velocity, channel) => callHost("midi.noteOn", [note, velocity, channel]) as Promise<void>,

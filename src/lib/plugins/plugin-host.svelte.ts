@@ -7,24 +7,23 @@
  */
 
 import { handleHostCall } from "./host-api";
-import { builtinPlugins } from "./builtin";
+import { getPluginList, openFileDialog, readFile, type FileFilter } from "../api";
 import type { HostToWorker, ParamValue, PluginManifest, PluginParam, WorkerToHost } from "./protocol";
 
 /** Reactive per-plugin state. One instance per registered plugin. */
 export class PluginEntry {
+    /** Addressing key shared with the worker — the plugin's source file path. */
+    readonly id: string;
     readonly manifest: PluginManifest;
     enabled = $state(false);
     params = $state<Record<string, ParamValue>>({});
     busy = $state(false);
     error = $state<string | undefined>(undefined);
 
-    constructor(manifest: PluginManifest) {
+    constructor(id: string, manifest: PluginManifest) {
+        this.id = id;
         this.manifest = manifest;
         this.params = defaultParams(manifest.parameters);
-    }
-
-    get id(): string {
-        return this.manifest.id;
     }
 
     /** A plugin with parameters or commands gets a config window; others just toggle. */
@@ -49,14 +48,28 @@ class PluginHost {
     private commandReqId = 0;
     private pendingCommands = new Map<number, { resolve: () => void; reject: (e: Error) => void }>();
 
-    /** Boot the worker and register the bundled plugins. Call once at startup. */
-    init(): void {
+    /** Boot the worker and register every plugin the host discovered. Call once at startup. */
+    async init(): Promise<void> {
         if (this.worker) return;
         this.worker = new Worker(new URL("./plugin-worker.ts", import.meta.url), { type: "module" });
         this.worker.onmessage = (e: MessageEvent<WorkerToHost>) => this.onWorkerMessage(e.data);
 
-        for (const plugin of builtinPlugins) {
-            this.send({ kind: "register", pluginId: plugin.id, source: plugin.source });
+        // Fetch the plugin file list from the host, then register each one by its
+        // source text. The file path doubles as the plugin's addressing id.
+        let paths: string[];
+        try {
+            paths = await getPluginList();
+        } catch (err) {
+            console.error("failed to list plugins:", err);
+            return;
+        }
+        for (const path of paths) {
+            try {
+                const source = await readFile(path);
+                this.send({ kind: "register", pluginId: path, source });
+            } catch (err) {
+                console.error(`failed to read plugin "${path}":`, err);
+            }
         }
     }
 
@@ -93,6 +106,14 @@ class PluginHost {
         if (entry.enabled) this.send({ kind: "params", pluginId: id, params: $state.snapshot(entry.params) });
     }
 
+    /** Open a native file dialog for a `file` parameter and store the chosen path. */
+    async browseParam(id: string, key: string, filters?: FileFilter[]): Promise<void> {
+        // Contract is a bare path string, but tolerate a { path } object too.
+        const result: unknown = await openFileDialog(filters);
+        const path = typeof result === "string" ? result : ((result as { path?: string } | null)?.path ?? "");
+        if (path) this.setParam(id, key, path);
+    }
+
     /** Run a plugin command; resolves when the worker acks (rejects on error). */
     invokeCommand(id: string, commandId: string): Promise<void> {
         const entry = this.getEntry(id);
@@ -126,7 +147,7 @@ class PluginHost {
                     console.error(`plugin "${msg.pluginId}" failed to register:`, msg.error);
                     break;
                 }
-                this.plugins = [...this.plugins, new PluginEntry(msg.manifest)];
+                this.plugins = [...this.plugins, new PluginEntry(msg.pluginId, msg.manifest)];
                 break;
             }
             case "enabled": {

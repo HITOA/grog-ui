@@ -46,7 +46,15 @@ export interface EnumParam extends ParamBase {
     options: { value: string; label: string }[];
 }
 
-export type PluginParam = NumberParam | BooleanParam | StringParam | EnumParam;
+/** A filesystem path. Rendered as a text field plus a native "Browse" button. */
+export interface FileParam extends ParamBase {
+    type: "file";
+    default: string;
+    /** Optional extension filters for the Browse dialog. */
+    filters?: { name: string; extensions: string[] }[];
+}
+
+export type PluginParam = NumberParam | BooleanParam | StringParam | EnumParam | FileParam;
 
 /** A one-shot action a plugin exposes; rendered as a button in the config window. */
 export interface PluginCommand {
@@ -93,6 +101,29 @@ export interface NodePositionMove {
     id: string;
     x: number;
     y: number;
+}
+
+/** Initializer values a plugin can set on a freshly created node, keyed by port name. */
+export type PortValues = Record<string, number | boolean>;
+
+/** Options for `grog.graph.createNode`. */
+export interface CreateNodeOptions {
+    position?: { x: number; y: number };
+    /** Initializers to set on input ports, by port display name. */
+    inputs?: PortValues;
+    /** Initializers to set on parameter ports, by display name. */
+    parameters?: PortValues;
+}
+
+/**
+ * A node the host just created, with its ports mapped by display name to the
+ * host-assigned port identities — the plugin uses these to wire connections.
+ */
+export interface CreatedNode {
+    id: number;
+    inputs: Record<string, number>;
+    outputs: Record<string, number>;
+    parameters: Record<string, number>;
 }
 
 // --- Messages: host -> worker ---

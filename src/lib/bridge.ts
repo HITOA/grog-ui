@@ -27,16 +27,19 @@ export interface GrogEvent<T> {
 export function callNative<TResponse = unknown>(
     type: string,
     payload: Record<string, unknown> = {},
-    timeout_delay: number = 5000,
+    timeoutDelay: number = 5000,
 ) {
     return new Promise<TResponse>((resolve, reject) => {
         const id = requestId++;
-        const timeout = setTimeout(() => {
-            if (pendingRequests.has(id)) {
-                pendingRequests.delete(id);
-                reject(new Error(`Native call "${type}" timed out`));
-            }
-        }, timeout_delay);
+        const timeout =
+            timeoutDelay > 0
+                ? setTimeout(() => {
+                      if (pendingRequests.has(id)) {
+                          pendingRequests.delete(id);
+                          reject(new Error(`Native call "${type}" timed out`));
+                      }
+                  }, timeoutDelay)
+                : undefined;
         pendingRequests.set(id, {
             resolve: (value: unknown) => {
                 clearTimeout(timeout);

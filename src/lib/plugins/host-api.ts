@@ -10,9 +10,10 @@
 import * as API from "../api";
 import * as midi from "../midi";
 import { grogState } from "../state.svelte";
+import { onUpdateGraph } from "../actions";
 import { assertIsGenericNode } from "../assertions";
-import type { NodeMove } from "../types";
-import type { NodePositionMove, PluginConnection, PluginNode } from "./protocol";
+import type { Initializer, NodeMove } from "../types";
+import type { CreateNodeOptions, CreatedNode, NodePositionMove, PluginConnection, PluginNode } from "./protocol";
 
 // Fallback node footprint when the canvas hasn't measured a node yet.
 const DEFAULT_NODE_WIDTH = 180;
@@ -54,6 +55,50 @@ async function setNodePositions(moves: NodePositionMove[]): Promise<void> {
     });
 }
 
+async function createNode(key: string, options: CreateNodeOptions): Promise<CreatedNode> {
+    const graphId = grogState.currentFlowIndex;
+    const position = options.position ?? { x: 0, y: 0 };
+    const instance = await API.instantiateNode(graphId, key, position);
+
+    // Map each port's display name to the host-assigned identity so the plugin
+    // can address ports by name when setting initializers and wiring.
+    const inputs: Record<string, number> = {};
+    const outputs: Record<string, number> = {};
+    const parameters: Record<string, number> = {};
+    instance.inputs?.forEach((port) => (inputs[port.displayName] = port.identity));
+    instance.outputs?.forEach((port) => (outputs[port.displayName] = port.identity));
+    instance.parameters?.forEach((port) => (parameters[port.displayName] = port.identity));
+
+    // Apply requested initializers. Ports left unset keep the node's defaults
+    // (and any port that gets connected later is driven by its connection).
+    // They target distinct ports of the just-created node, so fire them together.
+    const inits: Promise<unknown>[] = [];
+    for (const [name, value] of Object.entries(options.inputs ?? {})) {
+        const id = inputs[name];
+        if (id !== undefined) inits.push(API.updateInitializer(graphId, id, value as Initializer));
+    }
+    for (const [name, value] of Object.entries(options.parameters ?? {})) {
+        const id = parameters[name];
+        if (id !== undefined) inits.push(API.updateInitializer(graphId, id, value as Initializer));
+    }
+    await Promise.all(inits);
+
+    return { id: instance.identity, inputs, outputs, parameters };
+}
+
+async function connect(sourceOutputPortId: number, targetInputPortId: number): Promise<void> {
+    const result = await API.createConnection(grogState.currentFlowIndex, sourceOutputPortId, targetInputPortId);
+    if (!result.isValid) {
+        throw new Error(`connection ${sourceOutputPortId} -> ${targetInputPortId} was rejected`);
+    }
+}
+
+async function refreshGraph(): Promise<void> {
+    // Pull authoritative state and rebuild the canvas — simpler and safer than
+    // tracking every incremental node/edge the plugin just created.
+    onUpdateGraph(await API.getGraphInstance(grogState.currentFlowIndex));
+}
+
 /**
  * Dispatch one plugin RPC. Args are positional, matching the `grog` facade in
  * `grog-api.ts`. Throwing here rejects the plugin's promise with the message.
@@ -66,6 +111,15 @@ export async function handleHostCall(method: string, args: unknown[]): Promise<u
             return getConnections();
         case "graph.setNodePositions":
             return setNodePositions(args[0] as NodePositionMove[]);
+        case "graph.createNode":
+            return createNode(args[0] as string, (args[1] ?? {}) as CreateNodeOptions);
+        case "graph.connect":
+            return connect(args[0] as number, args[1] as number);
+        case "graph.refresh":
+            return refreshGraph();
+
+        case "fs.readFile":
+            return API.readFile(args[0] as string);
 
         case "midi.noteOn":
             midi.noteOn(args[0] as number, (args[1] as number) ?? 100, (args[2] as number) ?? 0);
