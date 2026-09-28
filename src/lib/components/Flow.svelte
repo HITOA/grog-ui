@@ -13,12 +13,12 @@
         type OnConnectEnd,
         type OnBeforeDelete,
         type XYPosition,
-        MiniMap,
     } from "@xyflow/svelte";
     import { createConnection, deleteNodesAndEdges, instantiateSubgraph, updateNodesPosition } from "../actions";
     import GenericEdge from "./nodes/GenericEdge.svelte";
     import type { Connection, NodeInstance } from "../types";
     import { assertIsGenericNode } from "../assertions";
+    import { subgraphDrag } from "../drag.svelte";
     import GenericBackground from "./GenericBackground.svelte";
 
     const nodeTypes = { genericNode: GenericNode };
@@ -81,18 +81,18 @@
         return deleteNodesAndEdges(nodesInstance, connections, updateNodeData);
     };
 
-    const onDragOver = (event: DragEvent) => {
-        event.preventDefault();
-    };
+    // Drop target for a subgraph tab dragged in from the tab bar. The drag is
+    // pointer-driven (see drag.svelte.ts); on release over the canvas we read
+    // the dragged id and instantiate it at the pointer position. Releasing
+    // elsewhere never reaches here, so an off-canvas drop cancels silently.
+    const onPointerUp = (event: PointerEvent) => {
+        if (!subgraphDrag.dragging || subgraphDrag.subgraphId === null) return;
 
-    const OnDrop = (event: DragEvent) => {
-        event.preventDefault();
-
-        let subgraphId = event.dataTransfer?.getData("subgraphId");
         let position: XYPosition = { x: event.clientX, y: event.clientY };
         position = screenToFlowPosition(position);
 
-        if (subgraphId) instantiateSubgraph(parseInt(subgraphId), position);
+        instantiateSubgraph(subgraphDrag.subgraphId, position);
+        subgraphDrag.reset();
     };
 </script>
 
@@ -115,8 +115,7 @@
     onbeforedelete={onBeforeDelete}
     onmovestart={onMoveStart}
     onmoveend={onMoveEnd}
-    ondragover={onDragOver}
-    ondrop={OnDrop}
+    onpointerup={onPointerUp}
     proOptions={{ hideAttribution: true }}
     colorMode="dark"
     minZoom={0.5}

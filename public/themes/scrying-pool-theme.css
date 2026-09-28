@@ -1,149 +1,137 @@
 /* ============================================================================
-   grog-ui — Default theme
+   grog-ui — Scrying Pool theme  ✦  "As above, so below."
    ----------------------------------------------------------------------------
-   This whole theme lives in one file on purpose: a custom theme is a full
-   drop-in replacement (see setTheme() in src/lib/theme.ts), so it must be
-   self-contained. To recolour the UI, edit the tokens in :root below — every
-   rule references them. For deeper changes, override any rule directly.
+   A drop-in replacement theme (see setTheme() in src/lib/theme.ts): an enchanted
+   twilight. Violet velvet, antique-gold filigree, aurora teal and arcane magenta,
+   set in a serif face. Beyond colour it goes atmospheric — a drifting aurora and
+   a scatter of stars behind the graph, a shimmering gold title, and REAL
+   reflections: every module (and the logo) mirrors onto the pool below it via
+   -webkit-box-reflect. Motion is disabled under prefers-reduced-motion (§10).
+
+   Structure mirrors default-theme.css — tokens in :root, plus a §10 block.
 
    Contents:
-     1. Design tokens (:root)
-     2. Base
-     3. Top menu bar
-     4. Context menus (shared popover: menu bar + tab bar + node menu)
-     5. Tab bar
-     6. Flow canvas + add-node menu
-     7. Nodes & ports
-     8. Preset view
-     9. Footer (keyboard, performance wheels, telemetry)
-    10. Floating window (shared modal shell)
-    11. Preferences
-    12. Console
+     1. Design tokens (:root)   2. Base   3. Top menu bar   4. Context menus
+     5. Tab bar   6. Flow canvas + add-node menu   7. Nodes & ports
+     8. Preset view   9. Footer   10. Theme effects (reflection, aurora, shimmer)
    ========================================================================== */
 
 /* 1. DESIGN TOKENS */
 :root {
-    /* --- Typography --- */
-    --font-ui: -apple-system, "Segoe UI", sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    /* --- Typography (a serif, for the storybook voice) --- */
+    --font-ui: "Palatino Linotype", "Book Antiqua", Palatino, "Iowan Old Style", Georgia, serif;
 
-    /* --- Text --- */
-    --color-text: #dadada; /* primary UI text + most icon fills */
-    --color-text-muted: #d1cfd1af; /* dimmed menu-bar text */
-    --color-text-node: #d7d3d6; /* node body text */
-    --color-node-label: #ffffffc0; /* node titles, port labels, controls */
-    --color-node-placeholder: #ffffff4f; /* empty feedback selector */
+    /* --- Text (moonlit, warm-white) --- */
+    --color-text: #efe7ff;
+    --color-text-muted: #cdbff0cc;
+    --color-text-node: #f3ecff;
+    --color-node-label: #fff4dbdd;
+    --color-node-placeholder: #fff4db55;
 
-    /* --- Accents --- */
-    --color-title: #819bbc; /* app title */
-    --color-logo-stroke: #386ac0; /* logo icon stroke */
-    --color-tab-active: #5679a1; /* selected-tab underline */
-    --color-node-selected: orange; /* selected-node outline */
-    --color-danger: #e5484d; /* error text (console) */
-    --color-warning: #f5a623; /* warning text (console) */
+    /* --- Accents (antique gold) --- */
+    --color-title: #f2c94c;
+    --color-logo-stroke: #f2c94c;
+    --color-tab-active: #f2c94c;
+    --color-node-selected: #ffd76a;
 
-    /* --- Surfaces (solid backgrounds) --- */
-    --surface-menu: #202126; /* dropdowns, inputs, buttons */
-    --surface-menu-input: #27272d; /* add-node search field */
-    --surface-hover: #393945; /* hovered / selected menu items */
-    --surface-tab: #1f2025; /* idle tab */
-    --surface-tab-hover: #292a31; /* hovered / selected tab */
-    --surface-tab-track: #101113; /* tab strip background */
-    --surface-logo: #242830; /* logo tile */
+    /* --- Surfaces (violet velvet) --- */
+    --surface-menu: #241645;
+    --surface-menu-input: #1c1138;
+    --surface-hover: #362259;
+    --surface-tab: #201341;
+    --surface-tab-hover: #2f1d52;
+    --surface-tab-track: #150c2a;
+    --surface-logo: #1c1138;
 
-    /* --- Borders --- */
-    --border-menu: #2a2b2f; /* menu frames + separators */
-    --border-tab: #28292b; /* tab outlines */
-    --border-input: #32323c; /* text input borders */
-    --border-input-strong: #313137; /* close button border */
-    --border-control: #ffffff20; /* node inputs / feedback selector */
-    --border-logo: #252a32; /* logo tile border */
-    --node-divider: #19191c; /* internal node dividers */
+    /* --- Borders (violet frames, gold trim on strong edges) --- */
+    --border-menu: #46356b;
+    --border-tab: #46356b;
+    --border-input: #55427d;
+    --border-input-strong: #a98a3f;
+    --border-control: #f2c94c33;
+    --border-logo: #7a5f2e;
+    --node-divider: #150c2a;
 
     /* --- Interactive overlays --- */
-    --overlay-hover: #ffffff1a; /* subtle hover wash */
-    --overlay-count: #dadada0f; /* file-count pill */
-    --overlay-feedback: #00000010; /* feedback selector fill */
+    --overlay-hover: #ffffff12;
+    --overlay-count: #f2c94c1f;
+    --overlay-feedback: #00000030;
 
     /* --- Icon fills --- */
-    --icon-idle: #ffffff50;
-    --icon-hover: #ffffffc3;
+    --icon-idle: #cdbff066;
+    --icon-hover: #fff4dbdd;
 
-    /* --- Selection (flow canvas) --- */
-    --color-selection-fill: rgba(161, 161, 161, 0.067);
-    --color-selection-border: rgb(143, 143, 143);
+    /* --- Selection (flow canvas) — gold --- */
+    --color-selection-fill: rgba(242, 201, 76, 0.1);
+    --color-selection-border: rgb(242, 201, 76);
 
-    /* --- Compile / primary button --- */
-    --accent: #386b59;
-    --accent-hover: #478771; /* also the button border */
-    --accent-shadow: #2b5044;
+    /* --- Compile / primary button — an emerald "cast" --- */
+    --accent: #2f9e7a;
+    --accent-hover: #3fc096;
+    --accent-shadow: #175c46;
 
-    /* --- Port colours (read by name from PortStyle.ts — keep these keys) --- */
-    --port-color-0: #f0e67a;
-    --port-color-1: #5bab97;
-    --port-color-2: #ab5b5b;
-    --port-unresolved: #929292;
+    /* --- Port colours (keep these keys) — gold / aurora teal / arcane magenta --- */
+    --port-color-0: #f2c94c;
+    --port-color-1: #4fe0c0;
+    --port-color-2: #c86bff;
+    --port-unresolved: #8a7ab0;
 
-    /* --- Radii --- */
+    /* --- Radii (soft, ornate) --- */
     --radius-sm: 4px;
-    --radius-md: 5px;
-    --radius-lg: 6px;
-    --radius-xl: 10px;
+    --radius-md: 7px;
+    --radius-lg: 10px;
+    --radius-xl: 16px;
 
     /* --- Motion --- */
     --transition-fast: 100ms;
     --transition-outline: 40ms;
 
-    /* --- Elevation --- */
-    --shadow-menu: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
-    --shadow-node: drop-shadow(0px 14px 15px rgba(0, 0, 0, 0.5));
-    --shadow-bar: drop-shadow(0px 0px 3px #000000);
+    /* --- Elevation (soft, faintly magical) --- */
+    --shadow-menu: rgba(8, 4, 20, 0.6) 0px 16px 34px, rgba(200, 107, 255, 0.15) 0px 6px 20px;
+    --shadow-node: drop-shadow(0px 14px 18px rgba(8, 4, 20, 0.6));
+    --shadow-bar: drop-shadow(0px 0px 4px rgba(8, 4, 20, 0.7));
 
-    /* --- Gradients ---
-       Stored without a paint box (border-box / padding-box) so each rule can
-       append the box it needs. Layer order is top-most first. */
-    --grad-bar: linear-gradient(90deg, #101112, #1a1a1d 50%, #101112 100%);
-    --grad-edge: linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%);
-    --grad-tab-fill: linear-gradient(90deg, #1a1b1e, #242428 50%, #1a1b1e 100%);
-    --grad-menu-fill: linear-gradient(180deg, #1e1e22, #1a1a1d);
-    --grad-menu-border: linear-gradient(180deg, #474959, #323238);
-    --grad-canvas: linear-gradient(180deg, #252527, #0e0e0f);
-    --grad-node-fill: linear-gradient(180deg, #1c1e23, #17191d);
-    --grad-node-border: linear-gradient(180deg, #636372, #4e4e53);
-    --grad-header-shadow: linear-gradient(90deg, #00000025, #00000000 40%, #00000000 70%, #00000025 100%);
-    --grad-header-fill: linear-gradient(180deg, #3a3c44, #33333a 93%, #3a3c44 100%);
-    --grad-node-inputs: linear-gradient(180deg, #24252a, #202125);
-    --grad-footer-shadow: linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%);
-    --grad-footer-fill: linear-gradient(180deg, #3a3c44, #33333a);
-    --grad-footer-border: linear-gradient(90deg, #42444e, #636372 50%, #42444e 100%);
-    --grad-window-shadow: linear-gradient(180deg, #00000020, #00000000 50%, #00000020 100%);
-    --grad-preset-window: linear-gradient(90deg, #101112, #1a1a1d 40%, #1a1a1d 60%, #101112 100%);
-    --grad-port-control: radial-gradient(#2d3a50, #293040);
+    /* --- Gradients (velvet fills, gold-leaf borders) --- */
+    --grad-bar: linear-gradient(90deg, #150c2a, #241645 50%, #150c2a 100%);
+    --grad-edge: linear-gradient(90deg, #00000055, #00000000 50%, #00000055 100%);
+    --grad-tab-fill: linear-gradient(90deg, #1d1238, #2c1b4f 50%, #1d1238 100%);
+    --grad-menu-fill: linear-gradient(180deg, #2a1a4f, #1f133e);
+    --grad-menu-border: linear-gradient(180deg, #ffe9a3, #a9812f);
+    --grad-canvas: linear-gradient(180deg, #241a4a, #0c0720);
+    --grad-node-fill: linear-gradient(180deg, #2a1a4f, #1c1138);
+    --grad-node-border: linear-gradient(180deg, #ffe9a3, #a9812f);
+    --grad-header-shadow: linear-gradient(90deg, #00000030, #00000000 40%, #00000000 70%, #00000030 100%);
+    --grad-header-fill: linear-gradient(180deg, #3a265e, #2c1b4f 93%, #3a265e 100%);
+    --grad-node-inputs: linear-gradient(180deg, #241748, #1c1138);
+    --grad-footer-shadow: linear-gradient(90deg, #00000030, #00000000 50%, #00000030 100%);
+    --grad-footer-fill: linear-gradient(180deg, #3a265e, #2c1b4f);
+    --grad-footer-border: linear-gradient(90deg, #a9812f, #ffe9a3 50%, #a9812f 100%);
+    --grad-window-shadow: linear-gradient(180deg, #00000030, #00000000 50%, #00000030 100%);
+    --grad-preset-window: linear-gradient(90deg, #150c2a, #1f133e 40%, #1f133e 60%, #150c2a 100%);
+    --grad-port-control: radial-gradient(#2f1d55, #1f133e);
 
-    /* --- Footer (keyboard, wheels, telemetry) --- */
-    --surface-footer: #17181b; /* footer strip background */
-    --border-footer: #2a2b2f; /* footer top edge + panel dividers */
+    /* --- Footer --- */
+    --surface-footer: #150c2a;
+    --border-footer: #46356b;
     --footer-height: 132px;
 
-    /* Piano keys — muted ivory, not blinding white, to sit in the dark theme.
-       The face is a solid colour (so it can tween on press) sitting under a
-       constant translucent light→dark overlay that gives the top-lit shape. */
-    --key-white: #b4b5bc; /* white-key face */
-    --key-white-lip: #7c7d86; /* front-edge thickness under a white key */
-    --key-white-active: #93a3bd; /* pressed white key (accent-tinted) */
-    --key-white-border: #1c1d22;
-    --key-black: #1c1d22; /* black-key face */
-    --key-black-lip: #000000; /* front-edge thickness under a black key */
-    --key-black-active: #3f5673; /* pressed black key (accent-tinted) */
-    --key-black-border: #050506;
+    /* Piano keys — candlelit ivory over violet; gold/teal glow on press. */
+    --key-white: #f1ead8;
+    --key-white-lip: #b3a988;
+    --key-white-active: #ffd76a;
+    --key-white-border: #150c2a;
+    --key-black: #1c1138;
+    --key-black-lip: #0a0620;
+    --key-black-active: #4fe0c0;
+    --key-black-border: #0a0620;
 
-    /* Performance wheels — flat recessed slot + chunky solid thumb grip */
-    --wheel-slot: #0e0f12;
-    --wheel-slot-border: #050506;
-    --wheel-grip: var(--surface-hover); /* reuse a UI surface so it matches */
-    --wheel-grip-border: #131419;
+    /* Performance wheels */
+    --wheel-slot: #100a24;
+    --wheel-slot-border: #0a0620;
+    --wheel-grip: var(--surface-hover);
+    --wheel-grip-border: #46356b;
     --wheel-grip-height: 20px;
-    --grad-footer-strip: linear-gradient(180deg, #1c1d21, #141517);
+    --grad-footer-strip: linear-gradient(180deg, #1f133e, #100a24);
 }
 
 /* 2. BASE */
@@ -183,6 +171,7 @@ select {
     margin-right: 20px;
     font-weight: bold;
     color: var(--color-title);
+    text-shadow: 0 0 8px rgba(242, 201, 76, 0.55);
     user-select: none;
 }
 
@@ -224,7 +213,7 @@ select {
     border: 1px solid var(--border-menu);
     display: flex;
     align-items: center;
-    filter: drop-shadow(0px 1px #121214);
+    filter: drop-shadow(0px 1px #0a0620);
     overflow: hidden;
 }
 
@@ -443,25 +432,6 @@ select {
     width: 20px;
 }
 
-/* Floating label that follows the cursor while dragging a subgraph tab onto
-   the canvas. Purely visual — pointer-events off so it never blocks the drop. */
-.subgraph-drag-ghost {
-    position: fixed;
-    z-index: 10;
-    transform: translate(12px, 12px);
-    padding: 3px 9px;
-    pointer-events: none;
-    user-select: none;
-    font-family: var(--font-ui);
-    font-size: 13px;
-    color: var(--color-text);
-    background-color: var(--surface-tab-hover);
-    border: 1px solid var(--color-tab-active);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-menu);
-    opacity: 0.9;
-}
-
 /* 6. FLOW CANVAS + ADD-NODE MENU */
 .flow-container {
     width: 100%;
@@ -479,13 +449,22 @@ select {
         var(--grad-canvas) padding-box;
 }
 
+/* Night sky over the pool: a scatter of stars up top, a soft magenta glow, and
+   the bottom sinking dark so reflections read against it. (Drifting aurora
+   is on ::before in §10.) */
 .flow-background::after {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("../noise-texture.png");
-    opacity: 0.2;
-    mix-blend-mode: multiply;
+    background:
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, 0.7), transparent 100%),
+        radial-gradient(1.5px 1.5px at 34% 9%, rgba(255, 255, 255, 0.5), transparent 100%),
+        radial-gradient(1px 1px at 61% 15%, rgba(255, 255, 255, 0.6), transparent 100%),
+        radial-gradient(1.5px 1.5px at 84% 24%, rgba(255, 255, 255, 0.5), transparent 100%),
+        radial-gradient(1px 1px at 47% 30%, rgba(255, 255, 255, 0.45), transparent 100%),
+        radial-gradient(80% 50% at 50% -10%, rgba(200, 107, 255, 0.14), rgba(0, 0, 0, 0) 60%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(6, 4, 18, 0.55) 100%);
+    pointer-events: none;
 }
 
 .add-node-menu {
@@ -748,7 +727,7 @@ select {
     --btn-bg: var(--surface-menu);
     --btn-hover: var(--border-input-strong);
     --btn-border: var(--border-input-strong);
-    --btn-tint: #25252c;
+    --btn-tint: #0a0620;
     height: 30px;
     aspect-ratio: 1/1;
 }
@@ -933,10 +912,11 @@ select {
 }
 
 .preset-card-tags {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     display: flex;
     flex-wrap: nowrap;
     gap: 6px;
+    overflow: hidden;
     justify-content: flex-end;
 }
 
@@ -1129,74 +1109,16 @@ select {
 
 /* 9. FOOTER (keyboard, performance wheels, telemetry) */
 .footer {
-    position: relative;
     flex: 0 0 auto;
     height: var(--footer-height);
     box-sizing: border-box;
-    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    gap: 1px;
     background: var(--grad-footer-strip) padding-box;
     border-top: 1px solid var(--border-footer);
     filter: var(--shadow-bar);
     z-index: 1;
-    transition: height 0.2s ease;
-}
-
-/* The panels live here so the outer .footer can animate its height while this
-   layer keeps its full size and is clipped/faded by the collapse. */
-.footer-body {
-    display: flex;
-    align-items: stretch;
-    gap: 1px;
-    height: var(--footer-height);
-    transition: opacity 0.2s ease;
-}
-
-/* Collapsed: the footer shrinks to a thin strip (still hosting the toggle in
-   the same top-right spot) and the panels fade out as it glides shut. */
-.footer-collapsed {
-    height: 22px;
-}
-
-.footer-collapsed .footer-body {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Toggle handle. Expanded: a small chevron tab in the top-right corner.
-   Collapsed: a full-width thin bar mirroring the console status bar. */
-.footer-collapse-toggle {
-    position: absolute;
-    top: 2px;
-    right: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 18px;
-    padding: 0;
-    margin: 0;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    z-index: 2;
-}
-
-.footer-collapse-toggle:hover {
-    color: var(--color-text);
-    background-color: var(--surface-footer);
-}
-
-.footer-collapse-toggle svg {
-    width: 12px;
-    height: 12px;
-    transition: transform 0.15s ease;
-}
-
-/* Chevron points down to collapse; flip it to point up to expand. */
-.footer-collapsed .footer-collapse-toggle svg {
-    transform: rotate(180deg);
 }
 
 /* Each footer section. Dividers are drawn between panels via the gap + track. */
@@ -1246,73 +1168,6 @@ select {
     font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--color-text);
-}
-
-/* Thin strip beneath the footer previewing the newest console message; the
-   whole bar is a button that opens the console. */
-.console-status-bar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    box-sizing: border-box;
-    height: 22px;
-    padding: 0 12px;
-    margin: 0;
-    border: none;
-    border-top: 1px solid var(--border-footer);
-    background-color: var(--surface-footer);
-    color: var(--color-text-muted);
-    font-family: inherit;
-    font-size: 11px;
-    line-height: 1;
-    text-align: left;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.console-status-bar:hover {
-    filter: brightness(1.15);
-}
-
-.console-status-severity {
-    flex: 0 0 auto;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-.console-status-message {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-variant-numeric: tabular-nums;
-}
-
-.console-status-empty {
-    font-style: italic;
-    opacity: 0.7;
-}
-
-.console-status-bar.console-row-error .console-status-severity,
-.console-status-bar.console-row-error .console-status-message {
-    color: var(--color-danger);
-}
-
-.console-status-bar.console-row-warning .console-status-severity,
-.console-status-bar.console-row-warning .console-status-message {
-    color: var(--color-warning);
-}
-
-.console-status-bar.console-row-info .console-status-severity {
-    color: var(--color-text-muted);
-}
-
-.console-status-bar.console-row-debug .console-status-severity,
-.console-status-bar.console-row-debug .console-status-message {
-    color: var(--color-text-muted);
 }
 
 /* --- Performance wheels --- */
@@ -1498,400 +1353,72 @@ select {
         inset 0 -2px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* 10. FLOATING WINDOW (shared modal shell used by Preferences, Console, …) */
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.45);
-}
+/* 10. THEME EFFECTS — reflection, aurora, shimmer (Scrying Pool) */
 
-.window {
-    max-width: calc(100vw - 40px);
-    max-height: calc(100vh - 80px);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-menu);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-menu);
-}
-
-.window-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 16px;
-    background: var(--grad-bar) border-box;
-    border-bottom: 1px solid var(--border-menu);
-}
-
-.window-titles {
-    flex: 1;
-    min-width: 0;
-}
-
-.window-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--color-text);
-    user-select: none;
-}
-
-.window-desc {
-    margin: 4px 0 0;
-    font-size: 12px;
-    color: var(--color-text-muted);
-}
-
-.window-close {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    width: 28px;
-    padding: 0;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-input-strong);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.window-close:hover {
-    background-color: var(--surface-hover);
-}
-
-.window-close svg {
-    height: 18px;
-    width: 18px;
-    fill: currentColor;
-}
-
-/* Consumers own the body layout; this just gives them a growing, clipped
-   region below the header. */
-.window-body {
-    display: flex;
-    flex: 1;
-    min-height: 0;
+/* A slow aurora drifts behind the graph. */
+.flow-background {
+    isolation: isolate;
     overflow: hidden;
 }
 
-/* 11. PREFERENCES */
-.prefs {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-}
-
-.prefs-tabs {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 160px;
-    padding: 12px 8px;
-    overflow-y: auto;
-    border-right: 1px solid var(--border-menu);
-}
-
-.prefs-tab {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    background-color: transparent;
-    border: none;
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-    user-select: none;
-}
-
-.prefs-tab:hover {
-    background-color: var(--surface-hover);
-}
-
-.prefs-tab-active {
-    color: var(--color-text);
-    background-color: var(--surface-hover);
-    font-weight: bold;
-}
-
-.prefs-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    overflow-y: auto;
-}
-
-.prefs-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-width: 320px;
-}
-
-.prefs-field-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-text-muted);
-    user-select: none;
-}
-
-.prefs-field-hint {
-    font-size: 11px;
-    color: var(--color-text-muted);
-}
-
-.prefs-select-trigger {
-    box-sizing: border-box;
-    width: 100%;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-lg);
-    padding: 8px 10px;
-    text-align: left;
-    cursor: pointer;
-}
-
-.prefs-select-trigger:focus {
-    border-color: var(--color-text-muted);
-}
-
-.prefs-select-chevron {
-    flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
-    fill: var(--color-text-muted);
-}
-
-.prefs-empty {
-    margin: 0;
-    font-size: 13px;
-    color: var(--color-text-muted);
-}
-
-/* A preference laid out as label/description on the left, control on the right. */
-.prefs-field-row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.prefs-field-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-/* bits-ui Switch: a pill track whose thumb slides right when checked. */
-.prefs-switch {
-    flex: 0 0 auto;
-    box-sizing: border-box;
-    width: 40px;
-    height: 22px;
-    padding: 2px;
-    border: 1px solid var(--border-input);
-    border-radius: 999px;
-    background-color: var(--surface-menu-input);
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-}
-
-.prefs-switch[data-state="checked"] {
-    background-color: var(--color-text-muted);
-    border-color: var(--color-text-muted);
-}
-
-.prefs-switch-thumb {
-    display: block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--color-text);
-    transition: transform 0.15s ease;
-}
-
-.prefs-switch[data-state="checked"] .prefs-switch-thumb {
-    transform: translateX(18px);
-}
-
-/* 12. CONSOLE */
-.console {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.console-toolbar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border-menu);
-}
-
-.console-filters {
-    display: flex;
-    gap: 6px;
-}
-
-.console-filter {
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-md);
-    transition:
-        opacity var(--transition-fast),
-        background-color var(--transition-fast);
-    user-select: none;
-}
-
-.console-filter:hover {
-    background-color: var(--surface-hover);
-}
-
-/* Disabled (filtered-out) chips dim to read as "off". */
-.console-filter-off {
-    opacity: 0.4;
-}
-
-.console-filter.console-row-error {
-    color: var(--color-danger);
-}
-
-.console-filter.console-row-warning {
-    color: var(--color-warning);
-}
-
-.console-copy {
-    flex: 0 0 auto;
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input-strong);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.console-copy:hover:not(:disabled) {
-    background-color: var(--surface-hover);
-}
-
-.console-copy:disabled {
-    opacity: 0.4;
-}
-
-.console-log {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 8px 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.5;
-    background-color: var(--surface-menu-input);
-}
-
-.console-row {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    width: 100%;
-    padding: 1px 14px;
-    color: var(--color-text);
-    font: inherit;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.console-row:hover {
-    background-color: var(--surface-hover);
-}
-
-/* Floating feedback pinned to the bottom-center of the console; overlays the
-   log without reflowing any message text. */
-.console-toast {
+.flow-background::before {
+    content: "";
     position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-menu);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-menu);
+    inset: -10%;
+    z-index: -1;
+    background:
+        radial-gradient(closest-side at 20% 30%, rgba(79, 224, 192, 0.14), transparent),
+        radial-gradient(closest-side at 78% 22%, rgba(200, 107, 255, 0.14), transparent),
+        radial-gradient(closest-side at 50% 72%, rgba(242, 201, 76, 0.08), transparent);
+    filter: blur(22px);
+    animation: fy-aurora 18s ease-in-out infinite alternate;
     pointer-events: none;
-    user-select: none;
 }
 
-.console-severity {
-    flex: 0 0 52px;
-    text-align: right;
-    font-weight: bold;
-    color: var(--color-text-muted);
-    user-select: none;
+@keyframes fy-aurora {
+    from { transform: translate3d(-2%, -1%, 0) scale(1); }
+    to { transform: translate3d(3%, 2%, 0) scale(1.08); }
 }
 
-.console-message {
-    flex: 1;
-    min-width: 0;
+/* Real reflections: each module mirrors onto the pool below it, fading out. */
+.node-frame {
+    -webkit-box-reflect: below 4px linear-gradient(transparent 58%, rgba(255, 255, 255, 0.18));
+    box-shadow:
+        0 0 0 1px rgba(242, 201, 76, 0.15),
+        0 0 26px rgba(200, 107, 255, 0.14);
 }
 
-.console-row-error .console-severity,
-.console-row-error .console-message {
-    color: var(--color-danger);
+/* The logo casts a small reflection too. */
+.logo {
+    -webkit-box-reflect: below 1px linear-gradient(transparent 50%, rgba(255, 255, 255, 0.15));
 }
 
-.console-row-warning .console-severity,
-.console-row-warning .console-message {
-    color: var(--color-warning);
+/* Selected module gains a golden aura. */
+.svelte-flow__node.selected {
+    outline: 2px solid var(--color-node-selected);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 0 26px 3px rgba(255, 215, 106, 0.55);
 }
 
-.console-row-info .console-severity {
-    color: var(--color-text-muted);
+/* Shimmering gold title — a highlight sweeps across the letters. */
+.title {
+    background: linear-gradient(100deg, #a9812f 0%, #ffe9a3 25%, #fff6d8 50%, #ffe9a3 75%, #a9812f 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 8px rgba(242, 201, 76, 0.55));
+    animation: fy-shimmer 6s linear infinite;
 }
 
-.console-row-debug .console-severity,
-.console-row-debug .console-message {
-    color: var(--color-text-muted);
+@keyframes fy-shimmer {
+    to { background-position: 200% center; }
 }
 
-.console-empty {
-    margin: 0;
-    padding: 8px 14px;
-    color: var(--color-text-muted);
+@media (prefers-reduced-motion: reduce) {
+    .flow-background::before,
+    .title {
+        animation: none;
+    }
 }

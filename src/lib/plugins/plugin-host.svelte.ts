@@ -7,8 +7,17 @@
  */
 
 import { handleHostCall } from "./host-api";
-import { getPluginList, openFileDialog, readFile, type FileFilter } from "../api";
+import { getConfigKey, getPluginList, openFileDialog, readFile, setConfigKey, type FileFilter } from "../api";
 import type { HostToWorker, ParamValue, PluginManifest, PluginParam, WorkerToHost } from "./protocol";
+
+/**
+ * Shape persisted per plugin in the native config tree under `Plugins.<id>`:
+ * whether the plugin is enabled, plus its current parameter values.
+ */
+interface PersistedPluginConfig {
+    enabled?: boolean;
+    params?: Record<string, ParamValue>;
+}
 
 /** Reactive per-plugin state. One instance per registered plugin. */
 export class PluginEntry {
@@ -97,6 +106,7 @@ class PluginHost {
         entry.busy = true;
         if (enabled) this.send({ kind: "enable", pluginId: id, params: $state.snapshot(entry.params) });
         else this.send({ kind: "disable", pluginId: id });
+        this.persist(entry);
     }
 
     setParam(id: string, key: string, value: ParamValue): void {
@@ -104,6 +114,45 @@ class PluginHost {
         if (!entry) return;
         entry.params = { ...entry.params, [key]: value };
         if (entry.enabled) this.send({ kind: "params", pluginId: id, params: $state.snapshot(entry.params) });
+        this.persist(entry);
+    }
+
+    /** The dotted config key holding a plugin's persisted state, e.g. `Plugins.my-plugin`. */
+    private configKey(entry: PluginEntry): string {
+        return `Plugins.${entry.manifest.id}`;
+    }
+
+    /** Write a plugin's enabled state and params back to the native config tree. */
+    private persist(entry: PluginEntry): void {
+        const config: PersistedPluginConfig = {
+            enabled: entry.enabled,
+            params: $state.snapshot(entry.params),
+        };
+        void setConfigKey(this.configKey(entry), config).catch((err) =>
+            console.error(`failed to persist config for plugin "${entry.id}":`, err),
+        );
+    }
+
+    /**
+     * Restore a freshly registered plugin's saved config: merge stored params
+     * over the manifest defaults (so params added since the last save keep their
+     * defaults), then enable it if it was enabled when last saved.
+     */
+    private async loadConfig(entry: PluginEntry): Promise<void> {
+        let saved: PersistedPluginConfig | null;
+        try {
+            saved = await getConfigKey<PersistedPluginConfig | null>(this.configKey(entry));
+        } catch (err) {
+            console.error(`failed to load config for plugin "${entry.id}":`, err);
+            return;
+        }
+        if (!saved) return;
+        if (saved.params) entry.params = { ...entry.params, ...saved.params };
+        if (saved.enabled) {
+            entry.enabled = true;
+            entry.busy = true;
+            this.send({ kind: "enable", pluginId: entry.id, params: $state.snapshot(entry.params) });
+        }
     }
 
     /** Open a native file dialog for a `file` parameter and store the chosen path. */
@@ -147,7 +196,9 @@ class PluginHost {
                     console.error(`plugin "${msg.pluginId}" failed to register:`, msg.error);
                     break;
                 }
-                this.plugins = [...this.plugins, new PluginEntry(msg.pluginId, msg.manifest)];
+                const entry = new PluginEntry(msg.pluginId, msg.manifest);
+                this.plugins = [...this.plugins, entry];
+                void this.loadConfig(entry);
                 break;
             }
             case "enabled": {

@@ -324,6 +324,27 @@ select {
     background-color: var(--border-menu);
 }
 
+/* Plugin list entries: a leading dot marks an enabled plugin. */
+.plugin-menu-item {
+    align-items: center;
+    gap: 8px;
+    min-width: 160px;
+}
+
+.plugin-menu-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 1px solid var(--color-text-muted);
+    flex: 0 0 auto;
+}
+
+.plugin-menu-dot-on {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
 /* 5. TAB BAR */
 .tab {
     display: flex;

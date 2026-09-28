@@ -2,7 +2,11 @@
     import { ContextMenu } from "bits-ui";
     import { createGraphInstance, deleteGraphInstance, updateGraphInstance, updateGraphName } from "../actions";
     import { grogState } from "../state.svelte";
+    import { subgraphDrag } from "../drag.svelte";
     import EditableLabel from "./EditableLabel.svelte";
+
+    // Movement (px) before a press turns into a drag. Below this, it's a click.
+    const DRAG_THRESHOLD = 5;
 
     function onAddGraph() {
         createGraphInstance();
@@ -17,8 +21,35 @@
         updateGraphName(idx, name);
     }
 
-    const onDragStart = (graphId: number, event: DragEvent) => {
-        event.dataTransfer?.setData("subgraphId", graphId.toString());
+    // Start a pointer-driven drag of a subgraph tab. We arm on pointerdown but
+    // only go "live" once the pointer passes DRAG_THRESHOLD, so a plain click
+    // still switches tabs. The canvas (Flow.svelte) reads subgraphDrag on
+    // pointerup to instantiate; here we just track the pointer and clean up.
+    const onTabPointerDown = (graphId: number, name: string, event: PointerEvent) => {
+        if (event.button !== 0) return;
+        if (graphId <= 0 || graphId === grogState.currentFlowIndex) return;
+
+        const startX = event.clientX;
+        const startY = event.clientY;
+        subgraphDrag.arm(graphId, name, startX, startY);
+
+        const onMove = (ev: PointerEvent) => {
+            if (!subgraphDrag.active && Math.hypot(ev.clientX - startX, ev.clientY - startY) < DRAG_THRESHOLD) return;
+            if (!subgraphDrag.active) document.body.style.userSelect = "none";
+            subgraphDrag.move(ev.clientX, ev.clientY);
+        };
+
+        const onUp = () => {
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onUp);
+            document.body.style.userSelect = "";
+            // A drop target consumes the drag by reading subgraphDrag before
+            // this bubble-phase handler runs; reset covers the missed case.
+            subgraphDrag.reset();
+        };
+
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
     };
 </script>
 
@@ -29,8 +60,7 @@
                 <ContextMenu.Trigger
                     data-tab-selected={index == grogState.currentFlowIndex}
                     class="tab-item"
-                    draggable={index > 0 && index != grogState.currentFlowIndex}
-                    ondragstart={(ev) => onDragStart(index, ev)}
+                    onpointerdown={(ev) => onTabPointerDown(index, flow.name, ev)}
                     role="document"
                 >
                     <button class="tab-item-button" onclick={() => onChangeGraph(index)}>

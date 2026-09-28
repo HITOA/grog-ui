@@ -122,6 +122,21 @@ export interface FeedbackEntry {
     label: string;
 }
 
+// Mirrors Grog::Message::MessageSeverity native-side. The host serializes the
+// severity as its integer value.
+export enum MessageSeverity {
+    None = 0,
+    Error = 1,
+    Warning = 2,
+    Info = 3,
+    Debug = 4,
+}
+
+export interface ConsoleMessage {
+    severity: MessageSeverity;
+    message: string;
+}
+
 export interface NodeMove {
     identity: Identity;
     position: XYPosition;

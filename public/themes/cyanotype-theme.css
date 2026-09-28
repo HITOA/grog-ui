@@ -1,149 +1,139 @@
 /* ============================================================================
-   grog-ui — Default theme
+   grog-ui — Cyanotype theme  ▦  "To scale."
    ----------------------------------------------------------------------------
-   This whole theme lives in one file on purpose: a custom theme is a full
-   drop-in replacement (see setTheme() in src/lib/theme.ts), so it must be
-   self-contained. To recolour the UI, edit the tokens in :root below — every
-   rule references them. For deeper changes, override any rule directly.
+   A drop-in replacement theme (see setTheme() in src/lib/theme.ts): the patch
+   graph as an engineering blueprint. Prussian-blue paper, white-ink hairlines,
+   sharp corners, and a redline-red markup for the selected node. The deliberate
+   counterpoint to the neon themes — flat and matte, no glow, no motion.
+
+   The one real trick (§10): it recolours Svelte Flow's own background pattern to
+   white draughting ink, so the grid is authentic and pans/zooms with the graph,
+   over a faint uneven-exposure vignette like a real cyanotype print.
+
+   Structure mirrors default-theme.css — tokens in :root, plus a §10 block.
 
    Contents:
-     1. Design tokens (:root)
-     2. Base
-     3. Top menu bar
-     4. Context menus (shared popover: menu bar + tab bar + node menu)
-     5. Tab bar
-     6. Flow canvas + add-node menu
-     7. Nodes & ports
-     8. Preset view
-     9. Footer (keyboard, performance wheels, telemetry)
-    10. Floating window (shared modal shell)
-    11. Preferences
-    12. Console
+     1. Design tokens (:root)   2. Base   3. Top menu bar   4. Context menus
+     5. Tab bar   6. Flow canvas + add-node menu   7. Nodes & ports
+     8. Preset view   9. Footer   10. Theme effects (grid ink, title block)
    ========================================================================== */
 
 /* 1. DESIGN TOKENS */
 :root {
     /* --- Typography --- */
     --font-ui: -apple-system, "Segoe UI", sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-    /* --- Text --- */
-    --color-text: #dadada; /* primary UI text + most icon fills */
-    --color-text-muted: #d1cfd1af; /* dimmed menu-bar text */
-    --color-text-node: #d7d3d6; /* node body text */
-    --color-node-label: #ffffffc0; /* node titles, port labels, controls */
-    --color-node-placeholder: #ffffff4f; /* empty feedback selector */
+    /* --- Text (pale blueprint ink) --- */
+    --color-text: #dce8ff;
+    --color-text-muted: #a9c2eecc;
+    --color-text-node: #e6f0ff;
+    --color-node-label: #ffffffd8;
+    --color-node-placeholder: #ffffff55;
 
-    /* --- Accents --- */
-    --color-title: #819bbc; /* app title */
-    --color-logo-stroke: #386ac0; /* logo icon stroke */
-    --color-tab-active: #5679a1; /* selected-tab underline */
-    --color-node-selected: orange; /* selected-node outline */
-    --color-danger: #e5484d; /* error text (console) */
-    --color-warning: #f5a623; /* warning text (console) */
+    /* --- Accents (white ink; redline for selection) --- */
+    --color-title: #ffffff;
+    --color-logo-stroke: #cfe0ff;
+    --color-tab-active: #ffffff;
+    --color-node-selected: #ff5a4d;
 
-    /* --- Surfaces (solid backgrounds) --- */
-    --surface-menu: #202126; /* dropdowns, inputs, buttons */
-    --surface-menu-input: #27272d; /* add-node search field */
-    --surface-hover: #393945; /* hovered / selected menu items */
-    --surface-tab: #1f2025; /* idle tab */
-    --surface-tab-hover: #292a31; /* hovered / selected tab */
-    --surface-tab-track: #101113; /* tab strip background */
-    --surface-logo: #242830; /* logo tile */
+    /* --- Surfaces (prussian-blue paper) --- */
+    --surface-menu: #123a76;
+    --surface-menu-input: #0e2f61;
+    --surface-hover: #1c4a8f;
+    --surface-tab: #10336b;
+    --surface-tab-hover: #1a4485;
+    --surface-tab-track: #0a2350;
+    --surface-logo: #0e2f61;
 
-    /* --- Borders --- */
-    --border-menu: #2a2b2f; /* menu frames + separators */
-    --border-tab: #28292b; /* tab outlines */
-    --border-input: #32323c; /* text input borders */
-    --border-input-strong: #313137; /* close button border */
-    --border-control: #ffffff20; /* node inputs / feedback selector */
-    --border-logo: #252a32; /* logo tile border */
-    --node-divider: #19191c; /* internal node dividers */
+    /* --- Borders (blueprint linework) --- */
+    --border-menu: #355c98;
+    --border-tab: #355c98;
+    --border-input: #3f6aa8;
+    --border-input-strong: #4f7abb;
+    --border-control: #ffffff30;
+    --border-logo: #355c98;
+    --node-divider: #0a2350;
 
     /* --- Interactive overlays --- */
-    --overlay-hover: #ffffff1a; /* subtle hover wash */
-    --overlay-count: #dadada0f; /* file-count pill */
-    --overlay-feedback: #00000010; /* feedback selector fill */
+    --overlay-hover: #ffffff14;
+    --overlay-count: #ffffff12;
+    --overlay-feedback: #00000020;
 
     /* --- Icon fills --- */
-    --icon-idle: #ffffff50;
-    --icon-hover: #ffffffc3;
+    --icon-idle: #cfe0ff66;
+    --icon-hover: #ffffffdd;
 
     /* --- Selection (flow canvas) --- */
-    --color-selection-fill: rgba(161, 161, 161, 0.067);
-    --color-selection-border: rgb(143, 143, 143);
+    --color-selection-fill: rgba(255, 255, 255, 0.08);
+    --color-selection-border: rgb(219, 232, 255);
 
-    /* --- Compile / primary button --- */
-    --accent: #386b59;
-    --accent-hover: #478771; /* also the button border */
-    --accent-shadow: #2b5044;
+    /* --- Compile / primary button — a brighter plate blue --- */
+    --accent: #2f6fbf;
+    --accent-hover: #3f83d6;
+    --accent-shadow: #17416f;
 
-    /* --- Port colours (read by name from PortStyle.ts — keep these keys) --- */
-    --port-color-0: #f0e67a;
-    --port-color-1: #5bab97;
-    --port-color-2: #ab5b5b;
-    --port-unresolved: #929292;
+    /* --- Port colours (keep these keys) — chalk / cyan ink / redline --- */
+    --port-color-0: #eaf2ff;
+    --port-color-1: #57c7ff;
+    --port-color-2: #ff6a5a;
+    --port-unresolved: #7d97c4;
 
-    /* --- Radii --- */
-    --radius-sm: 4px;
-    --radius-md: 5px;
-    --radius-lg: 6px;
-    --radius-xl: 10px;
+    /* --- Radii (drafting-precise) --- */
+    --radius-sm: 1px;
+    --radius-md: 2px;
+    --radius-lg: 2px;
+    --radius-xl: 4px;
 
     /* --- Motion --- */
     --transition-fast: 100ms;
     --transition-outline: 40ms;
 
-    /* --- Elevation --- */
-    --shadow-menu: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
-    --shadow-node: drop-shadow(0px 14px 15px rgba(0, 0, 0, 0.5));
-    --shadow-bar: drop-shadow(0px 0px 3px #000000);
+    /* --- Elevation (matte, minimal) --- */
+    --shadow-menu: rgba(4, 18, 44, 0.5) 0px 12px 24px, rgba(4, 18, 44, 0.4) 0px 6px 8px;
+    --shadow-node: drop-shadow(0px 6px 8px rgba(4, 18, 44, 0.45));
+    --shadow-bar: drop-shadow(0px 0px 2px rgba(4, 18, 44, 0.6));
 
-    /* --- Gradients ---
-       Stored without a paint box (border-box / padding-box) so each rule can
-       append the box it needs. Layer order is top-most first. */
-    --grad-bar: linear-gradient(90deg, #101112, #1a1a1d 50%, #101112 100%);
-    --grad-edge: linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%);
-    --grad-tab-fill: linear-gradient(90deg, #1a1b1e, #242428 50%, #1a1b1e 100%);
-    --grad-menu-fill: linear-gradient(180deg, #1e1e22, #1a1a1d);
-    --grad-menu-border: linear-gradient(180deg, #474959, #323238);
-    --grad-canvas: linear-gradient(180deg, #252527, #0e0e0f);
-    --grad-node-fill: linear-gradient(180deg, #1c1e23, #17191d);
-    --grad-node-border: linear-gradient(180deg, #636372, #4e4e53);
+    /* --- Gradients (near-flat paper; borders are white ink) --- */
+    --grad-bar: linear-gradient(90deg, #0a2350, #0e2c61 50%, #0a2350 100%);
+    --grad-edge: linear-gradient(90deg, #00000040, #00000000 50%, #00000040 100%);
+    --grad-tab-fill: linear-gradient(90deg, #0e2c61, #133a76 50%, #0e2c61 100%);
+    --grad-menu-fill: linear-gradient(180deg, #143c78, #0f3067);
+    --grad-menu-border: linear-gradient(180deg, #dce8ff, #6f93cf);
+    --grad-canvas: linear-gradient(180deg, #12356f, #0c2a5c);
+    --grad-node-fill: linear-gradient(180deg, #143c78, #0f3067);
+    --grad-node-border: linear-gradient(180deg, #eaf2ff, #9db8e6);
     --grad-header-shadow: linear-gradient(90deg, #00000025, #00000000 40%, #00000000 70%, #00000025 100%);
-    --grad-header-fill: linear-gradient(180deg, #3a3c44, #33333a 93%, #3a3c44 100%);
-    --grad-node-inputs: linear-gradient(180deg, #24252a, #202125);
+    --grad-header-fill: linear-gradient(180deg, #1a478c, #133a76 93%, #1a478c 100%);
+    --grad-node-inputs: linear-gradient(180deg, #123a74, #0f3067);
     --grad-footer-shadow: linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%);
-    --grad-footer-fill: linear-gradient(180deg, #3a3c44, #33333a);
-    --grad-footer-border: linear-gradient(90deg, #42444e, #636372 50%, #42444e 100%);
-    --grad-window-shadow: linear-gradient(180deg, #00000020, #00000000 50%, #00000020 100%);
-    --grad-preset-window: linear-gradient(90deg, #101112, #1a1a1d 40%, #1a1a1d 60%, #101112 100%);
-    --grad-port-control: radial-gradient(#2d3a50, #293040);
+    --grad-footer-fill: linear-gradient(180deg, #1a478c, #133a76);
+    --grad-footer-border: linear-gradient(90deg, #6f93cf, #dce8ff 50%, #6f93cf 100%);
+    --grad-window-shadow: linear-gradient(180deg, #00000025, #00000000 50%, #00000025 100%);
+    --grad-preset-window: linear-gradient(90deg, #0a2350, #0f3067 40%, #0f3067 60%, #0a2350 100%);
+    --grad-port-control: radial-gradient(#164080, #103068);
 
-    /* --- Footer (keyboard, wheels, telemetry) --- */
-    --surface-footer: #17181b; /* footer strip background */
-    --border-footer: #2a2b2f; /* footer top edge + panel dividers */
+    /* --- Footer --- */
+    --surface-footer: #0a2350;
+    --border-footer: #355c98;
     --footer-height: 132px;
 
-    /* Piano keys — muted ivory, not blinding white, to sit in the dark theme.
-       The face is a solid colour (so it can tween on press) sitting under a
-       constant translucent light→dark overlay that gives the top-lit shape. */
-    --key-white: #b4b5bc; /* white-key face */
-    --key-white-lip: #7c7d86; /* front-edge thickness under a white key */
-    --key-white-active: #93a3bd; /* pressed white key (accent-tinted) */
-    --key-white-border: #1c1d22;
-    --key-black: #1c1d22; /* black-key face */
-    --key-black-lip: #000000; /* front-edge thickness under a black key */
-    --key-black-active: #3f5673; /* pressed black key (accent-tinted) */
-    --key-black-border: #050506;
+    /* Piano keys — drafting whites over deep-blue blacks; cyan/redline on press. */
+    --key-white: #e6eefc;
+    --key-white-lip: #9db0d0;
+    --key-white-active: #57c7ff;
+    --key-white-border: #0a2350;
+    --key-black: #0e2c5f;
+    --key-black-lip: #061a3d;
+    --key-black-active: #ff6a5a;
+    --key-black-border: #061a3d;
 
-    /* Performance wheels — flat recessed slot + chunky solid thumb grip */
-    --wheel-slot: #0e0f12;
-    --wheel-slot-border: #050506;
-    --wheel-grip: var(--surface-hover); /* reuse a UI surface so it matches */
-    --wheel-grip-border: #131419;
+    /* Performance wheels */
+    --wheel-slot: #071d43;
+    --wheel-slot-border: #061a3d;
+    --wheel-grip: var(--surface-hover);
+    --wheel-grip-border: #355c98;
     --wheel-grip-height: 20px;
-    --grad-footer-strip: linear-gradient(180deg, #1c1d21, #141517);
+    --grad-footer-strip: linear-gradient(180deg, #0e2c61, #071d43);
 }
 
 /* 2. BASE */
@@ -183,6 +173,7 @@ select {
     margin-right: 20px;
     font-weight: bold;
     color: var(--color-title);
+    text-shadow: none;
     user-select: none;
 }
 
@@ -224,7 +215,7 @@ select {
     border: 1px solid var(--border-menu);
     display: flex;
     align-items: center;
-    filter: drop-shadow(0px 1px #121214);
+    filter: drop-shadow(0px 1px #061a3d);
     overflow: hidden;
 }
 
@@ -443,25 +434,6 @@ select {
     width: 20px;
 }
 
-/* Floating label that follows the cursor while dragging a subgraph tab onto
-   the canvas. Purely visual — pointer-events off so it never blocks the drop. */
-.subgraph-drag-ghost {
-    position: fixed;
-    z-index: 10;
-    transform: translate(12px, 12px);
-    padding: 3px 9px;
-    pointer-events: none;
-    user-select: none;
-    font-family: var(--font-ui);
-    font-size: 13px;
-    color: var(--color-text);
-    background-color: var(--surface-tab-hover);
-    border: 1px solid var(--color-tab-active);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-menu);
-    opacity: 0.9;
-}
-
 /* 6. FLOW CANVAS + ADD-NODE MENU */
 .flow-container {
     width: 100%;
@@ -479,13 +451,17 @@ select {
         var(--grad-canvas) padding-box;
 }
 
+/* Uneven-exposure vignette: a faint paper glow at centre sinking to a darker,
+   blotchy edge — the look of a real cyanotype print. No grid here; the
+   grid is Svelte Flow own, recoloured to white ink in section 10. */
 .flow-background::after {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("../noise-texture.png");
-    opacity: 0.2;
-    mix-blend-mode: multiply;
+    background:
+        radial-gradient(90% 80% at 50% 45%, rgba(220, 232, 255, 0.05), rgba(0, 0, 0, 0) 55%),
+        radial-gradient(120% 120% at 50% 50%, rgba(0, 0, 0, 0) 60%, rgba(4, 16, 40, 0.45) 100%);
+    pointer-events: none;
 }
 
 .add-node-menu {
@@ -748,7 +724,7 @@ select {
     --btn-bg: var(--surface-menu);
     --btn-hover: var(--border-input-strong);
     --btn-border: var(--border-input-strong);
-    --btn-tint: #25252c;
+    --btn-tint: #061a3d;
     height: 30px;
     aspect-ratio: 1/1;
 }
@@ -933,10 +909,11 @@ select {
 }
 
 .preset-card-tags {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     display: flex;
     flex-wrap: nowrap;
     gap: 6px;
+    overflow: hidden;
     justify-content: flex-end;
 }
 
@@ -1129,74 +1106,16 @@ select {
 
 /* 9. FOOTER (keyboard, performance wheels, telemetry) */
 .footer {
-    position: relative;
     flex: 0 0 auto;
     height: var(--footer-height);
     box-sizing: border-box;
-    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    gap: 1px;
     background: var(--grad-footer-strip) padding-box;
     border-top: 1px solid var(--border-footer);
     filter: var(--shadow-bar);
     z-index: 1;
-    transition: height 0.2s ease;
-}
-
-/* The panels live here so the outer .footer can animate its height while this
-   layer keeps its full size and is clipped/faded by the collapse. */
-.footer-body {
-    display: flex;
-    align-items: stretch;
-    gap: 1px;
-    height: var(--footer-height);
-    transition: opacity 0.2s ease;
-}
-
-/* Collapsed: the footer shrinks to a thin strip (still hosting the toggle in
-   the same top-right spot) and the panels fade out as it glides shut. */
-.footer-collapsed {
-    height: 22px;
-}
-
-.footer-collapsed .footer-body {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Toggle handle. Expanded: a small chevron tab in the top-right corner.
-   Collapsed: a full-width thin bar mirroring the console status bar. */
-.footer-collapse-toggle {
-    position: absolute;
-    top: 2px;
-    right: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 18px;
-    padding: 0;
-    margin: 0;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    z-index: 2;
-}
-
-.footer-collapse-toggle:hover {
-    color: var(--color-text);
-    background-color: var(--surface-footer);
-}
-
-.footer-collapse-toggle svg {
-    width: 12px;
-    height: 12px;
-    transition: transform 0.15s ease;
-}
-
-/* Chevron points down to collapse; flip it to point up to expand. */
-.footer-collapsed .footer-collapse-toggle svg {
-    transform: rotate(180deg);
 }
 
 /* Each footer section. Dividers are drawn between panels via the gap + track. */
@@ -1246,73 +1165,6 @@ select {
     font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--color-text);
-}
-
-/* Thin strip beneath the footer previewing the newest console message; the
-   whole bar is a button that opens the console. */
-.console-status-bar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    box-sizing: border-box;
-    height: 22px;
-    padding: 0 12px;
-    margin: 0;
-    border: none;
-    border-top: 1px solid var(--border-footer);
-    background-color: var(--surface-footer);
-    color: var(--color-text-muted);
-    font-family: inherit;
-    font-size: 11px;
-    line-height: 1;
-    text-align: left;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.console-status-bar:hover {
-    filter: brightness(1.15);
-}
-
-.console-status-severity {
-    flex: 0 0 auto;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-.console-status-message {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-variant-numeric: tabular-nums;
-}
-
-.console-status-empty {
-    font-style: italic;
-    opacity: 0.7;
-}
-
-.console-status-bar.console-row-error .console-status-severity,
-.console-status-bar.console-row-error .console-status-message {
-    color: var(--color-danger);
-}
-
-.console-status-bar.console-row-warning .console-status-severity,
-.console-status-bar.console-row-warning .console-status-message {
-    color: var(--color-warning);
-}
-
-.console-status-bar.console-row-info .console-status-severity {
-    color: var(--color-text-muted);
-}
-
-.console-status-bar.console-row-debug .console-status-severity,
-.console-status-bar.console-row-debug .console-status-message {
-    color: var(--color-text-muted);
 }
 
 /* --- Performance wheels --- */
@@ -1498,400 +1350,23 @@ select {
         inset 0 -2px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* 10. FLOATING WINDOW (shared modal shell used by Preferences, Console, …) */
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.45);
+/* 10. THEME EFFECTS — white-ink grid + title block (Cyanotype) */
+
+/* Recolour Svelte Flow's own background pattern to white draughting ink, so the
+   grid is authentic and pans/zooms with the graph. All three variants covered. */
+.svelte-flow__background-pattern.lines path,
+.svelte-flow__background-pattern.cross path {
+    stroke: rgba(219, 232, 255, 0.16) !important;
 }
 
-.window {
-    max-width: calc(100vw - 40px);
-    max-height: calc(100vh - 80px);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-menu);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-menu);
+.svelte-flow__background-pattern.dots circle {
+    fill: rgba(219, 232, 255, 0.2) !important;
 }
 
-.window-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 16px;
-    background: var(--grad-bar) border-box;
-    border-bottom: 1px solid var(--border-menu);
-}
-
-.window-titles {
-    flex: 1;
-    min-width: 0;
-}
-
-.window-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--color-text);
-    user-select: none;
-}
-
-.window-desc {
-    margin: 4px 0 0;
-    font-size: 12px;
-    color: var(--color-text-muted);
-}
-
-.window-close {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    width: 28px;
-    padding: 0;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-input-strong);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.window-close:hover {
-    background-color: var(--surface-hover);
-}
-
-.window-close svg {
-    height: 18px;
-    width: 18px;
-    fill: currentColor;
-}
-
-/* Consumers own the body layout; this just gives them a growing, clipped
-   region below the header. */
-.window-body {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-}
-
-/* 11. PREFERENCES */
-.prefs {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-}
-
-.prefs-tabs {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 160px;
-    padding: 12px 8px;
-    overflow-y: auto;
-    border-right: 1px solid var(--border-menu);
-}
-
-.prefs-tab {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    background-color: transparent;
-    border: none;
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-    user-select: none;
-}
-
-.prefs-tab:hover {
-    background-color: var(--surface-hover);
-}
-
-.prefs-tab-active {
-    color: var(--color-text);
-    background-color: var(--surface-hover);
-    font-weight: bold;
-}
-
-.prefs-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    overflow-y: auto;
-}
-
-.prefs-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-width: 320px;
-}
-
-.prefs-field-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-text-muted);
-    user-select: none;
-}
-
-.prefs-field-hint {
-    font-size: 11px;
-    color: var(--color-text-muted);
-}
-
-.prefs-select-trigger {
-    box-sizing: border-box;
-    width: 100%;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-lg);
-    padding: 8px 10px;
-    text-align: left;
-    cursor: pointer;
-}
-
-.prefs-select-trigger:focus {
-    border-color: var(--color-text-muted);
-}
-
-.prefs-select-chevron {
-    flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
-    fill: var(--color-text-muted);
-}
-
-.prefs-empty {
-    margin: 0;
-    font-size: 13px;
-    color: var(--color-text-muted);
-}
-
-/* A preference laid out as label/description on the left, control on the right. */
-.prefs-field-row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.prefs-field-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-/* bits-ui Switch: a pill track whose thumb slides right when checked. */
-.prefs-switch {
-    flex: 0 0 auto;
-    box-sizing: border-box;
-    width: 40px;
-    height: 22px;
-    padding: 2px;
-    border: 1px solid var(--border-input);
-    border-radius: 999px;
-    background-color: var(--surface-menu-input);
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-}
-
-.prefs-switch[data-state="checked"] {
-    background-color: var(--color-text-muted);
-    border-color: var(--color-text-muted);
-}
-
-.prefs-switch-thumb {
-    display: block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--color-text);
-    transition: transform 0.15s ease;
-}
-
-.prefs-switch[data-state="checked"] .prefs-switch-thumb {
-    transform: translateX(18px);
-}
-
-/* 12. CONSOLE */
-.console {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.console-toolbar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border-menu);
-}
-
-.console-filters {
-    display: flex;
-    gap: 6px;
-}
-
-.console-filter {
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-md);
-    transition:
-        opacity var(--transition-fast),
-        background-color var(--transition-fast);
-    user-select: none;
-}
-
-.console-filter:hover {
-    background-color: var(--surface-hover);
-}
-
-/* Disabled (filtered-out) chips dim to read as "off". */
-.console-filter-off {
-    opacity: 0.4;
-}
-
-.console-filter.console-row-error {
-    color: var(--color-danger);
-}
-
-.console-filter.console-row-warning {
-    color: var(--color-warning);
-}
-
-.console-copy {
-    flex: 0 0 auto;
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input-strong);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.console-copy:hover:not(:disabled) {
-    background-color: var(--surface-hover);
-}
-
-.console-copy:disabled {
-    opacity: 0.4;
-}
-
-.console-log {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 8px 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.5;
-    background-color: var(--surface-menu-input);
-}
-
-.console-row {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    width: 100%;
-    padding: 1px 14px;
-    color: var(--color-text);
-    font: inherit;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.console-row:hover {
-    background-color: var(--surface-hover);
-}
-
-/* Floating feedback pinned to the bottom-center of the console; overlays the
-   log without reflowing any message text. */
-.console-toast {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-menu);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-menu);
-    pointer-events: none;
-    user-select: none;
-}
-
-.console-severity {
-    flex: 0 0 52px;
-    text-align: right;
-    font-weight: bold;
-    color: var(--color-text-muted);
-    user-select: none;
-}
-
-.console-message {
-    flex: 1;
-    min-width: 0;
-}
-
-.console-row-error .console-severity,
-.console-row-error .console-message {
-    color: var(--color-danger);
-}
-
-.console-row-warning .console-severity,
-.console-row-warning .console-message {
-    color: var(--color-warning);
-}
-
-.console-row-info .console-severity {
-    color: var(--color-text-muted);
-}
-
-.console-row-debug .console-severity,
-.console-row-debug .console-message {
-    color: var(--color-text-muted);
-}
-
-.console-empty {
-    margin: 0;
-    padding: 8px 14px;
-    color: var(--color-text-muted);
+/* Title set like a drawing's title block: tracked-out white ink, hairline rule. */
+.title {
+    letter-spacing: 2px;
+    font-weight: 600;
+    padding-bottom: 1px;
+    border-bottom: 1px solid rgba(219, 232, 255, 0.5);
 }

@@ -1,6 +1,7 @@
 import type { XYPosition } from "@xyflow/svelte";
 import { callNative } from "./bridge";
 import type {
+    ConsoleMessage,
     Connection,
     ConnectionCreationData,
     GraphInstance,
@@ -172,6 +173,12 @@ export function getPluginList(): Promise<string[]> {
     return callNative<string[]>("get_plugin_list", {});
 }
 
+// Lists the theme stylesheets in the host's Themes folder. Returns theme names
+// *without* the `.css` extension, matching what `setTheme(name)` expects.
+export function getThemeList(): Promise<string[]> {
+    return callNative<string[]>("get_theme_list", {});
+}
+
 // Opens a native open-file dialog and resolves with the chosen file's absolute
 // path, or `null` if the user cancelled. The dialog is modal and may stay open
 // as long as the user likes, so this passes timeout 0 (wait indefinitely).
@@ -183,4 +190,24 @@ export function openFileDialog(filters?: FileFilter[]): Promise<string | null> {
 // Rejects if the path can't be read.
 export function readFile(path: string): Promise<string> {
     return callNative<string>("read_file", { path });
+}
+
+// Reads a value out of the native config tree. `key` may be a dotted path into
+// the nested tree (e.g. `"Plugins.my-plugin"`); the host resolves scalars and
+// whole subtrees alike, and returns `null` for a missing key.
+export function getConfigKey<T = unknown>(key: string): Promise<T> {
+    return callNative<T>("get_config_key", { key });
+}
+
+// Writes a value into the native config tree at the (possibly dotted) `key`,
+// splicing in scalars or whole subtrees. The host persists the config after the
+// write. Resolves `true` on success.
+export function setConfigKey(key: string, value: unknown): Promise<boolean> {
+    return callNative<boolean>("set_config_key", { key, value });
+}
+
+// Fetches the full backlog of console messages the host has accumulated so far.
+// New messages arrive incrementally via the `console_message` event.
+export function getConsoleMessages(): Promise<ConsoleMessage[]> {
+    return callNative<ConsoleMessage[]>("get_console_messages", {});
 }

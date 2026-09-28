@@ -38,6 +38,14 @@
         grogState.view = ViewType.PresetEditor;
     }
 
+    function onOpenPreferences() {
+        grogState.preferencesOpen = true;
+    }
+
+    function onOpenConsole() {
+        grogState.consoleOpen = true;
+    }
+
     // Presets sorted alphabetically by name, for prev/next navigation.
     let sortedPresets = $derived([...grogState.presetList].sort((a, b) => a.name.localeCompare(b.name)));
 
@@ -90,6 +98,8 @@
                     <Menubar.Item class="context-menu-item" onclick={onSavePreset}>Save Preset As...</Menubar.Item>
                     <Menubar.Separator class="context-menu-separator" />
                     <Menubar.Item class="context-menu-item" onclick={onLoadPreset}>Load Preset</Menubar.Item>
+                    <Menubar.Separator class="context-menu-separator" />
+                    <Menubar.Item class="context-menu-item" onclick={onOpenPreferences}>Preferences...</Menubar.Item>
                 </Menubar.Content>
             </Menubar.Portal>
         </Menubar.Menu>
@@ -110,6 +120,14 @@
                             </Menubar.Item>
                         {/each}
                     {/if}
+                </Menubar.Content>
+            </Menubar.Portal>
+        </Menubar.Menu>
+        <Menubar.Menu>
+            <Menubar.Trigger class="menu-bar-trigger">Window</Menubar.Trigger>
+            <Menubar.Portal>
+                <Menubar.Content class="context-menu-frame" style="z-index: 2;">
+                    <Menubar.Item class="context-menu-item" onclick={onOpenConsole}>Console</Menubar.Item>
                 </Menubar.Content>
             </Menubar.Portal>
         </Menubar.Menu>

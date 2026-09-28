@@ -1,6 +1,7 @@
 <script lang="ts">
     import { pluginHost } from "../plugins/plugin-host.svelte";
     import type { PluginParam } from "../plugins/protocol";
+    import FloatingWindow from "./FloatingWindow.svelte";
 
     // The entry is reactive; the window is only rendered while one is open.
     let entry = $derived(pluginHost.configEntry);
@@ -9,11 +10,6 @@
 
     function onClose(): void {
         pluginHost.closeConfig();
-    }
-
-    // Close only when the click/keypress lands on the backdrop itself.
-    function onBackdropClick(event: MouseEvent): void {
-        if (event.target === event.currentTarget) onClose();
     }
 
     function toggleEnabled(): void {
@@ -56,202 +52,100 @@
 </script>
 
 {#if entry}
-    <!-- Click-away backdrop; the panel stops propagation so inner clicks don't close it. -->
-    <div
-        class="plugin-overlay"
-        role="presentation"
-        onclick={onBackdropClick}
-        onkeydown={(e) => e.key === "Escape" && onClose()}
-    >
-        <div class="plugin-window" role="dialog" aria-modal="true" tabindex="-1">
-            <div class="plugin-window-header">
-                <div class="plugin-window-titles">
-                    <h1 class="plugin-window-title">{entry.manifest.name}</h1>
-                    {#if entry.manifest.description}
-                        <p class="plugin-window-desc">{entry.manifest.description}</p>
-                    {/if}
-                </div>
-                <button type="button" class="plugin-close" onclick={onClose} aria-label="Close">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                        <path
-                            d="M183.1 137.4C170.6 124.9 150.3 124.9 137.8 137.4C125.3 149.9 125.3 170.2 137.8 182.7L275.2 320L137.9 457.4C125.4 469.9 125.4 490.2 137.9 502.7C150.4 515.2 170.7 515.2 183.2 502.7L320.5 365.3L457.9 502.6C470.4 515.1 490.7 515.1 503.2 502.6C515.7 490.1 515.7 469.8 503.2 457.3L365.8 320L503.1 182.6C515.6 170.1 515.6 149.8 503.1 137.3C490.6 124.8 470.3 124.8 457.8 137.3L320.5 274.7L183.1 137.4z"
+    <FloatingWindow title={entry.manifest.name} description={entry.manifest.description} {onClose}>
+        <div class="plugin-body">
+            <label class="plugin-enable">
+                <input type="checkbox" checked={entry.enabled} onchange={toggleEnabled} disabled={entry.busy} />
+                <span>Enabled</span>
+            </label>
+
+            {#if entry.error}
+                <p class="plugin-error">{entry.error}</p>
+            {/if}
+
+            {#each entry.manifest.parameters ?? [] as param (param.key)}
+                <div class="plugin-field">
+                    <label class="plugin-field-label" for={`param-${param.key}`}>{param.label}</label>
+                    {#if param.type === "number"}
+                        <input
+                            id={`param-${param.key}`}
+                            class="plugin-input"
+                            type="number"
+                            min={param.min}
+                            max={param.max}
+                            step={param.step}
+                            value={entry.params[param.key]}
+                            oninput={(e) => onNumber(param, e)}
                         />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="plugin-body">
-                <label class="plugin-enable">
-                    <input type="checkbox" checked={entry.enabled} onchange={toggleEnabled} disabled={entry.busy} />
-                    <span>Enabled</span>
-                </label>
-
-                {#if entry.error}
-                    <p class="plugin-error">{entry.error}</p>
-                {/if}
-
-                {#each entry.manifest.parameters ?? [] as param (param.key)}
-                    <div class="plugin-field">
-                        <label class="plugin-field-label" for={`param-${param.key}`}>{param.label}</label>
-                        {#if param.type === "number"}
-                            <input
-                                id={`param-${param.key}`}
-                                class="plugin-input"
-                                type="number"
-                                min={param.min}
-                                max={param.max}
-                                step={param.step}
-                                value={entry.params[param.key]}
-                                oninput={(e) => onNumber(param, e)}
-                            />
-                        {:else if param.type === "boolean"}
-                            <input
-                                id={`param-${param.key}`}
-                                type="checkbox"
-                                checked={Boolean(entry.params[param.key])}
-                                onchange={(e) => onBoolean(param, e)}
-                            />
-                        {:else if param.type === "enum"}
-                            <select
-                                id={`param-${param.key}`}
-                                class="plugin-input"
-                                value={entry.params[param.key]}
-                                onchange={(e) => onEnum(param, e)}
-                            >
-                                {#each param.options as option (option.value)}
-                                    <option value={option.value}>{option.label}</option>
-                                {/each}
-                            </select>
-                        {:else if param.type === "file"}
-                            <div class="plugin-file">
-                                <input
-                                    id={`param-${param.key}`}
-                                    class="plugin-input"
-                                    type="text"
-                                    placeholder="/path/to/file"
-                                    value={entry.params[param.key]}
-                                    oninput={(e) => onText(param, e)}
-                                />
-                                <button type="button" class="plugin-browse" onclick={() => browse(param)}>
-                                    Browse…
-                                </button>
-                            </div>
-                        {:else}
+                    {:else if param.type === "boolean"}
+                        <input
+                            id={`param-${param.key}`}
+                            type="checkbox"
+                            checked={Boolean(entry.params[param.key])}
+                            onchange={(e) => onBoolean(param, e)}
+                        />
+                    {:else if param.type === "enum"}
+                        <select
+                            id={`param-${param.key}`}
+                            class="plugin-input"
+                            value={entry.params[param.key]}
+                            onchange={(e) => onEnum(param, e)}
+                        >
+                            {#each param.options as option (option.value)}
+                                <option value={option.value}>{option.label}</option>
+                            {/each}
+                        </select>
+                    {:else if param.type === "file"}
+                        <div class="plugin-file">
                             <input
                                 id={`param-${param.key}`}
                                 class="plugin-input"
                                 type="text"
+                                placeholder="/path/to/file"
                                 value={entry.params[param.key]}
                                 oninput={(e) => onText(param, e)}
                             />
-                        {/if}
-                        {#if param.description}
-                            <span class="plugin-field-hint">{param.description}</span>
-                        {/if}
-                    </div>
-                {/each}
-
-                {#if (entry.manifest.commands ?? []).length > 0}
-                    <div class="plugin-commands">
-                        {#each entry.manifest.commands ?? [] as command (command.id)}
-                            <button
-                                type="button"
-                                class="plugin-command"
-                                onclick={() => runCommand(command.id)}
-                                disabled={!entry.enabled || running !== undefined}
-                            >
-                                {running === command.id ? "Working…" : command.label}
-                            </button>
-                        {/each}
-                    </div>
-                    {#if !entry.enabled}
-                        <p class="plugin-hint">Enable the plugin to run its commands.</p>
+                            <button type="button" class="plugin-browse" onclick={() => browse(param)}> Browse… </button>
+                        </div>
+                    {:else}
+                        <input
+                            id={`param-${param.key}`}
+                            class="plugin-input"
+                            type="text"
+                            value={entry.params[param.key]}
+                            oninput={(e) => onText(param, e)}
+                        />
                     {/if}
+                    {#if param.description}
+                        <span class="plugin-field-hint">{param.description}</span>
+                    {/if}
+                </div>
+            {/each}
+
+            {#if (entry.manifest.commands ?? []).length > 0}
+                <div class="plugin-commands">
+                    {#each entry.manifest.commands ?? [] as command (command.id)}
+                        <button
+                            type="button"
+                            class="plugin-command"
+                            onclick={() => runCommand(command.id)}
+                            disabled={!entry.enabled || running !== undefined}
+                        >
+                            {running === command.id ? "Working…" : command.label}
+                        </button>
+                    {/each}
+                </div>
+                {#if !entry.enabled}
+                    <p class="plugin-hint">Enable the plugin to run its commands.</p>
                 {/if}
-            </div>
+            {/if}
         </div>
-    </div>
+    </FloatingWindow>
 {/if}
 
 <style>
-    .plugin-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(0, 0, 0, 0.45);
-    }
-
-    .plugin-window {
-        width: 420px;
-        max-width: calc(100vw - 40px);
-        max-height: calc(100vh - 80px);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        color: var(--color-text);
-        background-color: var(--surface-menu);
-        border: 1px solid var(--border-menu);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow-menu);
-    }
-
-    .plugin-window-header {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 14px 16px;
-        background: var(--grad-bar) border-box;
-        border-bottom: 1px solid var(--border-menu);
-    }
-
-    .plugin-window-titles {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .plugin-window-title {
-        margin: 0;
-        font-size: 16px;
-        font-weight: bold;
-        color: var(--color-text);
-        user-select: none;
-    }
-
-    .plugin-window-desc {
-        margin: 4px 0 0;
-        font-size: 12px;
-        color: var(--color-text-muted);
-    }
-
-    .plugin-close {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 28px;
-        width: 28px;
-        padding: 0;
-        color: var(--color-text);
-        background-color: var(--surface-menu);
-        border: 1px solid var(--border-input-strong);
-        border-radius: var(--radius-md);
-        transition: background-color var(--transition-fast);
-    }
-
-    .plugin-close:hover {
-        background-color: var(--surface-hover);
-    }
-
-    .plugin-close svg {
-        height: 18px;
-        width: 18px;
-        fill: currentColor;
-    }
-
     .plugin-body {
+        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 16px;

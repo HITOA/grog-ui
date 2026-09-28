@@ -1,4 +1,4 @@
-import type { FeedbackEntry, NodeDefinitionList, PresetMetadata } from "./types";
+import type { ConsoleMessage, FeedbackEntry, NodeDefinitionList, PresetMetadata } from "./types";
 import { type Node, type Edge } from "@xyflow/svelte";
 
 export enum ViewType {
@@ -17,6 +17,15 @@ export class FlowContext {
 
 export class GrogState {
     view: ViewType = $state(ViewType.Flow);
+
+    // Whether the (modal) preferences window is open.
+    preferencesOpen: boolean = $state(false);
+
+    // Whether the console window is open.
+    consoleOpen: boolean = $state(false);
+
+    // Backlog of console messages pushed from the host, oldest first.
+    consoleMessages: ConsoleMessage[] = $state<ConsoleMessage[]>([]);
 
     private _nodeDefinitionList: NodeDefinitionList = $state.raw({} as NodeDefinitionList);
     private _presetList: PresetMetadata[] = $state.raw([]);

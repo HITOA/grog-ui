@@ -1,4 +1,5 @@
 import type {
+    ConsoleMessage,
     GraphInstance,
     Identity,
     NodeInstance,
@@ -104,6 +105,19 @@ export function onUpdateGraph(instance: GraphInstance): void {
 
 export function onUpdateFeedbackList(feedbacks: FeedbackEntry[]) {
     grogState.currentFlow.feedbacks = feedbacks;
+}
+
+// Appends a single message pushed live by the host via the `console_message`
+// event.
+export function onConsoleMessage(message: ConsoleMessage): void {
+    grogState.consoleMessages = [...grogState.consoleMessages, message];
+}
+
+// Replaces the console backlog with the full history the host currently holds.
+export function updateConsoleMessages(): void {
+    API.getConsoleMessages().then((messages) => {
+        grogState.consoleMessages = messages;
+    });
 }
 
 export function updateGraphInstances(): void {

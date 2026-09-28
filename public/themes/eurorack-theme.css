@@ -1,10 +1,17 @@
 /* ============================================================================
-   grog-ui — Default theme
+   grog-ui — Eurorack theme  ▮▮  "Patch it."
    ----------------------------------------------------------------------------
-   This whole theme lives in one file on purpose: a custom theme is a full
-   drop-in replacement (see setTheme() in src/lib/theme.ts), so it must be
-   self-contained. To recolour the UI, edit the tokens in :root below — every
-   rule references them. For deeper changes, override any rule directly.
+   A drop-in replacement theme (see setTheme() in src/lib/theme.ts) built like a
+   modular synth rack: brushed-aluminium module panels with machined bevels,
+   engraved silkscreen labels, and vivid patch-cable port colours (banana yellow,
+   blue, red) as the one loud thing against cool, quiet metal. Nearly-square radii
+   and top-lit panel gradients sell the milled-metal feel.
+
+   The lone light theme in the set — text is dark graphite throughout, so every
+   surface (bars, tabs, footer) is aluminium too, just brushed to different tones.
+
+   Structure mirrors default-theme.css exactly — only the tokens and a few
+   canvas/title rules differ. Recolour everything from the :root tokens below.
 
    Contents:
      1. Design tokens (:root)
@@ -16,134 +23,131 @@
      7. Nodes & ports
      8. Preset view
      9. Footer (keyboard, performance wheels, telemetry)
-    10. Floating window (shared modal shell)
-    11. Preferences
-    12. Console
    ========================================================================== */
 
 /* 1. DESIGN TOKENS */
 :root {
     /* --- Typography --- */
     --font-ui: -apple-system, "Segoe UI", sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-    /* --- Text --- */
-    --color-text: #dadada; /* primary UI text + most icon fills */
-    --color-text-muted: #d1cfd1af; /* dimmed menu-bar text */
-    --color-text-node: #d7d3d6; /* node body text */
-    --color-node-label: #ffffffc0; /* node titles, port labels, controls */
-    --color-node-placeholder: #ffffff4f; /* empty feedback selector */
+    /* --- Text (dark graphite silkscreen, printed on the panels) --- */
+    --color-text: #23252b; /* primary UI text + most icon fills */
+    --color-text-muted: #23252b99; /* dimmed menu-bar text */
+    --color-text-node: #26282e; /* node body text */
+    --color-node-label: #1c1e24d0; /* node titles, port labels, controls */
+    --color-node-placeholder: #1c1e2455; /* empty feedback selector */
 
-    /* --- Accents --- */
-    --color-title: #819bbc; /* app title */
-    --color-logo-stroke: #386ac0; /* logo icon stroke */
-    --color-tab-active: #5679a1; /* selected-tab underline */
-    --color-node-selected: orange; /* selected-node outline */
-    --color-danger: #e5484d; /* error text (console) */
-    --color-warning: #f5a623; /* warning text (console) */
+    /* --- Accents (kept quiet; colour lives in the patch cables) --- */
+    --color-title: #1b1d22; /* app title — engraved, not coloured */
+    --color-logo-stroke: #3a3d45; /* logo icon stroke — black nickel */
+    --color-tab-active: #b5411f; /* selected-tab underline — a red anodised marker */
+    --color-node-selected: #e0a02a; /* selected-node outline — brass ring */
 
-    /* --- Surfaces (solid backgrounds) --- */
-    --surface-menu: #202126; /* dropdowns, inputs, buttons */
-    --surface-menu-input: #27272d; /* add-node search field */
-    --surface-hover: #393945; /* hovered / selected menu items */
-    --surface-tab: #1f2025; /* idle tab */
-    --surface-tab-hover: #292a31; /* hovered / selected tab */
-    --surface-tab-track: #101113; /* tab strip background */
-    --surface-logo: #242830; /* logo tile */
+    /* --- Surfaces (brushed aluminium, cool grey) --- */
+    --surface-menu: #e4e5e9; /* dropdowns, inputs, buttons */
+    --surface-menu-input: #d7d9df; /* add-node search field */
+    --surface-hover: #cfd1d8; /* hovered / selected menu items */
+    --surface-tab: #d0d2d8; /* idle tab */
+    --surface-tab-hover: #e4e5e9; /* hovered / selected tab */
+    --surface-tab-track: #b9bcc4; /* tab strip — a darker brushed band */
+    --surface-logo: #cccfd6; /* logo tile */
 
-    /* --- Borders --- */
-    --border-menu: #2a2b2f; /* menu frames + separators */
-    --border-tab: #28292b; /* tab outlines */
-    --border-input: #32323c; /* text input borders */
-    --border-input-strong: #313137; /* close button border */
-    --border-control: #ffffff20; /* node inputs / feedback selector */
-    --border-logo: #252a32; /* logo tile border */
-    --node-divider: #19191c; /* internal node dividers */
+    /* --- Borders (machined panel edges) --- */
+    --border-menu: #b3b6be; /* menu frames + separators */
+    --border-tab: #b0b3bb; /* tab outlines */
+    --border-input: #adb0b9; /* text input borders */
+    --border-input-strong: #9a9da6; /* close button border */
+    --border-control: #00000022; /* node inputs / feedback selector */
+    --border-logo: #a9acb5; /* logo tile border */
+    --node-divider: #b7bac2; /* internal node dividers */
 
     /* --- Interactive overlays --- */
-    --overlay-hover: #ffffff1a; /* subtle hover wash */
-    --overlay-count: #dadada0f; /* file-count pill */
-    --overlay-feedback: #00000010; /* feedback selector fill */
+    --overlay-hover: #00000010; /* subtle hover wash */
+    --overlay-count: #0000000d; /* file-count pill */
+    --overlay-feedback: #00000012; /* feedback selector fill */
 
     /* --- Icon fills --- */
-    --icon-idle: #ffffff50;
-    --icon-hover: #ffffffc3;
+    --icon-idle: #00000055;
+    --icon-hover: #000000b0;
 
-    /* --- Selection (flow canvas) --- */
-    --color-selection-fill: rgba(161, 161, 161, 0.067);
-    --color-selection-border: rgb(143, 143, 143);
+    /* --- Selection (flow canvas) — red cable --- */
+    --color-selection-fill: rgba(181, 65, 31, 0.1);
+    --color-selection-border: rgb(181, 65, 31);
 
-    /* --- Compile / primary button --- */
-    --accent: #386b59;
-    --accent-hover: #478771; /* also the button border */
-    --accent-shadow: #2b5044;
+    /* --- Compile / primary button — a green "run" LED --- */
+    --accent: #3c8f5f;
+    --accent-hover: #4aa571; /* also the button border */
+    --accent-shadow: #2b6647;
 
-    /* --- Port colours (read by name from PortStyle.ts — keep these keys) --- */
-    --port-color-0: #f0e67a;
-    --port-color-1: #5bab97;
-    --port-color-2: #ab5b5b;
-    --port-unresolved: #929292;
+    /* --- Port colours (read by name from PortStyle.ts — keep these keys) ---
+       Patch cables: banana yellow, blue, red. */
+    --port-color-0: #e0a83a;
+    --port-color-1: #2f7fd6;
+    --port-color-2: #c33b34;
+    --port-unresolved: #7c7f88;
 
-    /* --- Radii --- */
-    --radius-sm: 4px;
-    --radius-md: 5px;
-    --radius-lg: 6px;
-    --radius-xl: 10px;
+    /* --- Radii (machined, nearly square) --- */
+    --radius-sm: 2px;
+    --radius-md: 3px;
+    --radius-lg: 3px;
+    --radius-xl: 6px;
 
     /* --- Motion --- */
     --transition-fast: 100ms;
     --transition-outline: 40ms;
 
-    /* --- Elevation --- */
-    --shadow-menu: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
-    --shadow-node: drop-shadow(0px 14px 15px rgba(0, 0, 0, 0.5));
-    --shadow-bar: drop-shadow(0px 0px 3px #000000);
+    /* --- Elevation (soft daylight shadows) --- */
+    --shadow-menu: rgba(20, 22, 28, 0.18) 0px 10px 24px, rgba(20, 22, 28, 0.12) 0px 6px 8px;
+    --shadow-node: drop-shadow(0px 8px 10px rgba(20, 22, 28, 0.22));
+    --shadow-bar: drop-shadow(0px 0px 2px rgba(20, 22, 28, 0.3));
 
     /* --- Gradients ---
        Stored without a paint box (border-box / padding-box) so each rule can
-       append the box it needs. Layer order is top-most first. */
-    --grad-bar: linear-gradient(90deg, #101112, #1a1a1d 50%, #101112 100%);
-    --grad-edge: linear-gradient(90deg, #00000050, #00000000 50%, #00000050 100%);
-    --grad-tab-fill: linear-gradient(90deg, #1a1b1e, #242428 50%, #1a1b1e 100%);
-    --grad-menu-fill: linear-gradient(180deg, #1e1e22, #1a1a1d);
-    --grad-menu-border: linear-gradient(180deg, #474959, #323238);
-    --grad-canvas: linear-gradient(180deg, #252527, #0e0e0f);
-    --grad-node-fill: linear-gradient(180deg, #1c1e23, #17191d);
-    --grad-node-border: linear-gradient(180deg, #636372, #4e4e53);
-    --grad-header-shadow: linear-gradient(90deg, #00000025, #00000000 40%, #00000000 70%, #00000025 100%);
-    --grad-header-fill: linear-gradient(180deg, #3a3c44, #33333a 93%, #3a3c44 100%);
-    --grad-node-inputs: linear-gradient(180deg, #24252a, #202125);
-    --grad-footer-shadow: linear-gradient(90deg, #00000025, #00000000 50%, #00000025 100%);
-    --grad-footer-fill: linear-gradient(180deg, #3a3c44, #33333a);
-    --grad-footer-border: linear-gradient(90deg, #42444e, #636372 50%, #42444e 100%);
-    --grad-window-shadow: linear-gradient(180deg, #00000020, #00000000 50%, #00000020 100%);
-    --grad-preset-window: linear-gradient(90deg, #101112, #1a1a1d 40%, #1a1a1d 60%, #101112 100%);
-    --grad-port-control: radial-gradient(#2d3a50, #293040);
+       append the box it needs. Layer order is top-most first.
+       Bevel borders run bright-top → dark-bottom to read as milled edges. */
+    --grad-bar: linear-gradient(90deg, #b7bac2, #cbced4 50%, #b7bac2 100%);
+    --grad-edge: linear-gradient(90deg, #00000020, #00000000 50%, #00000020 100%);
+    --grad-tab-fill: linear-gradient(90deg, #c6c9d0, #d6d8dd 50%, #c6c9d0 100%);
+    --grad-menu-fill: linear-gradient(180deg, #e9eaee, #dcdee3);
+    --grad-menu-border: linear-gradient(180deg, #ffffff, #b3b6be); /* bevel */
+    --grad-canvas: linear-gradient(180deg, #cdd0d6, #b7bac1); /* rack backdrop */
+    --grad-node-fill: linear-gradient(180deg, #ececef, #dfe1e6); /* module panel */
+    --grad-node-border: linear-gradient(180deg, #ffffff, #a9acb4); /* milled rim */
+    --grad-header-shadow: linear-gradient(90deg, #00000018, #00000000 40%, #00000000 70%, #00000018 100%);
+    --grad-header-fill: linear-gradient(180deg, #d4d6db, #c9cbd1 93%, #d4d6db 100%);
+    --grad-node-inputs: linear-gradient(180deg, #e6e7eb, #dbdde2);
+    --grad-footer-shadow: linear-gradient(90deg, #00000018, #00000000 50%, #00000018 100%);
+    --grad-footer-fill: linear-gradient(180deg, #d4d6db, #c9cbd1);
+    --grad-footer-border: linear-gradient(90deg, #a9acb4, #ffffff 50%, #a9acb4 100%);
+    --grad-window-shadow: linear-gradient(180deg, #00000014, #00000000 50%, #00000014 100%);
+    --grad-preset-window: linear-gradient(90deg, #c4c7cd, #d2d4d9 40%, #d2d4d9 60%, #c4c7cd 100%);
+    --grad-port-control: radial-gradient(#f2f3f5, #e2e4e8); /* recessed control */
 
     /* --- Footer (keyboard, wheels, telemetry) --- */
-    --surface-footer: #17181b; /* footer strip background */
-    --border-footer: #2a2b2f; /* footer top edge + panel dividers */
+    --surface-footer: #c4c7cd; /* footer strip background */
+    --border-footer: #a9acb4; /* footer top edge + panel dividers */
     --footer-height: 132px;
 
-    /* Piano keys — muted ivory, not blinding white, to sit in the dark theme.
+    /* Piano keys — a real keybed set into the panel: bright ivory whites, graphite
+       blacks. Pressed keys light warm amber (white) / blue (black) like panel LEDs.
        The face is a solid colour (so it can tween on press) sitting under a
        constant translucent light→dark overlay that gives the top-lit shape. */
-    --key-white: #b4b5bc; /* white-key face */
-    --key-white-lip: #7c7d86; /* front-edge thickness under a white key */
-    --key-white-active: #93a3bd; /* pressed white key (accent-tinted) */
-    --key-white-border: #1c1d22;
-    --key-black: #1c1d22; /* black-key face */
-    --key-black-lip: #000000; /* front-edge thickness under a black key */
-    --key-black-active: #3f5673; /* pressed black key (accent-tinted) */
-    --key-black-border: #050506;
+    --key-white: #f3f3f0; /* white-key face */
+    --key-white-lip: #c2c3c7; /* front-edge thickness under a white key */
+    --key-white-active: #edb64a; /* pressed white key — warm lamp */
+    --key-white-border: #9a9da6;
+    --key-black: #33363d; /* black-key face — graphite */
+    --key-black-lip: #191b20; /* front-edge thickness under a black key */
+    --key-black-active: #2f7fd6; /* pressed black key — blue LED */
+    --key-black-border: #15171b;
 
     /* Performance wheels — flat recessed slot + chunky solid thumb grip */
-    --wheel-slot: #0e0f12;
-    --wheel-slot-border: #050506;
+    --wheel-slot: #b0b3bb;
+    --wheel-slot-border: #9a9da6;
     --wheel-grip: var(--surface-hover); /* reuse a UI surface so it matches */
-    --wheel-grip-border: #131419;
+    --wheel-grip-border: #a3a6af;
     --wheel-grip-height: 20px;
-    --grad-footer-strip: linear-gradient(180deg, #1c1d21, #141517);
+    --grad-footer-strip: linear-gradient(180deg, #cdd0d6, #bcbfc6);
 }
 
 /* 2. BASE */
@@ -183,6 +187,7 @@ select {
     margin-right: 20px;
     font-weight: bold;
     color: var(--color-title);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65), 0 -1px 0 rgba(0, 0, 0, 0.18);
     user-select: none;
 }
 
@@ -224,7 +229,7 @@ select {
     border: 1px solid var(--border-menu);
     display: flex;
     align-items: center;
-    filter: drop-shadow(0px 1px #121214);
+    filter: drop-shadow(0px 1px #a9acb4);
     overflow: hidden;
 }
 
@@ -443,25 +448,6 @@ select {
     width: 20px;
 }
 
-/* Floating label that follows the cursor while dragging a subgraph tab onto
-   the canvas. Purely visual — pointer-events off so it never blocks the drop. */
-.subgraph-drag-ghost {
-    position: fixed;
-    z-index: 10;
-    transform: translate(12px, 12px);
-    padding: 3px 9px;
-    pointer-events: none;
-    user-select: none;
-    font-family: var(--font-ui);
-    font-size: 13px;
-    color: var(--color-text);
-    background-color: var(--surface-tab-hover);
-    border: 1px solid var(--color-tab-active);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-menu);
-    opacity: 0.9;
-}
-
 /* 6. FLOW CANVAS + ADD-NODE MENU */
 .flow-container {
     width: 100%;
@@ -479,13 +465,21 @@ select {
         var(--grad-canvas) padding-box;
 }
 
+/* Brushed-aluminium striation across the rack backdrop (replaces the dark
+   noise texture — no external asset needed). */
 .flow-background::after {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("../noise-texture.png");
-    opacity: 0.2;
-    mix-blend-mode: multiply;
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0 1px,
+        rgba(0, 0, 0, 0.05) 1px 2px,
+        rgba(255, 255, 255, 0) 2px 4px
+    );
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    pointer-events: none;
 }
 
 .add-node-menu {
@@ -748,7 +742,7 @@ select {
     --btn-bg: var(--surface-menu);
     --btn-hover: var(--border-input-strong);
     --btn-border: var(--border-input-strong);
-    --btn-tint: #25252c;
+    --btn-tint: #9a9da6;
     height: 30px;
     aspect-ratio: 1/1;
 }
@@ -933,10 +927,11 @@ select {
 }
 
 .preset-card-tags {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     display: flex;
     flex-wrap: nowrap;
     gap: 6px;
+    overflow: hidden;
     justify-content: flex-end;
 }
 
@@ -1129,74 +1124,16 @@ select {
 
 /* 9. FOOTER (keyboard, performance wheels, telemetry) */
 .footer {
-    position: relative;
     flex: 0 0 auto;
     height: var(--footer-height);
     box-sizing: border-box;
-    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    gap: 1px;
     background: var(--grad-footer-strip) padding-box;
     border-top: 1px solid var(--border-footer);
     filter: var(--shadow-bar);
     z-index: 1;
-    transition: height 0.2s ease;
-}
-
-/* The panels live here so the outer .footer can animate its height while this
-   layer keeps its full size and is clipped/faded by the collapse. */
-.footer-body {
-    display: flex;
-    align-items: stretch;
-    gap: 1px;
-    height: var(--footer-height);
-    transition: opacity 0.2s ease;
-}
-
-/* Collapsed: the footer shrinks to a thin strip (still hosting the toggle in
-   the same top-right spot) and the panels fade out as it glides shut. */
-.footer-collapsed {
-    height: 22px;
-}
-
-.footer-collapsed .footer-body {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Toggle handle. Expanded: a small chevron tab in the top-right corner.
-   Collapsed: a full-width thin bar mirroring the console status bar. */
-.footer-collapse-toggle {
-    position: absolute;
-    top: 2px;
-    right: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 18px;
-    padding: 0;
-    margin: 0;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    z-index: 2;
-}
-
-.footer-collapse-toggle:hover {
-    color: var(--color-text);
-    background-color: var(--surface-footer);
-}
-
-.footer-collapse-toggle svg {
-    width: 12px;
-    height: 12px;
-    transition: transform 0.15s ease;
-}
-
-/* Chevron points down to collapse; flip it to point up to expand. */
-.footer-collapsed .footer-collapse-toggle svg {
-    transform: rotate(180deg);
 }
 
 /* Each footer section. Dividers are drawn between panels via the gap + track. */
@@ -1246,73 +1183,6 @@ select {
     font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--color-text);
-}
-
-/* Thin strip beneath the footer previewing the newest console message; the
-   whole bar is a button that opens the console. */
-.console-status-bar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    box-sizing: border-box;
-    height: 22px;
-    padding: 0 12px;
-    margin: 0;
-    border: none;
-    border-top: 1px solid var(--border-footer);
-    background-color: var(--surface-footer);
-    color: var(--color-text-muted);
-    font-family: inherit;
-    font-size: 11px;
-    line-height: 1;
-    text-align: left;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.console-status-bar:hover {
-    filter: brightness(1.15);
-}
-
-.console-status-severity {
-    flex: 0 0 auto;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-.console-status-message {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    font-variant-numeric: tabular-nums;
-}
-
-.console-status-empty {
-    font-style: italic;
-    opacity: 0.7;
-}
-
-.console-status-bar.console-row-error .console-status-severity,
-.console-status-bar.console-row-error .console-status-message {
-    color: var(--color-danger);
-}
-
-.console-status-bar.console-row-warning .console-status-severity,
-.console-status-bar.console-row-warning .console-status-message {
-    color: var(--color-warning);
-}
-
-.console-status-bar.console-row-info .console-status-severity {
-    color: var(--color-text-muted);
-}
-
-.console-status-bar.console-row-debug .console-status-severity,
-.console-status-bar.console-row-debug .console-status-message {
-    color: var(--color-text-muted);
 }
 
 /* --- Performance wheels --- */
@@ -1496,402 +1366,4 @@ select {
     box-shadow:
         inset 0 8px 6px -4px rgba(0, 0, 0, 0.85),
         inset 0 -2px 0 rgba(255, 255, 255, 0.08);
-}
-
-/* 10. FLOATING WINDOW (shared modal shell used by Preferences, Console, …) */
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.45);
-}
-
-.window {
-    max-width: calc(100vw - 40px);
-    max-height: calc(100vh - 80px);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-menu);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-menu);
-}
-
-.window-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 16px;
-    background: var(--grad-bar) border-box;
-    border-bottom: 1px solid var(--border-menu);
-}
-
-.window-titles {
-    flex: 1;
-    min-width: 0;
-}
-
-.window-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--color-text);
-    user-select: none;
-}
-
-.window-desc {
-    margin: 4px 0 0;
-    font-size: 12px;
-    color: var(--color-text-muted);
-}
-
-.window-close {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    width: 28px;
-    padding: 0;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-input-strong);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.window-close:hover {
-    background-color: var(--surface-hover);
-}
-
-.window-close svg {
-    height: 18px;
-    width: 18px;
-    fill: currentColor;
-}
-
-/* Consumers own the body layout; this just gives them a growing, clipped
-   region below the header. */
-.window-body {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-}
-
-/* 11. PREFERENCES */
-.prefs {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-}
-
-.prefs-tabs {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 160px;
-    padding: 12px 8px;
-    overflow-y: auto;
-    border-right: 1px solid var(--border-menu);
-}
-
-.prefs-tab {
-    text-align: left;
-    padding: 8px 12px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    background-color: transparent;
-    border: none;
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-    user-select: none;
-}
-
-.prefs-tab:hover {
-    background-color: var(--surface-hover);
-}
-
-.prefs-tab-active {
-    color: var(--color-text);
-    background-color: var(--surface-hover);
-    font-weight: bold;
-}
-
-.prefs-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    overflow-y: auto;
-}
-
-.prefs-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-width: 320px;
-}
-
-.prefs-field-label {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-text-muted);
-    user-select: none;
-}
-
-.prefs-field-hint {
-    font-size: 11px;
-    color: var(--color-text-muted);
-}
-
-.prefs-select-trigger {
-    box-sizing: border-box;
-    width: 100%;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-lg);
-    padding: 8px 10px;
-    text-align: left;
-    cursor: pointer;
-}
-
-.prefs-select-trigger:focus {
-    border-color: var(--color-text-muted);
-}
-
-.prefs-select-chevron {
-    flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
-    fill: var(--color-text-muted);
-}
-
-.prefs-empty {
-    margin: 0;
-    font-size: 13px;
-    color: var(--color-text-muted);
-}
-
-/* A preference laid out as label/description on the left, control on the right. */
-.prefs-field-row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.prefs-field-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-/* bits-ui Switch: a pill track whose thumb slides right when checked. */
-.prefs-switch {
-    flex: 0 0 auto;
-    box-sizing: border-box;
-    width: 40px;
-    height: 22px;
-    padding: 2px;
-    border: 1px solid var(--border-input);
-    border-radius: 999px;
-    background-color: var(--surface-menu-input);
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-}
-
-.prefs-switch[data-state="checked"] {
-    background-color: var(--color-text-muted);
-    border-color: var(--color-text-muted);
-}
-
-.prefs-switch-thumb {
-    display: block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--color-text);
-    transition: transform 0.15s ease;
-}
-
-.prefs-switch[data-state="checked"] .prefs-switch-thumb {
-    transform: translateX(18px);
-}
-
-/* 12. CONSOLE */
-.console {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.console-toolbar {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--border-menu);
-}
-
-.console-filters {
-    display: flex;
-    gap: 6px;
-}
-
-.console-filter {
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input);
-    border-radius: var(--radius-md);
-    transition:
-        opacity var(--transition-fast),
-        background-color var(--transition-fast);
-    user-select: none;
-}
-
-.console-filter:hover {
-    background-color: var(--surface-hover);
-}
-
-/* Disabled (filtered-out) chips dim to read as "off". */
-.console-filter-off {
-    opacity: 0.4;
-}
-
-.console-filter.console-row-error {
-    color: var(--color-danger);
-}
-
-.console-filter.console-row-warning {
-    color: var(--color-warning);
-}
-
-.console-copy {
-    flex: 0 0 auto;
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--color-text);
-    background-color: var(--surface-menu-input);
-    border: 1px solid var(--border-input-strong);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.console-copy:hover:not(:disabled) {
-    background-color: var(--surface-hover);
-}
-
-.console-copy:disabled {
-    opacity: 0.4;
-}
-
-.console-log {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 8px 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.5;
-    background-color: var(--surface-menu-input);
-}
-
-.console-row {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    width: 100%;
-    padding: 1px 14px;
-    color: var(--color-text);
-    font: inherit;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.console-row:hover {
-    background-color: var(--surface-hover);
-}
-
-/* Floating feedback pinned to the bottom-center of the console; overlays the
-   log without reflowing any message text. */
-.console-toast {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-text);
-    background-color: var(--surface-menu);
-    border: 1px solid var(--border-menu);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-menu);
-    pointer-events: none;
-    user-select: none;
-}
-
-.console-severity {
-    flex: 0 0 52px;
-    text-align: right;
-    font-weight: bold;
-    color: var(--color-text-muted);
-    user-select: none;
-}
-
-.console-message {
-    flex: 1;
-    min-width: 0;
-}
-
-.console-row-error .console-severity,
-.console-row-error .console-message {
-    color: var(--color-danger);
-}
-
-.console-row-warning .console-severity,
-.console-row-warning .console-message {
-    color: var(--color-warning);
-}
-
-.console-row-info .console-severity {
-    color: var(--color-text-muted);
-}
-
-.console-row-debug .console-severity,
-.console-row-debug .console-message {
-    color: var(--color-text-muted);
-}
-
-.console-empty {
-    margin: 0;
-    padding: 8px 14px;
-    color: var(--color-text-muted);
 }

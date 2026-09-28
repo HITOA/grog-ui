@@ -30,6 +30,7 @@ Do not add REST/fetch calls. **Always go through `src/lib/api.ts`** (the `API.*`
 - Graph rendering uses `@xyflow/svelte` (`SvelteFlow`); UI primitives use `bits-ui`.
 - TypeScript is strict with **noUnusedLocals / noUnusedParameters** and `checkJs` on — unused imports/vars break `npm run check`. Use type-only imports (`import type`).
 - All shared types live in `src/lib/types.ts`.
+- **No `<style>` blocks in components.** Themes are full drop-in stylesheet replacements (`public/themes/*.css`, applied by `theme.svelte.ts`), so all styling must live in `public/themes/default-theme.css`, not scoped in `.svelte` files. Add markup with plain class hooks (`class="my-thing"`), then add the rules to the theme file — referencing the `:root` design tokens, and adding new tokens there when a color/size doesn't exist yet. Scoped component CSS silently disappears the moment a user switches themes.
 
 ## Note
 

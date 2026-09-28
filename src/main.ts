@@ -3,17 +3,26 @@ import { mount } from "svelte";
 import App from "./App.svelte";
 import { grogState } from "./lib/state.svelte";
 import * as API from "./lib/api";
-import { setTheme } from "./lib/theme";
-import { onUpdateFeedbackList, onUpdateGraph, onUpdateGraphs, updateGraphInstances } from "./lib/actions";
+import { themeManager } from "./lib/theme.svelte";
+import { settings } from "./lib/settings.svelte";
+import {
+    onConsoleMessage,
+    onUpdateFeedbackList,
+    onUpdateGraph,
+    onUpdateGraphs,
+    updateGraphInstances,
+} from "./lib/actions";
 import type { GrogEvent } from "./lib/bridge";
-import type { FeedbackEntry, GraphInstance } from "./lib/types";
+import type { ConsoleMessage, FeedbackEntry, GraphInstance } from "./lib/types";
 import { pluginHost } from "./lib/plugins/plugin-host.svelte";
 
 grogState.nodeDefinitionList = await API.getNodeDefinitionList();
 grogState.presetList = await API.getPresetList();
 grogState.currentPreset = await API.getCurrentPresetMetadata();
+grogState.consoleMessages = await API.getConsoleMessages();
 
-setTheme("default-theme");
+await themeManager.init();
+await settings.init();
 
 void pluginHost.init();
 
@@ -29,6 +38,10 @@ window.addEventListener("update_graphs", (e: CustomEventInit<GrogEvent<GraphInst
 
 window.addEventListener("update_feedback_list", (e: CustomEventInit<GrogEvent<FeedbackEntry[]>>) => {
     if (e.detail?.data) onUpdateFeedbackList(e.detail.data);
+});
+
+window.addEventListener("console_message", (e: CustomEventInit<GrogEvent<ConsoleMessage>>) => {
+    if (e.detail?.data) onConsoleMessage(e.detail.data);
 });
 
 const app = mount(App, {

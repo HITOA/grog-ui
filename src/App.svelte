@@ -9,6 +9,10 @@
     import MainTabBar from "./lib/components/MainTabBar.svelte";
     import Footer from "./lib/components/Footer.svelte";
     import PluginConfig from "./lib/components/PluginConfig.svelte";
+    import Preferences from "./lib/components/Preferences.svelte";
+    import Console from "./lib/components/Console.svelte";
+    import ConsoleStatusBar from "./lib/components/ConsoleStatusBar.svelte";
+    import { subgraphDrag } from "./lib/drag.svelte";
 </script>
 
 <MainMenuBar />
@@ -27,5 +31,14 @@
 {/if}
 
 <Footer />
+<ConsoleStatusBar />
 
 <PluginConfig />
+<Preferences />
+<Console />
+
+{#if subgraphDrag.dragging}
+    <div class="subgraph-drag-ghost" style="left: {subgraphDrag.x}px; top: {subgraphDrag.y}px;">
+        {subgraphDrag.label}
+    </div>
+{/if}
