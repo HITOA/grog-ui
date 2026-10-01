@@ -7,6 +7,7 @@ import type {
     NodeMove,
     Connection as GrogConnection,
     FeedbackEntry,
+    Initializer,
 } from "./types";
 import type { GenericNodeType } from "./components/nodes/GenericNode";
 import * as API from "./api";
@@ -15,6 +16,26 @@ import { type Connection, type Edge, type Node, type XYPosition } from "@xyflow/
 import { assertIsGenericNode, assertIsString } from "./assertions";
 import type { GenericEdgeType } from "./components/nodes/GenericEdge";
 import { pluginHost } from "./plugins/plugin-host.svelte";
+import { settings } from "./settings.svelte";
+
+// Delay used to coalesce bursts of modifications (multi-node deletes, plugin
+// batch edits...) into a single post-update pass.
+const AFTER_GRAPH_UPDATE_DELAY_MS = 100;
+let afterGraphUpdateTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Must be called once a graph/node modification has been accepted by the host.
+ * Central place for anything that reacts to graph edits (live recompilation,
+ * ...), so mutation call sites never check preferences themselves. Calls are
+ * debounced, so firing it for every individual change is fine.
+ */
+export function afterGraphUpdate(): void {
+    if (afterGraphUpdateTimer !== null) clearTimeout(afterGraphUpdateTimer);
+    afterGraphUpdateTimer = setTimeout(() => {
+        afterGraphUpdateTimer = null;
+        if (settings.liveRecompile) compileGraph();
+    }, AFTER_GRAPH_UPDATE_DELAY_MS);
+}
 
 export function onUpdateGraphs(instances: GraphInstance[]): void {
     const flowContexts: FlowContext[] = [];
@@ -198,6 +219,7 @@ export function instantiateNode(nodeKey: NodeKey, position: XYPosition): void {
         };
 
         grogState.currentFlow.nodes = [...grogState.currentFlow.nodes, node];
+        afterGraphUpdate();
     });
 }
 
@@ -216,6 +238,7 @@ export function instantiateSubgraph(subgraphId: number, position: XYPosition): v
         };
 
         grogState.currentFlow.nodes = [...grogState.currentFlow.nodes, node];
+        afterGraphUpdate();
     });
 }
 
@@ -236,6 +259,7 @@ export function updateNodeName(
         if (r) {
             node.data.instance.displayName = name;
             updateNodeData(node.data.instance.identity.toString(), node.data);
+            afterGraphUpdate();
         }
     });
 }
@@ -248,6 +272,15 @@ export function updateFeedback(
     API.updateFeedback(grogState.currentFlowIndex, node.data.instance.identity, feedback).then((r) => {
         node.data.instance = r;
         updateNodeData(node.data.instance.identity.toString(), node.data);
+        afterGraphUpdate();
+    });
+}
+
+// Resolves with the value the host actually stored (it may clamp/round it).
+export function updateInitializer(initializerId: Identity, initializer: Initializer): Promise<Initializer> {
+    return API.updateInitializer(grogState.currentFlowIndex, initializerId, initializer).then((result) => {
+        afterGraphUpdate();
+        return result;
     });
 }
 
@@ -294,6 +327,7 @@ export function createConnection(
                     instance: instance,
                 });
             });
+            afterGraphUpdate();
         } else {
             const edgesWithoutConnection = grogState.currentFlow.edges.filter((edge) => {
                 assertIsString(edge.sourceHandle);
@@ -318,6 +352,7 @@ export function deleteNodesAndEdges(
                         instance: instance,
                     });
                 });
+                afterGraphUpdate();
                 res(true);
             })
             .catch(() => rej());

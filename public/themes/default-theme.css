@@ -144,6 +144,15 @@
     --wheel-grip-border: #131419;
     --wheel-grip-height: 20px;
     --grad-footer-strip: linear-gradient(180deg, #1c1d21, #141517);
+
+    /* Knobs (node parameters) — SVG strokes/fills, so solid colours only */
+    --knob-size: 36px;
+    --knob-track: #0e0f12; /* unlit part of the value ring */
+    --knob-arc: var(--color-tab-active); /* lit part of the value ring */
+    --knob-arc-active: #7da0c9; /* lit ring while hovered / turning */
+    --knob-body: #2d3a50; /* cap, matches --grad-port-control */
+    --knob-body-border: #ffffff20;
+    --knob-pointer: var(--color-node-label);
 }
 
 /* 2. BASE */
@@ -174,8 +183,22 @@ select {
     height: 50px;
     background: var(--grad-bar) border-box;
     flex: 0 0 auto;
+    /* Equal-width side columns keep the preset selector at the true centre,
+       regardless of how wide the menus or the compile button are. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 30%) minmax(0, 1fr);
+    align-items: center;
+}
+
+.main-menu-bar-left,
+.main-menu-bar-right {
     display: flex;
     align-items: center;
+    min-width: 0;
+}
+
+.main-menu-bar-right {
+    justify-content: flex-end;
 }
 
 .title {
@@ -215,9 +238,7 @@ select {
 }
 
 .preset-selector {
-    min-width: 200px;
-    width: 30%;
-    margin: auto;
+    min-width: 0;
     height: 30px;
     background-color: var(--surface-menu);
     border-radius: var(--radius-lg);
@@ -687,6 +708,72 @@ select {
     border-radius: var(--radius-sm);
     padding: 2px;
     background: var(--grad-port-control) padding-box;
+}
+
+.knob {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: var(--color-node-label);
+    font-size: 10px;
+    user-select: none;
+}
+
+.knob-dial {
+    width: var(--knob-size);
+    height: var(--knob-size);
+    border-radius: 50%;
+    cursor: ns-resize;
+    outline: none;
+    touch-action: none;
+}
+
+.knob-dial:focus-visible {
+    box-shadow: 0 0 0 1px var(--knob-arc);
+}
+
+.knob-dial svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.knob-track {
+    stroke: var(--knob-track);
+    stroke-opacity: 1;
+    stroke-linecap: round;
+}
+
+.knob-arc {
+    stroke: var(--knob-arc);
+    stroke-linecap: round;
+    transition: stroke var(--transition-fast);
+}
+
+.knob-dial:hover .knob-arc,
+.knob-dial-active .knob-arc {
+    stroke: var(--knob-arc-active);
+}
+
+.knob-body {
+    fill: var(--knob-body);
+    stroke: var(--knob-body-border);
+}
+
+.knob-pointer {
+    stroke: var(--knob-pointer);
+    stroke-linecap: round;
+}
+
+.knob-label,
+.knob-readout {
+    white-space: nowrap;
+}
+
+.knob-readout {
+    font-family: var(--font-mono);
 }
 
 .port-handle {
@@ -1732,6 +1819,13 @@ select {
 
 .prefs-switch[data-state="checked"] .prefs-switch-thumb {
     transform: translateX(18px);
+}
+
+/* Controls whose setting doesn't currently apply (e.g. optimization disabled). */
+.prefs-switch[data-disabled],
+.prefs-select-trigger[data-disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* 12. CONSOLE */

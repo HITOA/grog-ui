@@ -147,3 +147,15 @@ export interface ConnectionCreationData {
     identity: Identity;
     dirtyNodes?: NodeInstance[];
 }
+
+// How the compiler shares generated code between node instances. Persisted as
+// its string value in the native config tree.
+export enum CodeSharing {
+    PerVariant = "PerVariant",
+    PerInstance = "PerInstance",
+}
+
+// How a Knob maps its rotation onto [min, max]. "log" gives each decade the
+// same travel (frequencies, gains); it needs min and max > 0, otherwise the
+// knob falls back to "linear".
+export type KnobScale = "linear" | "log";

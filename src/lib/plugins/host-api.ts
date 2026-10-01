@@ -10,7 +10,7 @@
 import * as API from "../api";
 import * as midi from "../midi";
 import { grogState } from "../state.svelte";
-import { onUpdateGraph } from "../actions";
+import { afterGraphUpdate, onUpdateGraph } from "../actions";
 import { assertIsGenericNode } from "../assertions";
 import type { Initializer, NodeMove } from "../types";
 import type { CreateNodeOptions, CreatedNode, NodePositionMove, PluginConnection, PluginNode } from "./protocol";
@@ -82,6 +82,7 @@ async function createNode(key: string, options: CreateNodeOptions): Promise<Crea
         if (id !== undefined) inits.push(API.updateInitializer(graphId, id, value as Initializer));
     }
     await Promise.all(inits);
+    afterGraphUpdate();
 
     return { id: instance.identity, inputs, outputs, parameters };
 }
@@ -91,6 +92,7 @@ async function connect(sourceOutputPortId: number, targetInputPortId: number): P
     if (!result.isValid) {
         throw new Error(`connection ${sourceOutputPortId} -> ${targetInputPortId} was rejected`);
     }
+    afterGraphUpdate();
 }
 
 async function refreshGraph(): Promise<void> {

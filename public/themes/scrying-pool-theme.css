@@ -162,8 +162,22 @@ select {
     height: 50px;
     background: var(--grad-bar) border-box;
     flex: 0 0 auto;
+    /* Equal-width side columns keep the preset selector at the true centre,
+       regardless of how wide the menus or the compile button are. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 30%) minmax(0, 1fr);
+    align-items: center;
+}
+
+.main-menu-bar-left,
+.main-menu-bar-right {
     display: flex;
     align-items: center;
+    min-width: 0;
+}
+
+.main-menu-bar-right {
+    justify-content: flex-end;
 }
 
 .title {
@@ -204,9 +218,7 @@ select {
 }
 
 .preset-selector {
-    min-width: 200px;
-    width: 30%;
-    margin: auto;
+    min-width: 0;
     height: 30px;
     background-color: var(--surface-menu);
     border-radius: var(--radius-lg);

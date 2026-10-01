@@ -4,11 +4,10 @@
     import PortHandle from "./PortHandle.svelte";
     import { NodeInstanceFlag, PortState } from "../../types";
     import type { ChangeEventHandler } from "svelte/elements";
-    import * as API from "../../api";
     import { grogState } from "../../state.svelte";
     import { ContextMenu, Select } from "bits-ui";
     import EditableLabel from "../EditableLabel.svelte";
-    import { updateFeedback, updateNodeName } from "../../actions";
+    import { updateFeedback, updateInitializer, updateNodeName } from "../../actions";
     import { assertIsGenericNode } from "../../assertions";
 
     let { id, data }: NodeProps<GenericNodeType> = $props();
@@ -16,11 +15,7 @@
     let { updateNodeData, getNode } = useSvelteFlow();
 
     const onInputChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-        API.updateInitializer(
-            grogState.currentFlowIndex,
-            parseInt(event.currentTarget.id),
-            parseFloat(event.currentTarget.value),
-        ).then((result) => {
+        updateInitializer(parseInt(event.currentTarget.id), parseFloat(event.currentTarget.value)).then((result) => {
             event.currentTarget.value = String(result ?? "");
         });
     };
