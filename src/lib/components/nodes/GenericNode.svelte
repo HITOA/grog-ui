@@ -11,7 +11,7 @@
     import PortHandle from "./PortHandle.svelte";
     import PortControl from "./PortControl.svelte";
     import ExposedReadout from "./ExposedReadout.svelte";
-    import { NodeInstanceFlag, PortState, type ExposedVariable, type Widget } from "../../types";
+    import { NodeInstanceFlag, PortState, type Widget } from "../../types";
     import { grogState } from "../../state.svelte";
     import { settings } from "../../settings.svelte";
     import { ContextMenu, Select } from "bits-ui";
@@ -80,12 +80,6 @@
     let exposedGraphId = $derived(grogState.currentFlowIndex);
     let showExposed = $derived(exposedGraphId === 0);
     let hasExposedState = $derived(showExposed && !!data.instance.exposedState?.length);
-
-    // What an `[Expose(Write)]` input's control writes to, live.
-    function writableExposure(exposed: ExposedVariable | undefined): { node: number; name: string } | undefined {
-        if (!showExposed || exposed?.mode !== "write") return undefined;
-        return { node: data.instance.identity, name: exposed.name };
-    }
 
     // Editable state: written to the running graph, never saved (only inputs are).
     function onExposedStateChange(name: string, event: Event & { currentTarget: HTMLInputElement }) {
@@ -202,7 +196,6 @@
                                     initializer={input.initializer}
                                     widget={widgetOf(input)}
                                     label={input.displayName}
-                                    exposed={writableExposure(input.exposed)}
                                 />
                             </div>
                         {:else if inputsControlPresence[index]}
@@ -211,7 +204,6 @@
                                 initializer={input.initializer}
                                 widget={widgetOf(input)}
                                 label={input.displayName}
-                                exposed={writableExposure(input.exposed)}
                             />
                         {:else if showExposed && input.exposed}
                             <!-- Connected: what the node reads from its source. -->

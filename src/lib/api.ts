@@ -9,6 +9,7 @@ import type {
     GraphInstance,
     Identity,
     Initializer,
+    InputValueResult,
     NodeDefinitionList,
     NodeInstance,
     NodeKey,
@@ -227,6 +228,23 @@ export function getExposed(graphId: number, identity: Identity): Promise<Exposed
 // every element, or one number per element. Rejected when the variable isn't
 // writable (read-only, an output, a connected input) or the graph isn't compiled.
 // On an input, the host also keeps the value as its initializer.
+// Tiering (`state-as-data.md` §6.7): an unconnected input of the root graph is
+// live (written without a recompile) while it's edited, and folded back into a
+// constant once it settles. A grab makes it live before it moves.
+export function grabInput(graphId: number, portId: Identity): Promise<void> {
+    return callNative<void>("grab_input", { graphId, portId });
+}
+
+export function releaseInput(graphId: number, portId: Identity): Promise<void> {
+    return callNative<void>("release_input", { graphId, portId });
+}
+
+// Sets the initializer of an unconnected input (or a parameter). `tiered`: the
+// host applies it live, no recompile is needed.
+export function setInputValue(graphId: number, portId: Identity, value: number): Promise<InputValueResult> {
+    return callNative<InputValueResult>("set_input_value", { graphId, portId, value });
+}
+
 export function setExposedValue(graphId: number, identity: Identity, name: string, value: ExposedValue): Promise<void> {
     return callNative<void>("set_exposed_value", { graphId, identity, name, value });
 }

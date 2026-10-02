@@ -285,9 +285,32 @@ export function updateInitializer(initializerId: Identity, initializer: Initiali
     });
 }
 
+// Edits of an unconnected input (`state-as-data.md` §6.7): once the graph is
+// compiled, the host makes the input live while it's edited (in a subgraph,
+// every use of it) and folds it back into a constant when it settles. A
+// parameter, or a subgraph the root doesn't use, only gets its initializer set,
+// and a recompile applies it.
+export function grabInput(portId: Identity): void {
+    API.grabInput(grogState.currentFlowIndex, portId).catch(() => {});
+}
+
+export function releaseInput(portId: Identity): void {
+    API.releaseInput(grogState.currentFlowIndex, portId).catch(() => {});
+}
+
+// Resolves with the value the host kept. `live`: a value in the middle of a
+// gesture, whose end commits; it doesn't recompile when the host can't apply it.
+export function setInputValue(portId: Identity, value: number, live: boolean): Promise<Initializer> {
+    return API.setInputValue(grogState.currentFlowIndex, portId, value).then((result) => {
+        if (!result.tiered && !live) afterGraphUpdate();
+        return result.value;
+    });
+}
+
 // Writes an `[Expose(Write)]` variable of a node now, without a recompile; on an
-// input, the host also keeps the value as its initializer. Rejected when the
-// host can't (graph not compiled yet, input connected...).
+// input, the host also keeps the value as its initializer, and makes the input
+// live (tiering). Rejected when the host can't (graph not compiled yet, input
+// connected...).
 export function setExposedValue(identity: Identity, name: string, value: ExposedValue): Promise<void> {
     return API.setExposedValue(grogState.currentFlowIndex, identity, name, value);
 }

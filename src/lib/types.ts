@@ -80,6 +80,13 @@ export interface ExposedVariable {
 // element, an array otherwise (a Vec, an array...).
 export type ExposedValue = number | boolean | (number | boolean)[];
 
+// What `set_input_value` kept: the value (rounded to the input's type), and
+// whether the host applies it live (tiering), so that no recompile is needed.
+export interface InputValueResult {
+    value: Initializer;
+    tiered: boolean;
+}
+
 // One value of the host's `exposed_values` event, for the watch `watchId`.
 export interface ExposedValueUpdate {
     watchId: number;

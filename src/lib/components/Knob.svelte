@@ -26,6 +26,10 @@
         // Fires once per finished gesture (pointer release, wheel tick, key
         // press) — commit to the native side from here, not from `oninput`.
         onchange?: (value: number) => void;
+        // A drag starts and ends (pointer down and up), whether or not the value
+        // changed. The host makes an input live from the grab, before it moves.
+        ongrab?: () => void;
+        onrelease?: () => void;
     }
 
     let {
@@ -40,6 +44,8 @@
         decimals,
         oninput,
         onchange,
+        ongrab,
+        onrelease,
     }: Props = $props();
 
     // Total rotation from min to max, centred on 12 o'clock.
@@ -121,6 +127,7 @@
         dragPosition = position;
         lastY = ev.clientY;
         valueAtDragStart = value;
+        ongrab?.();
     }
 
     function onPointerMove(ev: PointerEvent) {
@@ -136,6 +143,7 @@
         dragging = false;
         (ev.currentTarget as HTMLElement).releasePointerCapture(ev.pointerId);
         if (value !== valueAtDragStart) commit();
+        onrelease?.();
     }
 
     function onWheel(ev: WheelEvent) {
