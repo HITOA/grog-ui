@@ -283,3 +283,14 @@ export function setOutputGuardCeiling(ceiling: number): Promise<number> {
 export function rearmOutput(): Promise<void> {
     return callNative<void>("rearm_output", {});
 }
+
+// The output gain, linear (1 is unity), applied before the output guard. Saved
+// with the plugin's state, not the config.
+export function getOutputGain(): Promise<number> {
+    return callNative<number>("get_output_gain", {});
+}
+
+// Resolves with the gain applied; rejects outside 0..+12 dB.
+export function setOutputGain(gain: number): Promise<number> {
+    return callNative<number>("set_output_gain", { gain });
+}

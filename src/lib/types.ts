@@ -107,6 +107,18 @@ export interface OutputGuardEvent {
     peak: number | null;
 }
 
+// The host's `output_meter` event, about 30 times a second while audio runs.
+// `peak`: each channel's peak since the last one, linear (1 is full scale),
+// after the gain and the output guard. `load`: the time the audio thread took
+// over the time the audio it rendered lasts (1: all of it), on its one thread.
+// `threads`: the machine's hardware threads. `gain`: the output gain, linear.
+export interface OutputMeterEvent {
+    peak: number[];
+    load: number;
+    threads: number;
+    gain: number;
+}
+
 // One value of the host's `exposed_values` event, for the watch `watchId`.
 export interface ExposedValueUpdate {
     watchId: number;

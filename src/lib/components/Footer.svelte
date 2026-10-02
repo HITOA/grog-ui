@@ -1,7 +1,9 @@
 <script lang="ts">
     import Keyboard from "./Keyboard.svelte";
+    import Knob from "./Knob.svelte";
     import Wheel from "./Wheel.svelte";
     import { CC_MODWHEEL, controlChange, PITCH_BEND_MAX, pitchBend } from "../midi";
+    import { GAIN_MAX_DB, GAIN_MIN_DB, METER_FLOOR_DB, meterPosition, outputMeter } from "../output-meter.svelte";
 
     // Wheels report a normalized 0..1 position; map each onto its MIDI range.
     function onPitchBend(v: number) {
@@ -15,12 +17,28 @@
     // When collapsed the footer hides its panels and shrinks to a thin bar that
     // is itself the toggle to expand again.
     let collapsed = $state(false);
+
+    // The highest held peak, printed under the meter.
+    let peakDb = $derived(Math.max(...outputMeter.holdDb));
+    let peakText = $derived(peakDb <= METER_FLOOR_DB ? "-inf" : peakDb.toFixed(1));
+
+    function formatLoad(load: number | null): string {
+        return load === null ? "—" : `${(load * 100).toFixed(2)}%`;
+    }
+
+    // The audio thread's load: the time it takes over the time the audio it
+    // renders lasts, on its one thread. Near 100%, the audio drops out.
+    let dspText = $derived(formatLoad(outputMeter.load));
+    // The same time as a share of the whole machine (all its hardware threads),
+    // as hosts like Reaper show it.
+    let cpuText = $derived(formatLoad(outputMeter.load === null ? null : outputMeter.load / outputMeter.threads));
+    const DSP_HOT = 0.8;
 </script>
 
 <!--
-  The footer is a horizontal strip that hosts the live-performance controls and,
-  eventually, host telemetry. Panels are independent so more can be slotted in
-  (a proper log line at the very bottom, meters, etc.) without disturbing the
+  The footer is a horizontal strip that hosts the live-performance controls and
+  the output. Panels are independent so more can be slotted in
+  (a proper log line at the very bottom, etc.) without disturbing the
   keyboard, which is the centrepiece.
 -->
 <div class="footer" class:footer-collapsed={collapsed}>
@@ -52,18 +70,63 @@
         </div>
 
         <!--
-          Host telemetry (CPU, voices, …) lives here. There is no native feed yet,
-          so the readouts show placeholders until `send_midi`'s sibling stat events
-          are wired up on the C++ side.
+          The output: its level after the gain and the output guard, the gain,
+          and the audio thread's load.
         -->
-        <div class="footer-panel footer-stats">
-            <div class="footer-stat">
-                <span class="footer-stat-label">CPU</span>
-                <span class="footer-stat-value">—</span>
-            </div>
-            <div class="footer-stat">
-                <span class="footer-stat-label">Voices</span>
-                <span class="footer-stat-value">—</span>
+        <div class="footer-panel footer-output">
+            <button
+                class="footer-meter"
+                class:footer-meter-clipped={outputMeter.clipped}
+                onclick={() => outputMeter.clearPeaks()}
+                title="Output level (dBFS). Click to clear the peaks."
+                aria-label="Output level, peak {peakText} dBFS. Click to clear the peaks."
+            >
+                <span class="footer-meter-clip"></span>
+                <span class="footer-meter-bars">
+                    {#each outputMeter.levelDb as level, i (i)}
+                        <span class="footer-meter-bar">
+                            <span class="footer-meter-unlit" style:height="{(1 - meterPosition(level)) * 100}%"></span>
+                            {#if outputMeter.holdDb[i] > METER_FLOOR_DB}
+                                <span
+                                    class="footer-meter-hold"
+                                    style:bottom="{meterPosition(outputMeter.holdDb[i]) * 100}%"
+                                ></span>
+                            {/if}
+                        </span>
+                    {/each}
+                    <span class="footer-meter-zero" style:bottom="{meterPosition(0) * 100}%"></span>
+                </span>
+                <span class="footer-meter-readout">{peakText}</span>
+            </button>
+            <div class="footer-output-controls">
+                <Knob
+                    label="Gain"
+                    min={GAIN_MIN_DB}
+                    max={GAIN_MAX_DB}
+                    unit="dB"
+                    decimals={1}
+                    defaultValue={0}
+                    value={outputMeter.gainDb}
+                    oninput={(v) => outputMeter.setGainDb(v)}
+                    ongrab={() => outputMeter.grabGain(true)}
+                    onrelease={() => outputMeter.grabGain(false)}
+                />
+                <div
+                    class="footer-stat"
+                    title="Thread usage."
+                >
+                    <span class="footer-stat-label">DSP</span>
+                    <span class="footer-stat-value" class:footer-stat-value-hot={(outputMeter.load ?? 0) > DSP_HOT}
+                        >{dspText}</span
+                    >
+                </div>
+                <div
+                    class="footer-stat"
+                    title="CPU usage (over {outputMeter.threads} threads)."
+                >
+                    <span class="footer-stat-label">CPU</span>
+                    <span class="footer-stat-value">{cpuText}</span>
+                </div>
             </div>
         </div>
     </div>

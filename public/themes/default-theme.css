@@ -43,6 +43,10 @@
     --color-warning: #f5a623; /* warning text (console) */
     --color-exposed-value: #9fd3b8; /* live values of exposed node variables */
     --color-info: #5679a1; /* info notifications */
+    --meter-low: #3fa66b; /* output meter, below -12 dBFS */
+    --meter-mid: #d8b23a; /* output meter, -12 to 0 dBFS */
+    --meter-high: #e5484d; /* output meter, above 0 dBFS, and its clip light */
+    --meter-unlit: #0d0e10; /* output meter, above the level */
 
     /* --- Surfaces (solid backgrounds) --- */
     --surface-menu: #202126; /* dropdowns, inputs, buttons */
@@ -1562,13 +1566,119 @@ select {
     padding: 10px 16px;
 }
 
-.footer-stats {
+.footer-output {
+    flex: 0 0 auto;
+    gap: 14px;
+    border-left: 1px solid var(--border-footer);
+}
+
+/* The output meter: a clip light, one bar per channel, the held peak. The bar
+   is the whole gradient, covered from the top down to the level by
+   `.footer-meter-unlit`. Its scale is METER_FLOOR_DB..METER_TOP_DB
+   (-60..+6 dBFS, output-meter.svelte.ts): -12 dBFS sits at 72.7%, 0 dBFS at
+   90.9%. */
+.footer-meter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+
+.footer-meter-clip {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background-color: var(--meter-unlit);
+}
+
+.footer-meter-clipped .footer-meter-clip {
+    background-color: var(--meter-high);
+    box-shadow: 0 0 4px var(--meter-high);
+}
+
+.footer-meter-bars {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    gap: 2px;
+}
+
+.footer-meter-bar {
+    position: relative;
+    width: 7px;
+    overflow: hidden;
+    border-radius: 1px;
+    background: linear-gradient(
+        to top,
+        var(--meter-low) 0%,
+        var(--meter-low) 72.7%,
+        var(--meter-mid) 72.7%,
+        var(--meter-mid) 90.9%,
+        var(--meter-high) 90.9%
+    );
+}
+
+.footer-meter-unlit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--meter-unlit);
+}
+
+.footer-meter-hold {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--color-text);
+}
+
+/* 0 dBFS, across both bars. */
+.footer-meter-zero {
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    height: 1px;
+    background-color: var(--color-text-muted);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.footer-meter-readout {
+    flex: 0 0 auto;
+    /* Fixed, so a longer reading ("-60.0") doesn't widen the panel and push the keyboard. */
+    width: 5ch;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.footer-meter-clipped .footer-meter-readout {
+    color: var(--meter-high);
+}
+
+.footer-output-controls {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: center;
-    gap: 8px;
-    min-width: 110px;
-    border-left: 1px solid var(--border-footer);
+    gap: 4px;
+    /* Fixed, like the meter's readout: holds "DSP 100.00%" without moving. */
+    width: 100px;
+}
+
+.footer-output-controls .knob {
+    align-self: center;
 }
 
 .footer-stat {
@@ -1587,9 +1697,15 @@ select {
 }
 
 .footer-stat-value {
+    min-width: 7ch;
+    text-align: right;
     font-size: 13px;
     font-variant-numeric: tabular-nums;
     color: var(--color-text);
+}
+
+.footer-stat-value-hot {
+    color: var(--color-warning);
 }
 
 /* Thin strip beneath the footer previewing the newest console message; the
