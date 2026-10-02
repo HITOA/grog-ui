@@ -2,9 +2,10 @@ import * as API from "./api";
 import type { ExposedValue, ExposedValueUpdate, Identity } from "./types";
 
 // Live values of the variables nodes expose (`[Expose]`). The host pushes them
-// about 30 times a second; they stay out of reactive state, so that they never
-// make Svelte or xyflow re-render the graph. A readout registers a listener and
-// draws the value itself; listeners run from one animation frame per update.
+// up to 60 times a second (`core.exposedRate`); they stay out of reactive
+// state, so that they never make Svelte or xyflow re-render the graph. A
+// readout registers a listener and draws the value itself; listeners run from
+// one animation frame per update.
 
 type Listener = (value: ExposedValue) => void;
 

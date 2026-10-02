@@ -258,7 +258,7 @@ export interface ExposedWatch {
 }
 
 // Replaces the list of watched variables. Their values then arrive through the
-// `exposed_values` event, about 30 times a second.
+// `exposed_values` event, `core.exposedRate` times a second (15 by default).
 export function watchExposed(watches: ExposedWatch[]): Promise<void> {
     return callNative<void>("watch_exposed", { watches });
 }

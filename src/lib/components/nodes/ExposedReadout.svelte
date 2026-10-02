@@ -3,7 +3,7 @@
     import type { Identity } from "../../types";
 
     // The live value of a variable a node exposes (`[Expose]`). It's drawn by
-    // writing the text directly: values arrive about 30 times a second and must
+    // writing the text directly: values arrive up to 60 times a second and must
     // not go through Svelte's reactivity.
     interface Props {
         graphId: number;

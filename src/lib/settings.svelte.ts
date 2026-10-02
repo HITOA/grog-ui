@@ -19,6 +19,12 @@ const DEFAULT_INLINED_NODES = true;
 const USE_VARIANT_CACHE_KEY = "Compilation.useVariantCache";
 const DEFAULT_USE_VARIANT_CACHE = true;
 
+// How often the host sends the watched exposed values and the output meter, in
+// Hz. Read by the audio thread, which takes them in 1..60.
+const EXPOSED_RATE_KEY = "core.exposedRate";
+const METER_RATE_KEY = "core.meterRate";
+export const DEFAULT_UPDATE_RATE = 15;
+
 // The output guard's default ceiling, +12 dBFS (linear 4).
 export const DEFAULT_OUTPUT_GUARD_CEILING_DB = 12;
 
@@ -47,6 +53,10 @@ class SettingsManager {
     // The peak above which it trips, in dBFS (the host keeps it linear).
     outputGuardCeilingDb: number = $state(DEFAULT_OUTPUT_GUARD_CEILING_DB);
 
+    // Updates per second of the exposed values' readouts, and of the meter.
+    exposedRate: number = $state(DEFAULT_UPDATE_RATE);
+    meterRate: number = $state(DEFAULT_UPDATE_RATE);
+
     /** Restore saved preferences from the native config tree. */
     async init(): Promise<void> {
         const [
@@ -57,6 +67,8 @@ class SettingsManager {
             codeSharing,
             inlinedNodes,
             useVariantCache,
+            exposedRate,
+            meterRate,
         ] = await Promise.all([
             loadKey<boolean>(SHOW_LOG_BAR_KEY),
             loadKey<boolean>(LIVE_RECOMPILE_KEY),
@@ -65,6 +77,8 @@ class SettingsManager {
             loadKey<string>(CODE_SHARING_KEY),
             loadKey<boolean>(INLINED_NODES_KEY),
             loadKey<boolean>(USE_VARIANT_CACHE_KEY),
+            loadKey<number>(EXPOSED_RATE_KEY),
+            loadKey<number>(METER_RATE_KEY),
         ]);
         this.showLogBar = showLogBar ?? DEFAULT_SHOW_LOG_BAR;
         this.liveRecompile = liveRecompile ?? DEFAULT_LIVE_RECOMPILE;
@@ -73,6 +87,8 @@ class SettingsManager {
         this.codeSharing = isCodeSharing(codeSharing) ? codeSharing : DEFAULT_CODE_SHARING;
         this.inlinedNodes = inlinedNodes ?? DEFAULT_INLINED_NODES;
         this.useVariantCache = useVariantCache ?? DEFAULT_USE_VARIANT_CACHE;
+        this.exposedRate = exposedRate ?? DEFAULT_UPDATE_RATE;
+        this.meterRate = meterRate ?? DEFAULT_UPDATE_RATE;
     }
 
     /** Toggle the console status strip and persist the choice. */
@@ -129,6 +145,18 @@ class SettingsManager {
             console.error("failed to set the output guard ceiling:", err);
             this.outputGuardCeilingDb = previous;
         });
+    }
+
+    /** Set how often the exposed values are sent, in Hz, and persist the choice. */
+    setExposedRate(value: number): void {
+        this.exposedRate = value;
+        persistKey(EXPOSED_RATE_KEY, value);
+    }
+
+    /** Set how often the output meter is sent, in Hz, and persist the choice. */
+    setMeterRate(value: number): void {
+        this.meterRate = value;
+        persistKey(METER_RATE_KEY, value);
     }
 
     /** Toggle the compiled-variant cache and persist the choice. */

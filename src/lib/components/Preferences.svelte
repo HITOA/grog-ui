@@ -30,6 +30,9 @@
         return `${db > 0 ? "+" : ""}${db} dBFS`;
     }
 
+    // Update rates offered, in Hz. One set in the config by hand shows as is.
+    const rateOptions = [5, 10, 15, 30, 60].map((hz) => ({ value: hz.toString(), label: `${hz} Hz` }));
+
     function onCeilingChange(value: string): void {
         settings.setOutputGuardCeilingDb(Number(value));
     }
@@ -196,6 +199,90 @@
                                 >
                                     <Select.Viewport>
                                         {#each ceilingOptions as option (option.value)}
+                                            <Select.Item
+                                                class="context-menu-item prefs-select-item"
+                                                value={option.value}
+                                                label={option.label}
+                                            >
+                                                {option.label}
+                                            </Select.Item>
+                                        {/each}
+                                    </Select.Viewport>
+                                </Select.Content>
+                            </Select.Portal>
+                        </Select.Root>
+                    </div>
+                    <div class="prefs-field">
+                        <span class="prefs-field-label">Value update rate</span>
+                        <span class="prefs-field-hint">How often node readouts refresh.</span>
+                        <Select.Root
+                            type="single"
+                            value={settings.exposedRate.toString()}
+                            onValueChange={(v) => settings.setExposedRate(Number(v))}
+                        >
+                            <Select.Trigger class="prefs-select-trigger">
+                                <span>{settings.exposedRate} Hz</span>
+                                <svg
+                                    class="prefs-select-chevron"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 640 640"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L502.7 310.6C515.2 298.1 515.2 277.8 502.7 265.3C490.2 252.8 469.9 252.8 457.4 265.3L320 402.7L182.6 265.4C170.1 252.9 149.8 252.9 137.3 265.4C124.8 277.9 124.8 298.2 137.3 310.7L297.3 470.7z"
+                                    />
+                                </svg>
+                            </Select.Trigger>
+                            <Select.Portal>
+                                <Select.Content
+                                    class="context-menu-frame prefs-select-content"
+                                    sideOffset={4}
+                                    style="z-index: 100; width: var(--bits-select-anchor-width);"
+                                >
+                                    <Select.Viewport>
+                                        {#each rateOptions as option (option.value)}
+                                            <Select.Item
+                                                class="context-menu-item prefs-select-item"
+                                                value={option.value}
+                                                label={option.label}
+                                            >
+                                                {option.label}
+                                            </Select.Item>
+                                        {/each}
+                                    </Select.Viewport>
+                                </Select.Content>
+                            </Select.Portal>
+                        </Select.Root>
+                    </div>
+                    <div class="prefs-field">
+                        <span class="prefs-field-label">Meter update rate</span>
+                        <span class="prefs-field-hint">How often the output meter refreshes.</span>
+                        <Select.Root
+                            type="single"
+                            value={settings.meterRate.toString()}
+                            onValueChange={(v) => settings.setMeterRate(Number(v))}
+                        >
+                            <Select.Trigger class="prefs-select-trigger">
+                                <span>{settings.meterRate} Hz</span>
+                                <svg
+                                    class="prefs-select-chevron"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 640 640"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L502.7 310.6C515.2 298.1 515.2 277.8 502.7 265.3C490.2 252.8 469.9 252.8 457.4 265.3L320 402.7L182.6 265.4C170.1 252.9 149.8 252.9 137.3 265.4C124.8 277.9 124.8 298.2 137.3 310.7L297.3 470.7z"
+                                    />
+                                </svg>
+                            </Select.Trigger>
+                            <Select.Portal>
+                                <Select.Content
+                                    class="context-menu-frame prefs-select-content"
+                                    sideOffset={4}
+                                    style="z-index: 100; width: var(--bits-select-anchor-width);"
+                                >
+                                    <Select.Viewport>
+                                        {#each rateOptions as option (option.value)}
                                             <Select.Item
                                                 class="context-menu-item prefs-select-item"
                                                 value={option.value}

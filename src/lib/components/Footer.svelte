@@ -85,11 +85,13 @@
                 <span class="footer-meter-bars">
                     {#each outputMeter.levelDb as level, i (i)}
                         <span class="footer-meter-bar">
-                            <span class="footer-meter-unlit" style:height="{(1 - meterPosition(level)) * 100}%"></span>
+                            <!-- Moved by transforms, not sizes: no layout every frame. -->
+                            <span class="footer-meter-unlit" style:transform="scaleY({1 - meterPosition(level)})"
+                            ></span>
                             {#if outputMeter.holdDb[i] > METER_FLOOR_DB}
                                 <span
                                     class="footer-meter-hold"
-                                    style:bottom="{meterPosition(outputMeter.holdDb[i]) * 100}%"
+                                    style:transform="translateY({(1 - meterPosition(outputMeter.holdDb[i])) * 100}%)"
                                 ></span>
                             {/if}
                         </span>
@@ -111,19 +113,13 @@
                     ongrab={() => outputMeter.grabGain(true)}
                     onrelease={() => outputMeter.grabGain(false)}
                 />
-                <div
-                    class="footer-stat"
-                    title="Thread usage."
-                >
+                <div class="footer-stat" title="Thread usage.">
                     <span class="footer-stat-label">DSP</span>
                     <span class="footer-stat-value" class:footer-stat-value-hot={(outputMeter.load ?? 0) > DSP_HOT}
                         >{dspText}</span
                     >
                 </div>
-                <div
-                    class="footer-stat"
-                    title="CPU usage (over {outputMeter.threads} threads)."
-                >
+                <div class="footer-stat" title="CPU usage (over {outputMeter.threads} threads).">
                     <span class="footer-stat-label">CPU</span>
                     <span class="footer-stat-value">{cpuText}</span>
                 </div>

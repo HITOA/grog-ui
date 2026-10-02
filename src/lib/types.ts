@@ -107,7 +107,7 @@ export interface OutputGuardEvent {
     peak: number | null;
 }
 
-// The host's `output_meter` event, about 30 times a second while audio runs.
+// The host's `output_meter` event, `core.meterRate` times a second (15 by default) while audio runs.
 // `peak`: each channel's peak since the last one, linear (1 is full scale),
 // after the gain and the output guard. `load`: the time the audio thread took
 // over the time the audio it rendered lasts (1: all of it), on its one thread.

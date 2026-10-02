@@ -1626,20 +1626,22 @@ select {
     );
 }
 
+/* The unlit part and the hold line span the whole bar and are moved by
+   transforms (Footer.svelte), which skip layout: the unlit part is scaled down
+   from the top, the hold line (its top border) moved down from the top. */
 .footer-meter-unlit {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
+    transform-origin: top;
+    will-change: transform;
     background-color: var(--meter-unlit);
 }
 
 .footer-meter-hold {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background-color: var(--color-text);
+    inset: 0;
+    will-change: transform;
+    border-top: 1px solid var(--color-text);
 }
 
 /* 0 dBFS, across both bars. */
