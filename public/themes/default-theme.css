@@ -59,6 +59,8 @@
     --border-control: #ffffff20; /* node inputs / feedback selector */
     --border-logo: #252a32; /* logo tile border */
     --node-divider: #19191c; /* internal node dividers */
+    --node-collapsed-row-height: 16px; /* collapsed ports row / parameters strip */
+    --node-parameters-toggle-height: 16px; /* parameters collapse strip when open */
 
     /* --- Interactive overlays --- */
     --overlay-hover: #ffffff1a; /* subtle hover wash */
@@ -642,14 +644,164 @@ select {
     background: var(--grad-node-inputs) padding-box;
 }
 
+/* Background lives on .node-parameters-section so its toggle strip shares it. */
 .node-footer {
     grid-template-columns: auto auto;
-    padding: 5px 0px;
+    padding: 0px 0px 5px;
+}
+
+.node-parameters-section {
     border-top: 1px solid transparent;
     background:
         var(--grad-footer-shadow) border-box,
         var(--grad-footer-fill) padding-box,
         var(--grad-footer-border) border-box;
+}
+
+/* Thin strip with a centred chevron at the top of the parameters. */
+.node-parameters-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: var(--node-parameters-toggle-height);
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: var(--icon-idle);
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+}
+
+.node-parameters-toggle:hover {
+    color: var(--icon-hover);
+    opacity: 1;
+}
+
+.node-parameters-toggle svg {
+    width: 8px;
+    height: 8px;
+    transition: transform var(--transition-fast) ease;
+}
+
+/* Collapsed: the strip grows a little so it stays an easy click target. */
+.node-parameters-collapsed .node-parameters-toggle {
+    height: var(--node-collapsed-row-height);
+}
+
+.node-parameters-collapsed .node-parameters-toggle svg {
+    transform: rotate(-90deg);
+}
+
+/* Ports toggle: a chevron before the title, dim until the node is hovered. */
+.node-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.node-header-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--icon-idle);
+    opacity: 0.5;
+    cursor: pointer;
+    transition:
+        opacity var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.svelte-flow__node:hover .node-header-toggle {
+    opacity: 1;
+}
+
+.node-header-toggle:hover {
+    color: var(--icon-hover);
+}
+
+.node-header-toggle svg {
+    width: 11px;
+    height: 11px;
+}
+
+.node-ports-toggle svg {
+    transition: transform var(--transition-fast) ease;
+}
+
+/* Chevron points down when open, right when collapsed. */
+.node-ports-toggle.node-header-toggle-off svg {
+    transform: rotate(-90deg);
+}
+
+/* Collapsed ports: header and port rows share one grid cell. The rows stack
+   into a single row centred on the header, so every edge lands on the node
+   at the header's edges. The handles stay mounted (xyflow needs them) but
+   hidden, and the rows let clicks through to the header. */
+.node-top {
+    display: grid;
+}
+
+.node-ports-collapsed > .node-header,
+.node-ports-collapsed > .node-content {
+    grid-area: 1 / 1;
+}
+
+.node-ports-collapsed > .node-header {
+    border-bottom-color: transparent;
+}
+
+.node-ports-collapsed > .node-content {
+    align-self: center;
+    align-items: center;
+    height: var(--node-collapsed-row-height);
+    pointer-events: none;
+}
+
+.node-ports-collapsed .node-inputs,
+.node-ports-collapsed .node-outputs {
+    display: grid;
+    grid-template-columns: auto;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+.node-ports-collapsed .node-inputs > *,
+.node-ports-collapsed .node-outputs > * {
+    grid-area: 1 / 1;
+}
+
+.node-ports-collapsed .port-label,
+.node-ports-collapsed .port-control,
+.node-ports-collapsed .node-inputs > div:not(.port-handle) {
+    display: none;
+}
+
+.node-ports-collapsed .port-handle {
+    visibility: hidden;
+    pointer-events: none;
+    top: 0;
+}
+
+/* Keep xyflow's horizontal nudge but drop its vertical one, so inputs and
+   outputs both centre on the header. */
+.node-ports-collapsed .port-handle-target {
+    transform: translateX(-50%);
+}
+
+.node-ports-collapsed .port-handle-source {
+    transform: translateX(50%);
 }
 
 .node-outputs {
