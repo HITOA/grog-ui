@@ -1,4 +1,4 @@
-import { getConfigKey, setConfigKey } from "./api";
+import { getConfigKey, setConfigKey, setOutputGuard, setOutputGuardCeiling } from "./api";
 import { CodeSharing } from "./types";
 
 // Dotted config keys holding UI preferences, persisted native-side.
@@ -19,6 +19,9 @@ const DEFAULT_INLINED_NODES = true;
 const USE_VARIANT_CACHE_KEY = "Compilation.useVariantCache";
 const DEFAULT_USE_VARIANT_CACHE = true;
 
+// The output guard's default ceiling, +12 dBFS (linear 4).
+export const DEFAULT_OUTPUT_GUARD_CEILING_DB = 12;
+
 /**
  * Reactive controller for general UI preferences, persisted through the native
  * config tree (mirrors {@link themeManager} in shape).
@@ -37,6 +40,12 @@ class SettingsManager {
     codeSharing: CodeSharing = $state(DEFAULT_CODE_SHARING);
     inlinedNodes: boolean = $state(DEFAULT_INLINED_NODES);
     useVariantCache: boolean = $state(DEFAULT_USE_VARIANT_CACHE);
+
+    // Whether the output guard mutes the output when the graph blows up. Read
+    // from the host by `initOutputGuard`: the audio thread uses it too.
+    outputGuard: boolean = $state(true);
+    // The peak above which it trips, in dBFS (the host keeps it linear).
+    outputGuardCeilingDb: number = $state(DEFAULT_OUTPUT_GUARD_CEILING_DB);
 
     /** Restore saved preferences from the native config tree. */
     async init(): Promise<void> {
@@ -100,6 +109,26 @@ class SettingsManager {
     setInlinedNodes(value: boolean): void {
         this.inlinedNodes = value;
         persistKey(INLINED_NODES_KEY, value);
+    }
+
+    /** Enable or disable the output guard; the host saves the choice. */
+    setOutputGuard(value: boolean): void {
+        const previous = this.outputGuard;
+        this.outputGuard = value;
+        void setOutputGuard(value).catch((err) => {
+            console.error("failed to set the output guard:", err);
+            this.outputGuard = previous;
+        });
+    }
+
+    /** Set the output guard's ceiling, in dBFS; the host saves the choice. */
+    setOutputGuardCeilingDb(value: number): void {
+        const previous = this.outputGuardCeilingDb;
+        this.outputGuardCeilingDb = value;
+        void setOutputGuardCeiling(Math.pow(10, value / 20)).catch((err) => {
+            console.error("failed to set the output guard ceiling:", err);
+            this.outputGuardCeilingDb = previous;
+        });
     }
 
     /** Toggle the compiled-variant cache and persist the choice. */

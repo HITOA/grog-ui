@@ -13,8 +13,9 @@ import {
     updateGraphInstances,
 } from "./lib/actions";
 import type { GrogEvent } from "./lib/bridge";
-import type { ConsoleMessage, ExposedValueUpdate, FeedbackEntry, GraphInstance } from "./lib/types";
+import type { ConsoleMessage, ExposedValueUpdate, FeedbackEntry, GraphInstance, OutputGuardEvent } from "./lib/types";
 import { onExposedValues } from "./lib/exposed";
+import { initOutputGuard, onOutputGuard } from "./lib/output-guard";
 import { pluginHost } from "./lib/plugins/plugin-host.svelte";
 
 grogState.nodeDefinitionList = await API.getNodeDefinitionList();
@@ -24,6 +25,7 @@ grogState.consoleMessages = await API.getConsoleMessages();
 
 await themeManager.init();
 await settings.init();
+await initOutputGuard();
 
 void pluginHost.init();
 
@@ -47,6 +49,10 @@ window.addEventListener("exposed_values", (e: CustomEventInit<GrogEvent<ExposedV
 
 window.addEventListener("console_message", (e: CustomEventInit<GrogEvent<ConsoleMessage>>) => {
     if (e.detail?.data) onConsoleMessage(e.detail.data);
+});
+
+window.addEventListener("output_guard", (e: CustomEventInit<GrogEvent<OutputGuardEvent>>) => {
+    if (e.detail?.data) onOutputGuard(e.detail.data);
 });
 
 const app = mount(App, {

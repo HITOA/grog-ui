@@ -87,6 +87,26 @@ export interface InputValueResult {
     tiered: boolean;
 }
 
+// The output guard: a breaker between the graph and the host, which mutes the
+// output and resets the graph when it blows up (NaN, Inf, or a peak above the
+// ceiling, +12 dBFS by default).
+export type OutputGuardState = "armed" | "holding" | "fadingIn" | "latched";
+
+export interface OutputGuardStatus {
+    enabled: boolean;
+    // The peak above which the output trips, linear (1 is full scale).
+    ceiling: number;
+    state: OutputGuardState;
+}
+
+// The host's `output_guard` event. `tripped`: muted for a moment, the graph
+// reset. `latched`: it blew up again right after, muted until re-armed.
+// `peak` is linear (1 is full scale), null when a sample wasn't a number.
+export interface OutputGuardEvent {
+    event: "tripped" | "latched" | "rearmed";
+    peak: number | null;
+}
+
 // One value of the host's `exposed_values` event, for the watch `watchId`.
 export interface ExposedValueUpdate {
     watchId: number;

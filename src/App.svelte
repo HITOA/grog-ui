@@ -12,6 +12,7 @@
     import Preferences from "./lib/components/Preferences.svelte";
     import Console from "./lib/components/Console.svelte";
     import ConsoleStatusBar from "./lib/components/ConsoleStatusBar.svelte";
+    import Notifications from "./lib/components/Notifications.svelte";
     import { subgraphDrag } from "./lib/drag.svelte";
 </script>
 
@@ -36,6 +37,7 @@
 <PluginConfig />
 <Preferences />
 <Console />
+<Notifications />
 
 {#if subgraphDrag.dragging}
     <div class="subgraph-drag-ghost" style="left: {subgraphDrag.x}px; top: {subgraphDrag.y}px;">

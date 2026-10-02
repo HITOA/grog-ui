@@ -22,6 +22,18 @@
         codeSharingOptions.find((option) => option.value === settings.codeSharing)?.label ?? settings.codeSharing,
     );
 
+    // Output guard ceilings offered, in dBFS. One set in the config by hand
+    // shows as is.
+    const ceilingOptions = [0, 3, 6, 12, 18, 24].map((db) => ({ value: db.toString(), label: formatDb(db) }));
+
+    function formatDb(db: number): string {
+        return `${db > 0 ? "+" : ""}${db} dBFS`;
+    }
+
+    function onCeilingChange(value: string): void {
+        settings.setOutputGuardCeilingDb(Number(value));
+    }
+
     type TabId = (typeof tabs)[number]["id"];
     let activeTab = $state<TabId>("general");
 
@@ -95,9 +107,7 @@
                     <div class="prefs-field prefs-field-row">
                         <div class="prefs-field-text">
                             <span class="prefs-field-label">Node widgets</span>
-                            <span class="prefs-field-hint">
-                                Show node controls as widgets such as knobs.
-                            </span>
+                            <span class="prefs-field-hint"> Show node controls as widgets such as knobs. </span>
                         </div>
                         <Switch.Root
                             class="prefs-switch"
@@ -135,6 +145,69 @@
                         >
                             <Switch.Thumb class="prefs-switch-thumb" />
                         </Switch.Root>
+                    </div>
+                    <div class="prefs-field prefs-field-row">
+                        <div class="prefs-field-text">
+                            <span class="prefs-field-label">Output guard</span>
+                            <span class="prefs-field-hint">
+                                Mute the output and reset the graph when it blows up.
+                            </span>
+                            <span class="prefs-field-danger" class:prefs-field-danger-active={!settings.outputGuard}>
+                                Disabling it is dangerous
+                            </span>
+                        </div>
+                        <Switch.Root
+                            class="prefs-switch"
+                            checked={settings.outputGuard}
+                            onCheckedChange={(v) => settings.setOutputGuard(v)}
+                        >
+                            <Switch.Thumb class="prefs-switch-thumb" />
+                        </Switch.Root>
+                    </div>
+                    <div class="prefs-field">
+                        <span class="prefs-field-label">Output guard ceiling</span>
+                        <span class="prefs-field-hint">
+                            The output guard trips on a peak above it. Raise it for a patch that runs hot on purpose.
+                        </span>
+                        <Select.Root
+                            type="single"
+                            value={settings.outputGuardCeilingDb.toString()}
+                            onValueChange={onCeilingChange}
+                            disabled={!settings.outputGuard}
+                        >
+                            <Select.Trigger class="prefs-select-trigger">
+                                <span>{formatDb(settings.outputGuardCeilingDb)}</span>
+                                <svg
+                                    class="prefs-select-chevron"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 640 640"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L502.7 310.6C515.2 298.1 515.2 277.8 502.7 265.3C490.2 252.8 469.9 252.8 457.4 265.3L320 402.7L182.6 265.4C170.1 252.9 149.8 252.9 137.3 265.4C124.8 277.9 124.8 298.2 137.3 310.7L297.3 470.7z"
+                                    />
+                                </svg>
+                            </Select.Trigger>
+                            <Select.Portal>
+                                <Select.Content
+                                    class="context-menu-frame prefs-select-content"
+                                    sideOffset={4}
+                                    style="z-index: 100; width: var(--bits-select-anchor-width);"
+                                >
+                                    <Select.Viewport>
+                                        {#each ceilingOptions as option (option.value)}
+                                            <Select.Item
+                                                class="context-menu-item prefs-select-item"
+                                                value={option.value}
+                                                label={option.label}
+                                            >
+                                                {option.label}
+                                            </Select.Item>
+                                        {/each}
+                                    </Select.Viewport>
+                                </Select.Content>
+                            </Select.Portal>
+                        </Select.Root>
                     </div>
                 {:else if activeTab === "optimization"}
                     <div class="prefs-field prefs-field-row">

@@ -14,6 +14,7 @@ import type {
     NodeInstance,
     NodeKey,
     NodeMove,
+    OutputGuardStatus,
     PresetMetadata,
 } from "./types";
 
@@ -260,4 +261,25 @@ export interface ExposedWatch {
 // `exposed_values` event, about 30 times a second.
 export function watchExposed(watches: ExposedWatch[]): Promise<void> {
     return callNative<void>("watch_exposed", { watches });
+}
+
+// The output guard (see `OutputGuardEvent`). Disabling it is saved in the
+// config (`core.outputGuard`).
+export function getOutputGuard(): Promise<OutputGuardStatus> {
+    return callNative<OutputGuardStatus>("get_output_guard", {});
+}
+
+export function setOutputGuard(enabled: boolean): Promise<boolean> {
+    return callNative<boolean>("set_output_guard", { enabled });
+}
+
+// Sets the peak above which the output trips, linear (1 is full scale); saved
+// in the config (`core.outputGuardCeiling`). Resolves with the ceiling applied.
+export function setOutputGuardCeiling(ceiling: number): Promise<number> {
+    return callNative<number>("set_output_guard_ceiling", { ceiling });
+}
+
+// Unmutes a latched guard: the output fades back in from a reset graph.
+export function rearmOutput(): Promise<void> {
+    return callNative<void>("rearm_output", {});
 }
