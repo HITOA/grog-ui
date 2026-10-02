@@ -45,6 +45,29 @@
         }) ?? [],
     );
 
+    // Knob rows are shorter than their knobs, so consecutive knobs alternate
+    // between a near and a far position to sit side by side instead of overlapping.
+    function knobStagger(isKnob: boolean[]): boolean[] {
+        const far: boolean[] = [];
+        isKnob.forEach((knob, i) => far.push(knob && i > 0 && isKnob[i - 1] && !far[i - 1]));
+        return far;
+    }
+
+    let inputsKnob: boolean[] = $derived(
+        data.instance.inputs?.map((input, index) => inputsControlPresence[index] && input.widget?.kind === "knob") ??
+            [],
+    );
+    let inputsKnobFar = $derived(knobStagger(inputsKnob));
+
+    let parametersKnob: boolean[] = $derived(
+        data.instance.parameters?.map(
+            (parameter) =>
+                (parameter.type.commonName == "Builtin_Numeric" || parameter.type.commonName == "Builtin_Control") &&
+                parameter.widget?.kind === "knob",
+        ) ?? [],
+    );
+    let parametersKnobFar = $derived(knobStagger(parametersKnob));
+
     let editableName: boolean = $state(false);
 
     let hasPorts = $derived(!!(data.instance.inputs?.length || data.instance.outputs?.length));
@@ -139,11 +162,21 @@
                             instance={input}
                         />
                         <span class="port-label">{input.displayName}</span>
-                        {#if inputsControlPresence[index]}
+                        {#if inputsKnob[index]}
+                            <div class="knob-cell" class:knob-cell-far={inputsKnobFar[index]}>
+                                <PortControl
+                                    identity={input.identity}
+                                    initializer={input.initializer}
+                                    widget={input.widget}
+                                    label={input.displayName}
+                                />
+                            </div>
+                        {:else if inputsControlPresence[index]}
                             <PortControl
                                 identity={input.identity}
                                 initializer={input.initializer}
                                 widget={input.widget}
+                                label={input.displayName}
                             />
                         {:else}
                             <div></div>
@@ -182,13 +215,23 @@
                 </button>
                 {#if !parametersCollapsed}
                     <div class="node-footer">
-                        {#each data.instance.parameters as parameter (parameter.identity)}
+                        {#each data.instance.parameters as parameter, index (parameter.identity)}
                             <span class="port-label">{parameter.displayName}</span>
-                            {#if parameter.type.commonName == "Builtin_Numeric" || parameter.type.commonName == "Builtin_Control"}
+                            {#if parametersKnob[index]}
+                                <div class="knob-cell" class:knob-cell-far={parametersKnobFar[index]}>
+                                    <PortControl
+                                        identity={parameter.identity}
+                                        initializer={parameter.initializer}
+                                        widget={parameter.widget}
+                                        label={parameter.displayName}
+                                    />
+                                </div>
+                            {:else if parameter.type.commonName == "Builtin_Numeric" || parameter.type.commonName == "Builtin_Control"}
                                 <PortControl
                                     identity={parameter.identity}
                                     initializer={parameter.initializer}
                                     widget={parameter.widget}
+                                    label={parameter.displayName}
                                 />
                             {/if}
                         {/each}

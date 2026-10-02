@@ -13,7 +13,10 @@
         max?: number;
         scale?: KnobScale;
         unit?: string;
+        // Names the knob for assistive tech and in its hover tooltip.
         label?: string;
+        // Also print `label` under the dial.
+        showLabel?: boolean;
         defaultValue?: number;
         // Digits after the decimal point in the readout. Picked from the
         // magnitude of the value when omitted.
@@ -32,6 +35,7 @@
         scale = "linear",
         unit = "",
         label,
+        showLabel = true,
         defaultValue,
         decimals,
         oninput,
@@ -270,6 +274,7 @@
                     role="slider"
                     tabindex="0"
                     aria-label={label}
+                    title={label}
                     aria-valuemin={min}
                     aria-valuemax={max}
                     aria-valuenow={value}
@@ -282,6 +287,9 @@
                     onkeydown={onKeyDown}
                     ondblclick={beginEdit}
                 >
+                    <!-- An unrotated cap under the SVG, for themes that give the
+                         knob a lit face and a body (they hide `.knob-body`). -->
+                    <div class="knob-cap"></div>
                     <svg viewBox="0 0 40 40" aria-hidden="true">
                         <path
                             class="knob-track"
@@ -321,7 +329,7 @@
                         />
                     </svg>
                 </div>
-                {#if label}
+                {#if label && showLabel}
                     <span class="knob-label">{label}</span>
                 {/if}
             </div>

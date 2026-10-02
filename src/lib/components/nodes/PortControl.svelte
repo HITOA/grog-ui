@@ -10,9 +10,11 @@
         identity: Identity;
         initializer?: Initializer;
         widget?: Widget;
+        // The port's name, shown when hovering a knob (the row already prints it).
+        label?: string;
     }
 
-    let { identity, initializer, widget }: Props = $props();
+    let { identity, initializer, widget, label }: Props = $props();
 
     function toNumber(value: Initializer | undefined): number {
         if (typeof value === "number") return value;
@@ -45,6 +47,8 @@
         max={widget.max}
         scale={widget.scale}
         unit={widget.unit}
+        {label}
+        showLabel={false}
         defaultValue={widget.defaultValue === undefined ? undefined : toNumber(widget.defaultValue)}
         onchange={onKnobChange}
     />

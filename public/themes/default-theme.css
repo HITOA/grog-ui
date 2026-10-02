@@ -155,9 +155,11 @@
     --knob-track: var(--wheel-slot); /* unlit part of the value ring */
     --knob-arc: #9c9da6; /* lit part of the value ring */
     --knob-arc-active: var(--color-text); /* lit ring while hovered / turning */
-    --knob-body: #24252a; /* cap, matches --grad-node-inputs */
-    --knob-body-border: var(--border-control);
+    --knob-cap: var(--wheel-grip); /* cap face, same solid surface as the wheel grips */
+    --knob-cap-border: var(--wheel-grip-border);
     --knob-pointer: var(--color-node-label);
+    --knob-row-height: 20px; /* knob rows are shorter than the knob; it overflows into its neighbours' */
+    --knob-stagger: 28px; /* sideways offset between a near and a far knob */
 }
 
 /* 2. BASE */
@@ -871,6 +873,25 @@ select {
     background: var(--grad-port-control) padding-box;
 }
 
+/* A knob cell is shorter than its knob, which overflows above and below.
+   Consecutive knobs alternate near and far (the far one shifted right by
+   `--knob-stagger`) so they interleave in two columns instead of overlapping. */
+.knob-cell {
+    display: flex;
+    align-items: center;
+    height: var(--knob-row-height);
+}
+
+.knob-cell-far .knob {
+    margin-left: var(--knob-stagger);
+}
+
+/* Room for the first and last knobs to overflow their rows. */
+.node-top:not(.node-ports-collapsed) .node-inputs:has(.knob-cell),
+.node-footer:has(.knob-cell) {
+    padding-block: calc((var(--knob-size) - var(--knob-row-height)) / 2 + 3px);
+}
+
 .knob {
     position: relative;
     display: inline-flex;
@@ -883,6 +904,7 @@ select {
 }
 
 .knob-dial {
+    position: relative;
     width: var(--knob-size);
     height: var(--knob-size);
     border-radius: 50%;
@@ -896,6 +918,7 @@ select {
 }
 
 .knob-dial svg {
+    position: relative;
     display: block;
     width: 100%;
     height: 100%;
@@ -919,9 +942,24 @@ select {
     stroke: var(--knob-arc-active);
 }
 
+/* The cap is styled like the piano keys and wheel grips: a flat face with a
+   top-lit sheen and a drop shadow onto the node. It doesn't rotate, so the
+   light stays put; only the SVG pointer above it turns. Sized
+   to the SVG body circle (r = 12 of the 40-unit viewBox), which it replaces. */
+.knob-cap {
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    border: 1px solid var(--knob-cap-border);
+    background-color: var(--knob-cap);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 2px 1px rgba(0, 0, 0, 0.45);
+}
+
 .knob-body {
-    fill: var(--knob-body);
-    stroke: var(--knob-body-border);
+    display: none;
 }
 
 .knob-pointer {
