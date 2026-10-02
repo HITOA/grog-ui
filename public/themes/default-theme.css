@@ -41,6 +41,7 @@
     --color-node-selected: orange; /* selected-node outline */
     --color-danger: #e5484d; /* error text (console) */
     --color-warning: #f5a623; /* warning text (console) */
+    --color-exposed-value: #9fd3b8; /* live values of exposed node variables */
 
     /* --- Surfaces (solid backgrounds) --- */
     --surface-menu: #202126; /* dropdowns, inputs, buttons */
@@ -862,6 +863,34 @@ select {
     color: var(--color-node-label);
     padding: 0 8px;
     white-space: nowrap;
+}
+
+/* The live value of an exposed variable ([Expose]): a fixed-width readout, so
+   that changing digits never resize the node. */
+.exposed-readout {
+    min-width: 6ch;
+    padding: 0 6px;
+    color: var(--color-exposed-value);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+    contain: content;
+}
+
+.node-ports-collapsed .exposed-readout {
+    display: none;
+}
+
+/* Exposed state, under the ports: name, live value, field for editable ones. */
+.node-exposed {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 5px 5px 0;
+    border-top: 1px solid var(--node-divider);
 }
 
 .port-control {

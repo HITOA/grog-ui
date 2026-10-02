@@ -13,7 +13,8 @@ import {
     updateGraphInstances,
 } from "./lib/actions";
 import type { GrogEvent } from "./lib/bridge";
-import type { ConsoleMessage, FeedbackEntry, GraphInstance } from "./lib/types";
+import type { ConsoleMessage, ExposedValueUpdate, FeedbackEntry, GraphInstance } from "./lib/types";
+import { onExposedValues } from "./lib/exposed";
 import { pluginHost } from "./lib/plugins/plugin-host.svelte";
 
 grogState.nodeDefinitionList = await API.getNodeDefinitionList();
@@ -38,6 +39,10 @@ window.addEventListener("update_graphs", (e: CustomEventInit<GrogEvent<GraphInst
 
 window.addEventListener("update_feedback_list", (e: CustomEventInit<GrogEvent<FeedbackEntry[]>>) => {
     if (e.detail?.data) onUpdateFeedbackList(e.detail.data);
+});
+
+window.addEventListener("exposed_values", (e: CustomEventInit<GrogEvent<ExposedValueUpdate[]>>) => {
+    if (e.detail?.data) onExposedValues(e.detail.data);
 });
 
 window.addEventListener("console_message", (e: CustomEventInit<GrogEvent<ConsoleMessage>>) => {

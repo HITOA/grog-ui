@@ -69,6 +69,36 @@ export enum PortState {
     Resolved = 2,
 }
 
+// A variable a node's UI may read (`[Expose]`) or also write (`[Expose(Write)]`):
+// its name in the node's VCL source. Pushed by grog's Serializer::SerializeExposure.
+export interface ExposedVariable {
+    name: string;
+    mode: "read" | "write";
+}
+
+// The live value of an exposed variable: a number (or boolean) when it has one
+// element, an array otherwise (a Vec, an array...).
+export type ExposedValue = number | boolean | (number | boolean)[];
+
+// One value of the host's `exposed_values` event, for the watch `watchId`.
+export interface ExposedValueUpdate {
+    watchId: number;
+    value: ExposedValue;
+}
+
+// What `get_exposed` says of a node's exposed variable in the last compile.
+export interface ExposedInfo {
+    name: string;
+    mode: "read" | "write";
+    type: string;
+    element: string;
+    count: number;
+    size: number;
+    location: "state" | "ui" | "constant";
+    writable: boolean;
+    connected: boolean;
+}
+
 export interface PortInstance {
     identity: Identity;
     displayName: string;
@@ -76,6 +106,7 @@ export interface PortInstance {
     state: PortState;
     initializer?: Initializer;
     widget?: Widget;
+    exposed?: ExposedVariable;
 }
 
 export interface ParameterInstance {
@@ -102,6 +133,8 @@ export interface NodeInstance {
     outputs?: PortInstance[];
     parameters?: ParameterInstance[];
     feedback?: string;
+    // The node's state variables its UI may read or write.
+    exposedState?: ExposedVariable[];
 }
 
 export interface Connection {

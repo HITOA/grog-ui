@@ -8,6 +8,7 @@ import type {
     Connection as GrogConnection,
     FeedbackEntry,
     Initializer,
+    ExposedValue,
 } from "./types";
 import type { GenericNodeType } from "./components/nodes/GenericNode";
 import * as API from "./api";
@@ -282,6 +283,13 @@ export function updateInitializer(initializerId: Identity, initializer: Initiali
         afterGraphUpdate();
         return result;
     });
+}
+
+// Writes an `[Expose(Write)]` variable of a node now, without a recompile; on an
+// input, the host also keeps the value as its initializer. Rejected when the
+// host can't (graph not compiled yet, input connected...).
+export function setExposedValue(identity: Identity, name: string, value: ExposedValue): Promise<void> {
+    return API.setExposedValue(grogState.currentFlowIndex, identity, name, value);
 }
 
 export function updateNodesPosition(nodes: Node[]): void {

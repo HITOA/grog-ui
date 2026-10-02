@@ -3,6 +3,8 @@ import { callNative } from "./bridge";
 import type {
     ConsoleMessage,
     Connection,
+    ExposedInfo,
+    ExposedValue,
     ConnectionCreationData,
     GraphInstance,
     Identity,
@@ -210,4 +212,34 @@ export function setConfigKey(key: string, value: unknown): Promise<boolean> {
 // New messages arrive incrementally via the `console_message` event.
 export function getConsoleMessages(): Promise<ConsoleMessage[]> {
     return callNative<ConsoleMessage[]>("get_console_messages", {});
+}
+
+// UI access to the variables a node exposes (`[Expose]`, `[Expose(Write)]`).
+// Only nodes of the root graph (graphId 0) have them: a node of a subgraph has
+// one copy per use. See grog's docs/state-as-data.md §6.6.
+
+// The node's exposed variables, as the last compile laid them out.
+export function getExposed(graphId: number, identity: Identity): Promise<ExposedInfo[]> {
+    return callNative<ExposedInfo[]>("get_exposed", { graphId, identity });
+}
+
+// Writes an exposed variable now, without a recompile. `value` is a number for
+// every element, or one number per element. Rejected when the variable isn't
+// writable (read-only, an output, a connected input) or the graph isn't compiled.
+// On an input, the host also keeps the value as its initializer.
+export function setExposedValue(graphId: number, identity: Identity, name: string, value: ExposedValue): Promise<void> {
+    return callNative<void>("set_exposed_value", { graphId, identity, name, value });
+}
+
+export interface ExposedWatch {
+    watchId: number;
+    graphId: number;
+    identity: Identity;
+    name: string;
+}
+
+// Replaces the list of watched variables. Their values then arrive through the
+// `exposed_values` event, about 30 times a second.
+export function watchExposed(watches: ExposedWatch[]): Promise<void> {
+    return callNative<void>("watch_exposed", { watches });
 }

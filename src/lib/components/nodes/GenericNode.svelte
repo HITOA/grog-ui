@@ -10,12 +10,13 @@
     import type { GenericNodeType } from "./GenericNode";
     import PortHandle from "./PortHandle.svelte";
     import PortControl from "./PortControl.svelte";
-    import { NodeInstanceFlag, PortState, type Widget } from "../../types";
+    import ExposedReadout from "./ExposedReadout.svelte";
+    import { NodeInstanceFlag, PortState, type ExposedVariable, type Widget } from "../../types";
     import { grogState } from "../../state.svelte";
     import { settings } from "../../settings.svelte";
     import { ContextMenu, Select } from "bits-ui";
     import EditableLabel from "../EditableLabel.svelte";
-    import { updateFeedback, updateNodeName } from "../../actions";
+    import { setExposedValue, updateFeedback, updateNodeName } from "../../actions";
     import { assertIsGenericNode } from "../../assertions";
 
     let { id, data }: NodeProps<GenericNodeType> = $props();
@@ -73,6 +74,26 @@
         ) ?? [],
     );
     let parametersKnobFar = $derived(knobStagger(parametersKnob));
+
+    // Exposed variables (`[Expose]`) live in the compiled root graph only: a node
+    // of a subgraph has one copy per use.
+    let exposedGraphId = $derived(grogState.currentFlowIndex);
+    let showExposed = $derived(exposedGraphId === 0);
+    let hasExposedState = $derived(showExposed && !!data.instance.exposedState?.length);
+
+    // What an `[Expose(Write)]` input's control writes to, live.
+    function writableExposure(exposed: ExposedVariable | undefined): { node: number; name: string } | undefined {
+        if (!showExposed || exposed?.mode !== "write") return undefined;
+        return { node: data.instance.identity, name: exposed.name };
+    }
+
+    // Editable state: written to the running graph, never saved (only inputs are).
+    function onExposedStateChange(name: string, event: Event & { currentTarget: HTMLInputElement }) {
+        const input = event.currentTarget;
+        setExposedValue(data.instance.identity, name, parseFloat(input.value))
+            .then(() => (input.value = ""))
+            .catch((err: Error) => console.error(`failed to write ${name}:`, err.message));
+    }
 
     let editableName: boolean = $state(false);
 
@@ -181,6 +202,7 @@
                                     initializer={input.initializer}
                                     widget={widgetOf(input)}
                                     label={input.displayName}
+                                    exposed={writableExposure(input.exposed)}
                                 />
                             </div>
                         {:else if inputsControlPresence[index]}
@@ -189,6 +211,14 @@
                                 initializer={input.initializer}
                                 widget={widgetOf(input)}
                                 label={input.displayName}
+                                exposed={writableExposure(input.exposed)}
+                            />
+                        {:else if showExposed && input.exposed}
+                            <!-- Connected: what the node reads from its source. -->
+                            <ExposedReadout
+                                graphId={exposedGraphId}
+                                identity={data.instance.identity}
+                                name={input.exposed.name}
                             />
                         {:else}
                             <div></div>
@@ -198,6 +228,13 @@
                 <div class="node-outputs">
                     {#each data.instance.outputs as output (output.identity)}
                         <div class="node-row">
+                            {#if showExposed && output.exposed}
+                                <ExposedReadout
+                                    graphId={exposedGraphId}
+                                    identity={data.instance.identity}
+                                    name={output.exposed.name}
+                                />
+                            {/if}
                             <span class="port-label">{output.displayName}</span>
                             <PortHandle
                                 type="source"
@@ -210,6 +247,25 @@
                 </div>
             </div>
         </div>
+        {#if hasExposedState}
+            <!-- The state the node's VCL source exposes: live values, and a field for the editable ones. -->
+            <div class="node-exposed">
+                {#each data.instance.exposedState ?? [] as variable (variable.name)}
+                    <span class="port-label">{variable.name}</span>
+                    <ExposedReadout graphId={exposedGraphId} identity={data.instance.identity} name={variable.name} />
+                    {#if variable.mode === "write"}
+                        <input
+                            type="number"
+                            class="port-control nodrag"
+                            placeholder="set"
+                            onchange={(event) => onExposedStateChange(variable.name, event)}
+                        />
+                    {:else}
+                        <div></div>
+                    {/if}
+                {/each}
+            </div>
+        {/if}
         {#if hasParameters}
             <div class="node-parameters-section" class:node-parameters-collapsed={parametersCollapsed}>
                 <button
