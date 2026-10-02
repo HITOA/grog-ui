@@ -1,10 +1,12 @@
 <script lang="ts">
+    import { ContextMenu } from "bits-ui";
     import type { KnobScale } from "../types";
 
     // A rotary knob for numeric node parameters. Drag vertically (hold Shift for
-    // fine control), scroll, or use the arrow keys to turn it; double-click resets
-    // it to `defaultValue`. Internally the knob works on a normalized 0..1
-    // position and maps that onto [min, max] through `scale`.
+    // fine control), scroll, or use the arrow keys to turn it; double-click to
+    // type a value in. Its context menu also offers a reset to `defaultValue`.
+    // Internally the knob works on a normalized 0..1 position and maps that
+    // onto [min, max] through `scale`.
     interface Props {
         value?: number;
         min?: number;
@@ -64,10 +66,14 @@
     let position = $derived(toNormalized(value));
     let angle = $derived(START_ANGLE + position * SWEEP);
 
-    function formatValue(v: number): string {
+    function formatNumber(v: number): string {
         const abs = Math.abs(v);
         const digits = decimals ?? (abs >= 100 ? 0 : abs >= 10 ? 1 : 2);
-        const text = v.toFixed(digits);
+        return v.toFixed(digits);
+    }
+
+    function formatValue(v: number): string {
+        const text = formatNumber(v);
         return unit ? `${text} ${unit}` : text;
     }
 
@@ -172,69 +178,169 @@
         if (value !== before) commit();
     }
 
-    function onDoubleClick() {
+    let dial: HTMLElement | undefined = $state();
+
+    function reset() {
         if (defaultValue === undefined || defaultValue === value) return;
         value = defaultValue;
         oninput?.(value);
         commit();
     }
+
+    // Typed entry: the field opens on the displayed value, and closes on Enter
+    // or blur (applying what was typed) or on Escape (discarding it).
+    let editing = $state(false);
+    let editText = $state("");
+    let editInitialText = "";
+
+    function beginEdit() {
+        editInitialText = formatNumber(value);
+        editText = editInitialText;
+        editing = true;
+    }
+
+    function endEdit(apply: boolean, refocus: boolean) {
+        if (!editing) return;
+        editing = false;
+        // Untouched text would round the value to the displayed precision.
+        if (apply && editText !== editInitialText) {
+            // parseFloat ignores a trailing unit ("440 Hz").
+            const typed = parseFloat(editText);
+            if (Number.isFinite(typed)) {
+                const next = Math.max(Math.min(min, max), Math.min(Math.max(min, max), typed));
+                if (next !== value) {
+                    value = next;
+                    oninput?.(next);
+                    commit();
+                }
+            }
+        }
+        if (refocus) dial?.focus();
+    }
+
+    function onEditKeyDown(ev: KeyboardEvent) {
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            endEdit(true, true);
+        } else if (ev.key === "Escape") {
+            ev.preventDefault();
+            endEdit(false, true);
+        }
+    }
+
+    // Deferred a frame so a closing context menu can't take the focus back
+    // (which would blur, and so close, the field right away).
+    function focusEditor(input: HTMLInputElement) {
+        const frame = requestAnimationFrame(() => {
+            input.focus();
+            input.select();
+        });
+        return () => cancelAnimationFrame(frame);
+    }
 </script>
 
 <!-- `nodrag` / `nowheel` stop SvelteFlow from panning or zooming the canvas while
      the knob is being turned. The SVG presentation attributes are a fallback so
-     the knob stays visible under themes that don't style it yet. -->
-<div class="knob nodrag nowheel">
-    {#if label}
-        <span class="knob-label">{label}</span>
-    {/if}
-    <div
-        class="knob-dial"
-        class:knob-dial-active={dragging}
-        role="slider"
-        tabindex="0"
-        aria-label={label}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={value}
-        aria-valuetext={display}
-        onpointerdown={onPointerDown}
-        onpointermove={onPointerMove}
-        onpointerup={onPointerUp}
-        onpointercancel={onPointerUp}
-        onwheel={onWheel}
-        onkeydown={onKeyDown}
-        ondblclick={onDoubleClick}
-    >
-        <svg viewBox="0 0 40 40" aria-hidden="true">
-            <path
-                class="knob-track"
-                d={arcPath(START_ANGLE, START_ANGLE + SWEEP, 17)}
-                fill="none"
-                stroke="currentColor"
-                stroke-opacity="0.25"
-                stroke-width="3"
-            />
-            {#if position > 0}
-                <path
-                    class="knob-arc"
-                    d={arcPath(START_ANGLE, angle, 17)}
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                />
-            {/if}
-            <circle class="knob-body" cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="1" />
-            <line
-                class="knob-pointer"
-                x1="20"
-                y1="10"
-                x2="20"
-                y2="15"
-                stroke="currentColor"
-                stroke-width="2"
-                transform="rotate({angle} 20 20)"
-            />
-        </svg>
-    </div>
-    <span class="knob-readout">{display}</span>
-</div>
+     the knob stays visible under themes that don't style it yet. The value
+     readout only exists while dragging, the entry field while editing; the
+     theme floats both over the dial. The knob's context menu takes precedence
+     over the node's: its trigger marks the event handled. -->
+<ContextMenu.Root>
+    <ContextMenu.Trigger>
+        {#snippet child({ props })}
+            <div {...props} class="knob nodrag nowheel">
+                {#if editing}
+                    <input
+                        class="knob-input"
+                        type="text"
+                        inputmode="decimal"
+                        aria-label={label ? `${label} value` : "Value"}
+                        bind:value={editText}
+                        onkeydown={onEditKeyDown}
+                        onblur={() => endEdit(true, false)}
+                        {@attach focusEditor}
+                    />
+                {:else if dragging}
+                    <span class="knob-readout">{display}</span>
+                {/if}
+                <div
+                    bind:this={dial}
+                    class="knob-dial"
+                    class:knob-dial-active={dragging}
+                    role="slider"
+                    tabindex="0"
+                    aria-label={label}
+                    aria-valuemin={min}
+                    aria-valuemax={max}
+                    aria-valuenow={value}
+                    aria-valuetext={display}
+                    onpointerdown={onPointerDown}
+                    onpointermove={onPointerMove}
+                    onpointerup={onPointerUp}
+                    onpointercancel={onPointerUp}
+                    onwheel={onWheel}
+                    onkeydown={onKeyDown}
+                    ondblclick={beginEdit}
+                >
+                    <svg viewBox="0 0 40 40" aria-hidden="true">
+                        <path
+                            class="knob-track"
+                            d={arcPath(START_ANGLE, START_ANGLE + SWEEP, 17)}
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-opacity="0.25"
+                            stroke-width="3"
+                        />
+                        {#if position > 0}
+                            <path
+                                class="knob-arc"
+                                d={arcPath(START_ANGLE, angle, 17)}
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3"
+                            />
+                        {/if}
+                        <circle
+                            class="knob-body"
+                            cx="20"
+                            cy="20"
+                            r="12"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1"
+                        />
+                        <line
+                            class="knob-pointer"
+                            x1="20"
+                            y1="10"
+                            x2="20"
+                            y2="15"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            transform="rotate({angle} 20 20)"
+                        />
+                    </svg>
+                </div>
+                {#if label}
+                    <span class="knob-label">{label}</span>
+                {/if}
+            </div>
+        {/snippet}
+    </ContextMenu.Trigger>
+    <ContextMenu.Portal>
+        <ContextMenu.Content
+            class="context-menu-frame"
+            style="z-index: 2;"
+            onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+            <ContextMenu.Item class="context-menu-item" onSelect={beginEdit}>Edit</ContextMenu.Item>
+            <ContextMenu.Item
+                class="context-menu-item"
+                disabled={defaultValue === undefined || defaultValue === value}
+                onSelect={reset}
+            >
+                Reset
+            </ContextMenu.Item>
+        </ContextMenu.Content>
+    </ContextMenu.Portal>
+</ContextMenu.Root>
