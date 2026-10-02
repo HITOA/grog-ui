@@ -25,6 +25,12 @@ const EXPOSED_RATE_KEY = "core.exposedRate";
 const METER_RATE_KEY = "core.meterRate";
 export const DEFAULT_UPDATE_RATE = 15;
 
+// How long the audio thread ramps a knob's input to each value sent, in seconds
+// (0 is off): moved fast, it would otherwise step and crackle. Read by the
+// audio thread, which takes it in 0..1.
+const INPUT_SMOOTHING_KEY = "core.inputSmoothing";
+export const DEFAULT_INPUT_SMOOTHING_MS = 30;
+
 // The output guard's default ceiling, +12 dBFS (linear 4).
 export const DEFAULT_OUTPUT_GUARD_CEILING_DB = 12;
 
@@ -56,6 +62,8 @@ class SettingsManager {
     // Updates per second of the exposed values' readouts, and of the meter.
     exposedRate: number = $state(DEFAULT_UPDATE_RATE);
     meterRate: number = $state(DEFAULT_UPDATE_RATE);
+    // How long a knob's input glides to each value, in milliseconds.
+    inputSmoothingMs: number = $state(DEFAULT_INPUT_SMOOTHING_MS);
 
     /** Restore saved preferences from the native config tree. */
     async init(): Promise<void> {
@@ -69,6 +77,7 @@ class SettingsManager {
             useVariantCache,
             exposedRate,
             meterRate,
+            inputSmoothing,
         ] = await Promise.all([
             loadKey<boolean>(SHOW_LOG_BAR_KEY),
             loadKey<boolean>(LIVE_RECOMPILE_KEY),
@@ -79,6 +88,7 @@ class SettingsManager {
             loadKey<boolean>(USE_VARIANT_CACHE_KEY),
             loadKey<number>(EXPOSED_RATE_KEY),
             loadKey<number>(METER_RATE_KEY),
+            loadKey<number>(INPUT_SMOOTHING_KEY),
         ]);
         this.showLogBar = showLogBar ?? DEFAULT_SHOW_LOG_BAR;
         this.liveRecompile = liveRecompile ?? DEFAULT_LIVE_RECOMPILE;
@@ -89,6 +99,8 @@ class SettingsManager {
         this.useVariantCache = useVariantCache ?? DEFAULT_USE_VARIANT_CACHE;
         this.exposedRate = exposedRate ?? DEFAULT_UPDATE_RATE;
         this.meterRate = meterRate ?? DEFAULT_UPDATE_RATE;
+        this.inputSmoothingMs =
+            inputSmoothing === null ? DEFAULT_INPUT_SMOOTHING_MS : Math.round(inputSmoothing * 1000);
     }
 
     /** Toggle the console status strip and persist the choice. */
@@ -157,6 +169,12 @@ class SettingsManager {
     setMeterRate(value: number): void {
         this.meterRate = value;
         persistKey(METER_RATE_KEY, value);
+    }
+
+    /** Set how long a knob's input glides to each value, in milliseconds, and persist the choice. */
+    setInputSmoothingMs(value: number): void {
+        this.inputSmoothingMs = value;
+        persistKey(INPUT_SMOOTHING_KEY, value / 1000);
     }
 
     /** Toggle the compiled-variant cache and persist the choice. */
