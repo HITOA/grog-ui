@@ -15,14 +15,31 @@ export interface VarDefinition {
     name: string;
 }
 
+// How the node draws the control of an input or parameter, from a UI attribute
+// on its VCL declaration (`[Knob(min, max, "unit", Log)]`). Pushed by grog's
+// Serializer::SerializeWidget; absent means the default number box.
+export interface KnobWidget {
+    kind: "knob";
+    min: number;
+    max: number;
+    unit?: string;
+    scale: KnobScale;
+    // The declaration's initializer, which a double-click resets to.
+    defaultValue?: number | boolean;
+}
+
+export type Widget = KnobWidget;
+
 export interface PortDefinition {
     varDef: VarDefinition;
     displayName: string;
+    widget?: Widget;
 }
 
 export interface ParameterDefinition {
     varDef: VarDefinition;
     displayName: string;
+    widget?: Widget;
 }
 
 export enum NodeDefinitionFlag {
@@ -58,6 +75,7 @@ export interface PortInstance {
     type: Type;
     state: PortState;
     initializer?: Initializer;
+    widget?: Widget;
 }
 
 export interface ParameterInstance {
@@ -65,6 +83,7 @@ export interface ParameterInstance {
     displayName: string;
     type: Type;
     initializer?: Initializer;
+    widget?: Widget;
 }
 
 export enum NodeInstanceFlag {

@@ -784,6 +784,7 @@ select {
 
 .node-ports-collapsed .port-label,
 .node-ports-collapsed .port-control,
+.node-ports-collapsed .knob,
 .node-ports-collapsed .node-inputs > div:not(.port-handle) {
     display: none;
 }
