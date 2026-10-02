@@ -107,7 +107,7 @@
                     <div class="prefs-field prefs-field-row">
                         <div class="prefs-field-text">
                             <span class="prefs-field-label">Node widgets</span>
-                            <span class="prefs-field-hint"> Show node controls as widgets such as knobs. </span>
+                            <span class="prefs-field-hint">Display node's widgets. </span>
                         </div>
                         <Switch.Root
                             class="prefs-switch"
@@ -167,7 +167,7 @@
                     <div class="prefs-field">
                         <span class="prefs-field-label">Output guard ceiling</span>
                         <span class="prefs-field-hint">
-                            The output guard trips on a peak above it. Raise it for a patch that runs hot on purpose.
+                            The output guard threshold.
                         </span>
                         <Select.Root
                             type="single"
