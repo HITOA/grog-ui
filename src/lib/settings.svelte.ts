@@ -6,6 +6,8 @@ const SHOW_LOG_BAR_KEY = "Preferences.showLogBar";
 const DEFAULT_SHOW_LOG_BAR = false;
 const LIVE_RECOMPILE_KEY = "Preferences.liveRecompile";
 const DEFAULT_LIVE_RECOMPILE = true;
+const NODE_WIDGETS_KEY = "Preferences.nodeWidgets";
+const DEFAULT_NODE_WIDGETS = true;
 
 // Graph compilation / optimization options, read by the native compiler.
 const OPTIMIZATION_ENABLED_KEY = "Compilation.optimizationEnabled";
@@ -26,6 +28,9 @@ class SettingsManager {
     showLogBar: boolean = $state(DEFAULT_SHOW_LOG_BAR);
     // Whether the graph is recompiled automatically after every modification.
     liveRecompile: boolean = $state(DEFAULT_LIVE_RECOMPILE);
+    // Whether node controls use the widget their VCL declaration asks for
+    // (e.g. a knob), or always fall back to a plain number box.
+    nodeWidgets: boolean = $state(DEFAULT_NODE_WIDGETS);
 
     // Optimization options forwarded to the graph compiler.
     optimizationEnabled: boolean = $state(DEFAULT_OPTIMIZATION_ENABLED);
@@ -35,17 +40,26 @@ class SettingsManager {
 
     /** Restore saved preferences from the native config tree. */
     async init(): Promise<void> {
-        const [showLogBar, liveRecompile, optimizationEnabled, codeSharing, inlinedNodes, useVariantCache] =
-            await Promise.all([
-                loadKey<boolean>(SHOW_LOG_BAR_KEY),
-                loadKey<boolean>(LIVE_RECOMPILE_KEY),
-                loadKey<boolean>(OPTIMIZATION_ENABLED_KEY),
-                loadKey<string>(CODE_SHARING_KEY),
-                loadKey<boolean>(INLINED_NODES_KEY),
-                loadKey<boolean>(USE_VARIANT_CACHE_KEY),
-            ]);
+        const [
+            showLogBar,
+            liveRecompile,
+            nodeWidgets,
+            optimizationEnabled,
+            codeSharing,
+            inlinedNodes,
+            useVariantCache,
+        ] = await Promise.all([
+            loadKey<boolean>(SHOW_LOG_BAR_KEY),
+            loadKey<boolean>(LIVE_RECOMPILE_KEY),
+            loadKey<boolean>(NODE_WIDGETS_KEY),
+            loadKey<boolean>(OPTIMIZATION_ENABLED_KEY),
+            loadKey<string>(CODE_SHARING_KEY),
+            loadKey<boolean>(INLINED_NODES_KEY),
+            loadKey<boolean>(USE_VARIANT_CACHE_KEY),
+        ]);
         this.showLogBar = showLogBar ?? DEFAULT_SHOW_LOG_BAR;
         this.liveRecompile = liveRecompile ?? DEFAULT_LIVE_RECOMPILE;
+        this.nodeWidgets = nodeWidgets ?? DEFAULT_NODE_WIDGETS;
         this.optimizationEnabled = optimizationEnabled ?? DEFAULT_OPTIMIZATION_ENABLED;
         this.codeSharing = isCodeSharing(codeSharing) ? codeSharing : DEFAULT_CODE_SHARING;
         this.inlinedNodes = inlinedNodes ?? DEFAULT_INLINED_NODES;
@@ -62,6 +76,12 @@ class SettingsManager {
     setLiveRecompile(value: boolean): void {
         this.liveRecompile = value;
         persistKey(LIVE_RECOMPILE_KEY, value);
+    }
+
+    /** Toggle node widgets (knobs, ...) versus plain number boxes and persist the choice. */
+    setNodeWidgets(value: boolean): void {
+        this.nodeWidgets = value;
+        persistKey(NODE_WIDGETS_KEY, value);
     }
 
     /** Enable or disable graph optimizations and persist the choice. */

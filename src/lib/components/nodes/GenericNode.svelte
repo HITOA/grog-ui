@@ -10,8 +10,9 @@
     import type { GenericNodeType } from "./GenericNode";
     import PortHandle from "./PortHandle.svelte";
     import PortControl from "./PortControl.svelte";
-    import { NodeInstanceFlag, PortState } from "../../types";
+    import { NodeInstanceFlag, PortState, type Widget } from "../../types";
     import { grogState } from "../../state.svelte";
+    import { settings } from "../../settings.svelte";
     import { ContextMenu, Select } from "bits-ui";
     import EditableLabel from "../EditableLabel.svelte";
     import { updateFeedback, updateNodeName } from "../../actions";
@@ -45,6 +46,11 @@
         }) ?? [],
     );
 
+    // The widget a port's control uses: none (a number box) when node widgets are turned off.
+    function widgetOf(port: { widget?: Widget }): Widget | undefined {
+        return settings.nodeWidgets ? port.widget : undefined;
+    }
+
     // Knob rows are shorter than their knobs, so consecutive knobs alternate
     // between a near and a far position to sit side by side instead of overlapping.
     function knobStagger(isKnob: boolean[]): boolean[] {
@@ -54,7 +60,7 @@
     }
 
     let inputsKnob: boolean[] = $derived(
-        data.instance.inputs?.map((input, index) => inputsControlPresence[index] && input.widget?.kind === "knob") ??
+        data.instance.inputs?.map((input, index) => inputsControlPresence[index] && widgetOf(input)?.kind === "knob") ??
             [],
     );
     let inputsKnobFar = $derived(knobStagger(inputsKnob));
@@ -63,7 +69,7 @@
         data.instance.parameters?.map(
             (parameter) =>
                 (parameter.type.commonName == "Builtin_Numeric" || parameter.type.commonName == "Builtin_Control") &&
-                parameter.widget?.kind === "knob",
+                widgetOf(parameter)?.kind === "knob",
         ) ?? [],
     );
     let parametersKnobFar = $derived(knobStagger(parametersKnob));
@@ -85,6 +91,12 @@
         await tick();
         updateNodeInternals(id);
     }
+
+    // Swapping knobs for number boxes changes row heights, which moves the handles.
+    $effect(() => {
+        void settings.nodeWidgets;
+        tick().then(() => updateNodeInternals(id));
+    });
 
     function getFeedbackValue(): string {
         return data.instance.feedback ?? "";
@@ -167,7 +179,7 @@
                                 <PortControl
                                     identity={input.identity}
                                     initializer={input.initializer}
-                                    widget={input.widget}
+                                    widget={widgetOf(input)}
                                     label={input.displayName}
                                 />
                             </div>
@@ -175,7 +187,7 @@
                             <PortControl
                                 identity={input.identity}
                                 initializer={input.initializer}
-                                widget={input.widget}
+                                widget={widgetOf(input)}
                                 label={input.displayName}
                             />
                         {:else}
@@ -222,7 +234,7 @@
                                     <PortControl
                                         identity={parameter.identity}
                                         initializer={parameter.initializer}
-                                        widget={parameter.widget}
+                                        widget={widgetOf(parameter)}
                                         label={parameter.displayName}
                                     />
                                 </div>
@@ -230,7 +242,7 @@
                                 <PortControl
                                     identity={parameter.identity}
                                     initializer={parameter.initializer}
-                                    widget={parameter.widget}
+                                    widget={widgetOf(parameter)}
                                     label={parameter.displayName}
                                 />
                             {/if}

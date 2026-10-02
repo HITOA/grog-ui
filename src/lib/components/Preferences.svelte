@@ -6,11 +6,10 @@
     import FloatingWindow from "./FloatingWindow.svelte";
     import { CodeSharing } from "../types";
 
-    // Vertical tab sections. Mostly empty for now — the theme picker lives under
-    // "Appearance"; "General" is a placeholder for future settings.
+    // Vertical tab sections.
     const tabs = [
-        { id: "appearance", label: "Appearance" },
         { id: "general", label: "General" },
+        { id: "appearance", label: "Appearance" },
         { id: "optimization", label: "Optimization" },
     ] as const;
 
@@ -24,7 +23,7 @@
     );
 
     type TabId = (typeof tabs)[number]["id"];
-    let activeTab = $state<TabId>("appearance");
+    let activeTab = $state<TabId>("general");
 
     function onClose(): void {
         grogState.preferencesOpen = false;
@@ -92,6 +91,21 @@
                         {#if themeManager.themes.length === 0}
                             <span class="prefs-field-hint">No themes found in the themes folder.</span>
                         {/if}
+                    </div>
+                    <div class="prefs-field prefs-field-row">
+                        <div class="prefs-field-text">
+                            <span class="prefs-field-label">Node widgets</span>
+                            <span class="prefs-field-hint">
+                                Show node controls as widgets such as knobs.
+                            </span>
+                        </div>
+                        <Switch.Root
+                            class="prefs-switch"
+                            checked={settings.nodeWidgets}
+                            onCheckedChange={(v) => settings.setNodeWidgets(v)}
+                        >
+                            <Switch.Thumb class="prefs-switch-thumb" />
+                        </Switch.Root>
                     </div>
                 {:else if activeTab === "general"}
                     <div class="prefs-field prefs-field-row">
